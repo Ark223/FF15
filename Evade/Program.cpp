@@ -60,7 +60,7 @@ namespace Evade
         return m_instance;
     }
 
-    // Event Wrappers
+    // Event wrappers
 
     void Program::OnTickWrapper()
     {
@@ -136,17 +136,24 @@ namespace Evade
         auto allies = ally_units.Select<std::string>([&](const auto& u) { return N(u); });
         auto enemies = enemy_units.Select<std::string>([&](const auto& u) { return N(u); });
 
-        bool sylas = enemies.Any([](const std::string& s) { return s == "Sylas"; });
-        bool viego = enemies.Any([](const std::string& s) { return s == "Viego"; });
-        auto units = ((sylas || viego) ? allies.Concat(enemies) : enemies).Distinct();
-        units = units.OrderBy<std::string>([](const auto& s) { return s; });
+        bool sylas = enemies.Any([](const auto& n) { return n == "Sylas"; });
+        bool viego = enemies.Any([](const auto& n) { return n == "Viego"; });
+        auto units = ((sylas || viego) ? allies.Concat(enemies) : enemies);
+        units = units.OrderBy<std::string>([](const auto& n) { return n; });
 
         // Dodgeable Spells
         this->config->AddLabel(main, "DodgeableSpells", "Dodgeable Spells", true);
-
-        for (const auto& unit : units)
+        
+        auto skillshots = Data::Get()->GetSkillshots();
+        for (const auto& unit : units.Distinct())
         {
-
+            for (const auto& [name, data] : skillshots)
+            {
+                if (data.ChampionName == unit)
+                {
+                    
+                }
+            }
         }
     }
 

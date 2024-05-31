@@ -163,16 +163,19 @@ namespace Evade
             SkillshotTable skillshots;
             Linq<EvadingSpellData> evaders;
             Linq<ShieldSpellData> shields;
-            Miscellaneous anti_recalcs, dashes, queue, stoppers;
+            Miscellaneous anti_recalcs;
+            Miscellaneous connectors;
+            Miscellaneous custom_dashes;
+            Miscellaneous stoppers;
 
             Data();
             void InitSkillshots();
             void InitEvadingSpells();
             void InitShieldSpells();
-            void InitDashingSpells();
             void InitAntiRecalcs();
+            void InitConnectors();
+            void InitCustomDashes();
             void InitStoppers();
-            void InitSpellQueue();
 
         public:
             static void Destroy();
@@ -182,9 +185,9 @@ namespace Evade
             Linq<EvadingSpellData> GetEvadingSpells() const;
             Linq<ShieldSpellData> GetShieldSpells() const;
             Miscellaneous GetAntiRecalcs() const;
-            Miscellaneous GetDashingSpells() const;
+            Miscellaneous GetConnectors() const;
+            Miscellaneous GetCustomDashes() const;
             Miscellaneous GetStoppers() const;
-            Miscellaneous GetSpellQueue() const;
     };
 }
 

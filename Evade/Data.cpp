@@ -11,8 +11,8 @@ namespace Evade
         this->InitEvadingSpells();
         this->InitShieldSpells();
         this->InitAntiRecalcs();
-        this->InitDashingSpells();
-        this->InitSpellQueue();
+        this->InitConnectors();
+        this->InitCustomDashes();
         this->InitStoppers();
     }
 
@@ -78,16 +78,6 @@ namespace Evade
         });
     }
 
-    void Data::InitDashingSpells()
-    {
-        this->dashes =
-        {
-            {"Hecarim", {"HecarimRDash", "hecarimultsound"}},
-            {"Vi", {"ViQDash", "ViQDash"}},
-            {"Zac", {"ZacEDash", "zacemove"}}
-        };
-    }
-
     void Data::InitAntiRecalcs()
     {
         this->anti_recalcs =
@@ -112,6 +102,48 @@ namespace Evade
             {"SyndraESphereMissile", {"SyndraE"}},
             {"VexQAccelerated", {"VexQ"}},
             {"ZoeEc", {"ZoeE"}}
+        };
+    }
+
+    void Data::InitConnectors()
+    {
+        this->connectors =
+        {
+            {"EkkoQ", {"EkkoQ2", ConnectionType::EXTEND_LENGTH}},
+            {"FlashFrost", {"AniviaQCenter", ConnectionType::EXTEND_LENGTH}},
+            {"GravesQLineMis", {"GravesQDetonation", ConnectionType::EXTEND_LENGTH}},
+            {"GravesChargeShot", {"GravesRExplosion", ConnectionType::EXTEND_LENGTH}},
+            {"HweiQQ", {"HweiQQExplosion", ConnectionType::EXTEND_LENGTH}},
+            {"KarmaQMissileMantra", {"KarmaQExplosion", ConnectionType::EXTEND_LENGTH}},
+            {"LeonaSolarFlare", {"LeonaREpicenter", ConnectionType::FOLLOW_ORIGIN}},
+            {"MalzaharQ", {"MalzaharQSecond", ConnectionType::FOLLOW_ORIGIN}},
+            {"MordekaiserQ", {"MordekaiserQ2", ConnectionType::FOLLOW_ORIGIN}},
+            {"NaafiriE", {"NaafiriEFlurry", ConnectionType::FOLLOW_ORIGIN}},
+            {"OrianaIzuna", {"OrianaIzunaCenter", ConnectionType::FOLLOW_ORIGIN}},
+            {"OrnnQ", {"OrnnQPillar", ConnectionType::EXTEND_LENGTH}},
+            {"QiyanaQ_Grass", {"QiyanaQExplosion", ConnectionType::FOLLOW_ORIGIN}},
+            {"QiyanaQ_Water", {"QiyanaQExplosion", ConnectionType::FOLLOW_ORIGIN}},
+            {"QiyanaQ_Rock", {"QiyanaQExplosion", ConnectionType::FOLLOW_ORIGIN}},
+            {"RellW_Dismount", {"RellW2", ConnectionType::FOLLOW_ORIGIN}},
+            {"RenataE", {"RenataEExplosion", ConnectionType::EXTEND_LENGTH}},
+            {"RumbleRMissile", {"RumbleRLand", ConnectionType::FOLLOW_ORIGIN}},
+            {"SettW", {"SettWInner", ConnectionType::FOLLOW_ORIGIN}},
+            {"SmolderW", {"SmolderW2", ConnectionType::EXTEND_LENGTH}},
+            {"SwainE", {"SwainEDetonation", ConnectionType::EXTEND_LENGTH}},
+            {"VelkozW", {"VelkozWEruption", ConnectionType::FOLLOW_ORIGIN}},
+            {"VeigarEventHorizon", {"VeigarCage", ConnectionType::FOLLOW_ORIGIN}},
+            {"VexQ", {"VexQAccelerated", ConnectionType::EXTEND_LENGTH}},
+            {"YoneQ3", {"YoneQ3Dash", ConnectionType::FOLLOW_ORIGIN}}
+        };
+    }
+
+    void Data::InitCustomDashes()
+    {
+        this->custom_dashes =
+        {
+            {"Hecarim", {"HecarimRDash", "hecarimultsound"}},
+            {"Vi", {"ViQDash", "ViQDash"}},
+            {"Zac", {"ZacEDash", "zacemove"}}
         };
     }
 
@@ -144,38 +176,6 @@ namespace Evade
         };
     }
 
-    void Data::InitSpellQueue()
-    {
-        this->queue =
-        {
-            {"EkkoQ", {"EkkoQ2", ConnectionType::EXTEND_LENGTH}},
-            {"FlashFrost", {"AniviaQCenter", ConnectionType::EXTEND_LENGTH}},
-            {"GravesQLineMis", {"GravesQDetonation", ConnectionType::EXTEND_LENGTH}},
-            {"GravesChargeShot", {"GravesRExplosion", ConnectionType::EXTEND_LENGTH}},
-            {"HweiQQ", {"HweiQQExplosion", ConnectionType::EXTEND_LENGTH}},
-            {"KarmaQMissileMantra", {"KarmaQExplosion", ConnectionType::EXTEND_LENGTH}},
-            {"LeonaSolarFlare", {"LeonaREpicenter", ConnectionType::FOLLOW_ORIGIN}},
-            {"MalzaharQ", {"MalzaharQSecond", ConnectionType::FOLLOW_ORIGIN}},
-            {"MordekaiserQ", {"MordekaiserQ2", ConnectionType::FOLLOW_ORIGIN}},
-            {"NaafiriE", {"NaafiriEFlurry", ConnectionType::FOLLOW_ORIGIN}},
-            {"OrianaIzuna", {"OrianaIzunaCenter", ConnectionType::FOLLOW_ORIGIN}},
-            {"OrnnQ", {"OrnnQPillar", ConnectionType::EXTEND_LENGTH}},
-            {"QiyanaQ_Grass", {"QiyanaQExplosion", ConnectionType::FOLLOW_ORIGIN}},
-            {"QiyanaQ_Water", {"QiyanaQExplosion", ConnectionType::FOLLOW_ORIGIN}},
-            {"QiyanaQ_Rock", {"QiyanaQExplosion", ConnectionType::FOLLOW_ORIGIN}},
-            {"RellW_Dismount", {"RellW2", ConnectionType::FOLLOW_ORIGIN}},
-            {"RenataE", {"RenataEExplosion", ConnectionType::EXTEND_LENGTH}},
-            {"RumbleRMissile", {"RumbleRLand", ConnectionType::FOLLOW_ORIGIN}},
-            {"SettW", {"SettWInner", ConnectionType::FOLLOW_ORIGIN}},
-            {"SmolderW", {"SmolderW2", ConnectionType::EXTEND_LENGTH}},
-            {"SwainE", {"SwainEDetonation", ConnectionType::EXTEND_LENGTH}},
-            {"VelkozW", {"VelkozWEruption", ConnectionType::FOLLOW_ORIGIN}},
-            {"VeigarEventHorizon", {"VeigarCage", ConnectionType::FOLLOW_ORIGIN}},
-            {"VexQ", {"VexQAccelerated", ConnectionType::EXTEND_LENGTH}},
-            {"YoneQ3", {"YoneQ3Dash", ConnectionType::FOLLOW_ORIGIN}}
-        };
-    }
-
     // Getters
 
     SkillshotTable Data::GetSkillshots() const { return this->skillshots; }
@@ -186,9 +186,9 @@ namespace Evade
 
     Miscellaneous Data::GetAntiRecalcs() const { return this->anti_recalcs; }
 
-    Miscellaneous Data::GetDashingSpells() const { return this->dashes; }
+    Miscellaneous Data::GetConnectors() const { return this->connectors; }
+
+    Miscellaneous Data::GetCustomDashes() const { return this->custom_dashes; }
 
     Miscellaneous Data::GetStoppers() const { return this->stoppers; }
-
-    Miscellaneous Data::GetSpellQueue() const { return this->queue; }
 }

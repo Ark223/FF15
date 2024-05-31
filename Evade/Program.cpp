@@ -9,6 +9,7 @@ namespace Evade
     {
         this->m_instance = this;
         this->RegisterAPI();
+        this->RegisterData();
         this->RegisterMyHero();
         this->RegisterMenu();
         this->RegisterEvents();

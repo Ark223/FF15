@@ -662,8 +662,20 @@ namespace Evade
             DetectionType::ON_OBJECT_CREATED,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 25, 25, 31.67f, 31.67f,
+                38.33f, 38.33f, 45, 45, 51.67f, 51.67f,
+                58.33f, 58.33f, 65, 65, 65, 65, 65, 65 };
+            float ad_scale[] = { 56, 56, 60, 60, 64, 64, 68,
+                68, 72, 72, 76, 76, 80, 80, 80, 80, 80, 80 };
+            float base_damage = base_scale[info.UnitLevel];
+            float bonus_damage = ad_scale[info.UnitLevel];
+            bonus_damage *= info.BonusAttackDamage / 100.0f;
+            bonus_damage += 0.7f * info.TotalAbilityDamage;
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -696,8 +708,15 @@ namespace Evade
             DetectionType::ON_OBJECT_CREATED,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 125, 175, 225 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = 0.2f * info.BonusAttackDamage;
+            bonus_damage += 1.0f * info.TotalAbilityDamage;
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -1236,8 +1255,15 @@ namespace Evade
             DetectionType::ON_OBJECT_CREATED,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info) // Check
+        {
+            float base_scale[] = { 80, 115, 150, 185, 220 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = 1.0f * info.BonusAttackDamage;
+            bonus_damage += 1.0f * info.TotalAbilityDamage;
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -1526,9 +1552,9 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 80, 135, 190, 245, 300 };
+            float base_scale[] = { 80, 145, 210, 275, 340 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.7f * info.TotalAbilityDamage;
+            return base_damage + 1.0f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::CIRCLE;
@@ -1555,8 +1581,13 @@ namespace Evade
             DetectionType::ON_ACTIVE_SPELL,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 80, 135, 190, 245, 300 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.7f * info.TotalAbilityDamage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::CONE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -3041,8 +3072,16 @@ namespace Evade
         {
             DetectionType::ON_OBJECT_CREATED
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 35, 65, 95 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = 0.1f * info.TotalAbilityDamage;
+            float hp_scale = 0.008f * info.TotalAbilityDamage / 100.0f;
+            bonus_damage += info.TargetMaxHealth * (0.01f + hp_scale);
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -5978,8 +6017,17 @@ namespace Evade
             DetectionType::ON_ACTIVE_SPELL,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 80, 110, 140, 170, 200 };
+            float bonus_scale[] = { 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = bonus_scale[info.SpellLevel];
+            bonus_damage += 0.7f * info.TotalAbilityDamage;
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -6004,8 +6052,17 @@ namespace Evade
             DetectionType::ON_ACTIVE_SPELL,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 80, 110, 140, 170, 200 };
+            float bonus_scale[] = { 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = bonus_scale[info.SpellLevel];
+            bonus_damage += 0.7f * info.TotalAbilityDamage;
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -6523,8 +6580,16 @@ namespace Evade
             DetectionType::ON_ACTIVE_SPELL,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 10, 20, 30, 40, 50 };
+            float ad_scale[] = { 180, 190, 200, 210, 220 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = ad_scale[info.SpellLevel];
+            bonus_damage *= info.TotalAttackDamage / 100.0f;
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -6913,8 +6978,23 @@ namespace Evade
             DetectionType::ON_ACTIVE_SPELL,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            if (info.TargetHealth / info.TargetMaxHealth > 0.2f)
+            {
+                float base_scale[] = { 70, 100, 130, 160, 190 };
+                float base_damage = base_scale[info.SpellLevel];
+                float bonus_damage = 1.15f * info.BonusAttackDamage;
+                bonus_damage += 0.5f * info.TotalAbilityDamage;
+                return base_damage + bonus_damage;
+            }
+            float base_scale[] = { 155, 230, 305, 380, 455 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = 2.3f * info.BonusAttackDamage;
+            bonus_damage += 1.0f * info.TotalAbilityDamage;
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -6945,8 +7025,19 @@ namespace Evade
             DetectionType::ON_OBJECT_CREATED,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            if (info.TargetHealth / info.TargetMaxHealth > 0.2f)
+            {
+                float base_scale[] = { 70, 100, 130, 160, 190 };
+                float base_damage = base_scale[info.SpellLevel];
+                return base_damage + 1.15f * info.BonusAttackDamage;
+            }
+            float base_scale[] = { 155, 230, 305, 380, 455 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 2.3f * info.BonusAttackDamage;
+        };
+        data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -7095,8 +7186,17 @@ namespace Evade
             DetectionType::ON_OBJECT_CREATED,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 0, 0, 0, 0, 0, 0, 290, 330,
+                370, 400, 430, 450, 470, 490, 510, 530, 540, 550 };
+            float execution_damage = base_scale[info.UnitLevel];
+            execution_damage += 0.8f * info.BonusAttackDamage;
+            execution_damage += 1.5f * info.Lethality;
+            return execution_damage >= info.TargetHealth
+                ? 9999999.0f : 0.5f * execution_damage;
+        };
+        data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::POLYGON;
         this->skillshots[data.SkillshotName] = data;
 
@@ -7189,8 +7289,13 @@ namespace Evade
             DetectionType::ON_ACTIVE_SPELL,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 60, 90, 120, 150, 180 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.9f * info.BonusAttackDamage;
+        };
+        data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -7219,8 +7324,13 @@ namespace Evade
             DetectionType::ON_ACTIVE_SPELL,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 60, 90, 120, 150, 180 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.9f * info.BonusAttackDamage;
+        };
+        data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -8626,8 +8736,18 @@ namespace Evade
             DetectionType::ON_OBJECT_CREATED,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 85, 125, 165, 205, 245 };
+            float bonus_scale[] = { 75, 75, 75, 75, 75, 75, 80, 85,
+                90, 95, 100, 105, 110, 115, 120, 125, 130, 135 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = bonus_scale[info.SpellLevel];
+            bonus_damage += 1.0f * info.BonusAttackDamage;
+            bonus_damage += 1.0f * info.TotalAbilityDamage;
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -9541,8 +9661,18 @@ namespace Evade
             DetectionType::ON_OBJECT_CREATED,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 85, 125, 165, 205, 245 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = 1.0f * info.TotalAbilityDamage;
+            float extra_damage = 6 + 42 / 17.0f * info.UnitLevel;
+            extra_damage += 0.02f * info.TotalAbilityDamage;
+            extra_damage *= info.BonusHealth / 100.0f;
+            extra_damage += 0.04f * info.BonusHealth;
+            return base_damage + bonus_damage + extra_damage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -10644,8 +10774,13 @@ namespace Evade
             DetectionType::ON_ACTIVE_SPELL,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 30, 60, 90, 120, 150 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.7f * info.TotalAttackDamage;
+        };
+        data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -11803,8 +11938,17 @@ namespace Evade
             DetectionType::ON_OBJECT_CREATED,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 50, 80, 110, 140, 170 };
+            float bonus_scale[] = { 7, 8, 10, 12, 14, 16, 18,
+                20, 22, 24, 26, 29, 32, 35, 38, 42, 46, 50 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = bonus_scale[info.SpellLevel];
+            bonus_damage += 0.6f * info.TotalAbilityDamage;
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -11834,8 +11978,17 @@ namespace Evade
         {
             DetectionType::ON_OBJECT_CREATED
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 125, 200, 275, 350, 425 };
+            float bonus_scale[] = { 17.5, 20, 25, 30, 35, 40, 45,
+                50, 55, 60, 65, 72.5, 80, 87.5, 95, 105, 115, 125 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = bonus_scale[info.SpellLevel];
+            bonus_damage += 1.5f * info.TotalAbilityDamage;
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -11872,8 +12025,13 @@ namespace Evade
             DetectionType::ON_OBJECT_CREATED,
             DetectionType::ON_PROCESS_SPELL
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 70, 110, 150, 190, 230 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.45f * info.TotalAbilityDamage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 

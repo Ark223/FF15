@@ -493,7 +493,7 @@ namespace Evade
             int stacks = api->GetBuffCount(caster, 0x42E9ABCB);
             skillshot->Set("Radius", std::sqrtf(151251 + 477.423f * stacks));
         }
-        else if (name == "BriarE" && level > 0)
+        else if (name == "BriarE" && proc_type)
         {
             float windup = api->GetAttackWindup(caster);
             skillshot->Set("Delay", delay + windup);
@@ -524,7 +524,7 @@ namespace Evade
         {
             skillshot->Set("Speed", range / 0.25f);
         }
-        else if (name == "JinxW" && level > 0)
+        else if (name == "JinxW" && proc_type)
         {
             float mod = api->GetAttackSpeedMod(caster) - 1.0f;
             skillshot->Set("Delay", 0.6f - 0.08f * mod);
@@ -573,15 +573,17 @@ namespace Evade
         }
         else if (name == "VelkozE")
         {
-            delay += 0.25f + 0.3f * (range - 150.0f) / 650.0f;
-            skillshot->Set("Delay", range <= 150.0f ? 0.25f : delay);
+            range = MIN(800.0f, range);
+            float extra_delay = 0.25f + (range > 150.0f ?
+                0.3f * (range - 150.0f) / 650.0f : 0.0f);
+            skillshot->Set("Delay", delay + extra_delay);
         }
         else if (name == "VexE")
         {
             float hitbox = radius + 0.125f * range;
             skillshot->Set("Radius", MIN(300.0f, hitbox));
         }
-        else if (name == "XayahQ")
+        else if (name == "XayahQ" && proc_type)
         {
             float mod = api->GetAttackSpeedMod(caster) - 1.0f;
             float extra_delay = MAX(0.1f, delay - 0.07f * mod);

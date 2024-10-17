@@ -695,7 +695,7 @@ namespace Evade
                 bool anivia = s_name == "AniviaQCenter" || s_name == "FlashFrost";
                 return anivia && this->api->Compare(caster, s_caster);
             });
-            if (this->skillshots.Count() == count) return;
+            if (this->skillshots.Count() != count) return;
         }
 
         // Ignore duplicates and similar skillshots from the same caster

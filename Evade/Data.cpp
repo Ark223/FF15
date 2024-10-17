@@ -488,7 +488,6 @@ namespace Evade
             return base_damage + 0.25f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
-        data.DamageType = DamageType::TRUE_DAMAGE;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 

@@ -256,6 +256,7 @@ namespace Evade
         stats.TotalAbilityDamage = api->GetTotalAbilityDamage(unit);
         stats.TotalAttackDamage = api->GetTotalAttackDamage(unit);
         stats.UnitLevel = api->GetLevel(unit) - 1;
+        stats.UnitData = unit;
 
         // Set the additional properties for skillshot
         data["ArcStep"] = 25.0f; data["StartTime"] = time;
@@ -477,8 +478,6 @@ namespace Evade
         if (range != skillshot->Get<float>("Range"))
         {
             skillshot->FixOrigin();
-            Vector pos = skillshot->Get<Vector>("StartPos");
-            skillshot->Set("OriginPos", pos.Clone());
         }
 
         // Adjust various numeric properties
@@ -669,7 +668,7 @@ namespace Evade
             }
 
             // Adjust trajectory if the caster moved during a cast
-            else if (data.at(name).FixedRange && api->IsValid(caster)
+            else if (api->IsValid(caster) && proc_type && start == pos
                 && api->GetPosition(caster).DistanceSquared(origin) > 2500
                 && api->IsWindingUp(caster) && elapsed <= delay + 0.125f)
             {

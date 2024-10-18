@@ -210,28 +210,37 @@ namespace Evade
             path.EndPos = path.StartPos + rotated * max_range;
             if (!infinite) path.Velocity = rotated * path.Speed;
 
-            // Grab all intersections where path will follow through
-            // Skip the collection part if pathing has a fixed distance
-            auto intersections = fixed ? Linq<Vector>({ path.EndPos }) :
-                skillshots.Select<Linq<Vector>>([&](Skillshot* skillshot)
+            // Grab the closest safe intersection point to follow along the path
+            // or skip calculation part if pathing has a predefined distance
+            Vector intersection = fixed ? Linq<Vector>({ path.EndPos }).First()
+                : skillshots.Select<Linq<Vector>>([&](Skillshot* skillshot)
             {
                 return skillshot->PathIntersection(position, path.EndPos);
             })
-            .Aggregate<Linq<Vector>>(Linq<Vector>(), [](auto total, const auto& points)
+            .Aggregate<Linq<Vector>>(Linq<Vector>(), [](auto total, auto& points)
             {
                 total.AddRange(points); return total;
             })
-            .OrderBy<float>([&](const Vector& point)
+            .OrderBy<float>([&position](const Vector& point)
             {
                 return point.DistanceSquared(position);
+            })
+            .FirstOrDefault([&skillshots, &rotated](const Vector &point)
+            {
+                if (skillshots.Count() == 1) return true;
+
+                return skillshots.All([&point, &rotated](Skillshot* skillshot)
+                {
+                    return skillshot->IsSafe(point + rotated * SAFETY_BUFFER);
+                });
             });
 
-            // No intersections found - path length too small?
-            if (intersections.Count() == 0) continue;
+            // No valid intersections - path length too small?
+            if (!intersection.IsValid()) continue;
 
             // Extend path by extra length (buffer)
-            Vector destination = intersections.First() + rotated;
-            path.EndPos = destination + rotated * SAFETY_BUFFER;
+            Vector destination = intersection + rotated;
+            path.EndPos = intersection + rotated * SAFETY_BUFFER;
 
             // Skip if the end position collides or is in walls
             if (!this->api->IsReachable(path.EndPos)) continue;
@@ -609,7 +618,7 @@ namespace Evade
         float cooldown = MAX(0.0f, windup - elapsed);
         float margin = hit_time - solution.TimeToReach;
         float left = elapsed < windup ? cooldown : windup;
-        bool should_evade = margin <= left + 0.2f;
+        bool should_evade = margin <= left + 0.25f;
 
         if (!should_evade)
         {

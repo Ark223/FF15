@@ -500,7 +500,8 @@ namespace Evade
             const Vector& origin = skillshot->Get<Vector>("OriginPos");
             const auto& name = skillshot->Get<std::string>("SkillshotName");
             const auto& data = this->data->GetSkillshots().at(name);
-            return data.BackToCaster || data.FollowCaster || start != origin;
+            if (data.BackToCaster || data.FollowCaster) return true;
+            return this->update_id >= skillshot->Get<int>("UniqueId");
         });
 
         // Sort skillshots by specific names first, then by danger level and damage
@@ -708,6 +709,7 @@ namespace Evade
         return;
 
         bool visible = this->api->IsVisible(caster);
+        Vector unit_pos = this->api->GetPosition(caster);
         int slot = this->char_to_slot(data.SkillshotSlot);
         int danger = this->GetValue<int>("D|" + spell_name + "|Danger");
         std::string caster_name = this->api->GetCharacterName(caster);
@@ -730,7 +732,7 @@ namespace Evade
             {"OuterRadius", data.OuterRadius}, {"ConeAngle", cone_angle},
             {"ExtraDuration", data.ExtraTime}, {"Delay", delay + extra_delay},
             {"Speed", data.Speed}, {"Hitbox", hitbox}, {"DestPos", end_pos},
-            {"OriginPos", start_pos.Clone()}, {"StartPos", start_pos},
+            {"OriginPos", unit_pos.Clone()}, {"StartPos", start_pos},
             {"Collisions", data.Collisions}, {"DamageFunc", data.Damage},
             {"DamageType", data.DamageType}, {"DetectionType", detect_type},
             {"SkillshotType", data.SkillshotType}, {"SkillshotSlot", slot},
@@ -1061,7 +1063,7 @@ namespace Evade
         if (!this->can_evade || !dodge_on) return;
 
         // Update timer if significant order is detected
-        if (order >= 1 && order <= 3 || order == 10)
+        if (order == 1 || order == 3 || order == 10)
         {
             this->order_timer = this->api->GetTime();
         }

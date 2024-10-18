@@ -94,6 +94,7 @@ namespace Evade
 
     struct StatData
     {
+        Obj_AI_Hero* UnitData = nullptr;
         float Armor, BonusAbilityDamage, BonusArmor,
             BonusAttackDamage, BonusHealth, BonusMana,
             BonusSpellBlock, Health, Lethality, MaxHealth,

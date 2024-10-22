@@ -313,6 +313,7 @@ namespace Evade
         Vector path_end = this->api->GetPathEndPos(this->hero);
         const Vector& hero_pos = this->program->GetHeroPos();
         Vector direction = (path_end - hero_pos).Normalize();
+        CollectionType col_type = CollectionType::DANGEROUS;
 
         int buffer = this->program->GetValue<int>("Delta");
         float move_speed = this->program->GetMoveSpeed();
@@ -459,11 +460,9 @@ namespace Evade
             }
         }
 
-        // Retrieve considered skillshots that are dodgeable to hero
-        auto dangerous = skillshots.Where([&](Skillshot* skillshot)
-        {
-            return skillshot->IsDangerous(hero_pos);
-        });
+        // Retrieve considered skillshots that are dodgeable
+        auto& dangerous = this->program->GetSkillshots(col_type);
+        auto candidates = dangerous.Intersect(skillshots);
 
         // Process spells which do not influence pathing
         for (const auto& info : active_spells.Except(move_buffers))
@@ -473,7 +472,7 @@ namespace Evade
             // Use spell that provides crowd control immunity
             if (data.EvadingType == EvadingType::CC_IMMUNITY)
             {
-                auto blocked = dangerous.Where([](Skillshot* skillshot)
+                auto blocked = candidates.Where([](Skillshot* skillshot)
                 {
                     bool soft_cc = skillshot->Get<bool>("SoftCC");
                     bool hard_cc = skillshot->Get<bool>("HardCC");
@@ -500,7 +499,7 @@ namespace Evade
             if (data.EvadingType == EvadingType::DAMAGE_ABSORPTION ||
                 data.EvadingType == EvadingType::INVULNERABILITY)
             {
-                dangerous.ForEach([](Skillshot* skillshot)
+                candidates.ForEach([](Skillshot* skillshot)
                 {
                     skillshot->Set("Processed", true);
                 });
@@ -511,7 +510,7 @@ namespace Evade
             if (data.EvadingType == EvadingType::WIND_WALL)
             {
                 CollisionFlag flag = CollisionFlag::WIND_WALL;
-                auto blocked = dangerous.Where([&flag](Skillshot* skillshot)
+                auto blocked = candidates.Where([&flag](Skillshot* skillshot)
                 {
                     const auto& flags = skillshot->Get<Collisions>("Collisions");
                     return std::find(flags.begin(), flags.end(), flag) != flags.end();

@@ -17,11 +17,11 @@ namespace Evade
     const std::string EVADE_VERSION = "0.01";
     constexpr float SAFETY_BUFFER = 30.0f;
 
-    enum class CollectionType { ACTIVE = 0, CONSIDERED = 1 };
+    enum class CollectionType { ACTIVE, CONSIDERED, DANGEROUS };
 
     struct SpellInfo { std::string SpellName; int SpellSlot = -1; };
-    struct MissileInfo { std::string Caster, SpellName, MissileName; };
-    struct ParticleInfo { std::string Caster, SpellName, ParticleName; };
+    struct MissileInfo { std::string CharName, SpellName, MissileName; };
+    struct ParticleInfo { std::string CharName, SpellName, ParticleName; };
 
     using Collisions = std::vector<CollisionFlag>;
     using Features = std::tuple<int, int, float>;
@@ -44,11 +44,14 @@ namespace Evade
             const float GetMoveSpeed() const { return this->move_speed; }
             const Vector& GetEvadePos() const { return this->evade_pos; }
             const Vector& GetHeroPos() const { return this->hero_pos; }
-
-            auto& GetObjects() { return this->objects; }
             auto& GetEvadingSpells() { return this->evading_spells; }
+            auto& GetObjects() { return this->objects; }
+
             auto& GetSkillshots(CollectionType type = CollectionType::ACTIVE)
-                { return (int)type == 0 ? this->skillshots : this->considered; }
+            {
+                return type == CollectionType::ACTIVE ? this->skillshots : type ==
+                    CollectionType::CONSIDERED ? this->considered : this->dangerous;
+            }
 
             void RecalculatePath(float delay = 0.0f);
             void RequestUpdateOnce(int id, float delay = 0.0f);

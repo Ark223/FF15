@@ -549,8 +549,15 @@ namespace Evade
     {
         this->safe_order_count++;
         this->utils->EvadeToSpot(this->evade_pos);
+
+        // Update and get all skillshots considered for evasion
         this->considered = this->process->UpdateSkillshots();
-        Vector hero_pos = this->api->GetPosition(this->my_hero);
+
+        // Retrieve all skillshots that our hero is currently inside of
+        this->dangerous = this->skillshots.Where([&](Skillshot* skillshot)
+        {
+            return skillshot->IsDangerous(this->hero_pos);
+        });
 
         // Draw the path line that the hero is following through
         if (this->evade_pos.IsValid() && this->GetValue<bool>("Path"))
@@ -566,6 +573,7 @@ namespace Evade
             int s_blue = this->GetValue<int>("ArrowSecB");
 
             float height = this->api->GetHeight(this->evade_pos);
+            Vector hero_pos = this->api->GetPosition(this->my_hero);
             uint32_t c1 = this->api->ARGB(p_alpha, p_red, p_green, p_blue);
             uint32_t c2 = this->api->ARGB(s_alpha, s_red, s_green, s_blue);
             this->utils->DrawArrow(hero_pos, this->evade_pos, height, c1, c2);
@@ -820,6 +828,8 @@ namespace Evade
             spell_name = this->api->GetObjectName(object);
             auto info = this->particles.FirstOrDefault([&](auto& info)
             {
+                size_t result = spell_name.find(info.CharName);
+                if (result == std::string::npos) return false;
                 std::regex pattern(info.ParticleName);
                 return std::regex_match(spell_name, pattern);
             });
@@ -1084,11 +1094,8 @@ namespace Evade
         Linq<Vector> path = this->api->GetPath(order_pos);
         if (path.Count() < 2) return;
 
-        // Retrieve all skillshots that our hero might be about to cross
-        auto skillshots = this->skillshots.Where([&](Skillshot* skillshot)
-        {
-            return skillshot->IsSafe(hero_pos);
-        });
+        // Retrieve all skillshots that hero might be about to cross
+        auto skillshots = this->skillshots.Except(this->dangerous);
 
         // Find the closest intersection with any skillshot along the path to desired destination
         Intersection result = skillshots.Select<Linq<Intersection>>([&](Skillshot* skillshot)

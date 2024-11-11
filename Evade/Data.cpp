@@ -13143,9 +13143,26 @@ namespace Evade
         this->evaders = EvadingSpellTable();
         this->evaders[""] = EvadingSpellData();
 
-        #pragma region Yasuo
+        #pragma region Local
 
         EvadingSpellData data;
+        data.ChampionName = "Local";
+        data.DisplayName = "Summoner Flash";
+        data.IconName = "SummonerFlash.png";
+        data.SpellName = "Flash";
+        data.SpellSlot = 'G';
+        data.Range = 400.0f;
+        data.DangerLevel = 5;
+        data.Speed = []() { return FLT_MAX; };
+        data.Condition = []() { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Yasuo
+
+        data = EvadingSpellData();
         data.ChampionName = "Yasuo";
         data.DisplayName = "Wind Wall";
         data.IconName = "YasuoW.png";

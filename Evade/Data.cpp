@@ -4300,27 +4300,24 @@ namespace Evade
         data = SkillshotData();
         data.ChampionName = "Jhin";
         data.DisplayName = "Captive Audience";
-        data.MissileName = "JhinETrap";
-        data.SkillshotName = "JhinE";
+        data.ParticleName = "_E_Trap_indicator";
+        data.SkillshotName = "JhinEParticle";
         data.IconName = "JhinE.png";
         data.SkillshotSlot = 'E';
         data.AddHitbox = true;
         data.FogSupport = true;
+        data.TrackObject = true;
         data.IsTrap = true;
         data.SoftCC = true;
-        data.Delay = 0.25f;
+        data.Delay = 0.8f;
+        data.ParticleDelay = 0.8f;
         data.ExtraTime = 180.0f;
-        data.Windup = 0.25f;
         data.Radius = 160.0f;
-        data.Range = 750.0f;
-        data.Speed = 1000.0f;
         data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
-            DetectionType::ON_ACTIVE_SPELL,
-            DetectionType::ON_OBJECT_CREATED,
-            DetectionType::ON_PROCESS_SPELL
+            DetectionType::ON_OBJECT_CREATED
         };
         data.Damage = [](const StatData& info)
         {
@@ -10409,7 +10406,6 @@ namespace Evade
         data.Exception = true;
         data.FixedRange = true;
         data.FogSupport = true;
-        data.IgnoreAlive = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 100.0f;

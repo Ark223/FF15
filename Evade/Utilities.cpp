@@ -633,9 +633,14 @@ namespace Evade
             return true;
         }
 
-        // Calculate time required for any skillshot to hit
+        // Calculate time required for skillshot to hit
+        const Vector& ending = solution.Destination;
         const Vector& position = this->program->GetHeroPos();
-        float hit_time = skillshots.Min([&](Skillshot* skillshot)
+        auto crossed = skillshots.Where([&](Skillshot* skillshot)
+        {
+            return skillshot->PathIntersection(position, ending).Any();
+        });
+        float hit_time = crossed.Min([&](Skillshot* skillshot)
         {
             return skillshot->TimeToHit(position, true);
         });

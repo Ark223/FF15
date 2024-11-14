@@ -447,6 +447,15 @@ namespace Evade
             this->order_timer = timer;
         }
 
+        // Update and get all skillshots considered for evasion
+        this->considered = this->process->UodateConsidered();
+
+        // Retrieve all skillshots that our hero is currently inside of
+        this->dangerous = this->skillshots.Where([&](Skillshot* skillshot)
+        {
+            return skillshot->IsDangerous(this->hero_pos);
+        });
+
         // Retrieve skillshots that provide no threat to our hero
         auto safe_area = this->skillshots.Except(this->dangerous);
 
@@ -552,15 +561,7 @@ namespace Evade
     {
         this->safe_order_count++;
         this->utils->EvadeToSpot(this->evade_pos);
-
-        // Update and get all skillshots considered for evasion
-        this->considered = this->process->UpdateSkillshots();
-
-        // Retrieve all skillshots that our hero is currently inside of
-        this->dangerous = this->skillshots.Where([&](Skillshot* skillshot)
-        {
-            return skillshot->IsDangerous(this->hero_pos);
-        });
+        this->process->UpdateSkillshots();
 
         // Draw the path line that the hero is following through
         if (this->evade_pos.IsValid() && this->GetValue<bool>("Path"))
@@ -891,6 +892,7 @@ namespace Evade
         bool fixed_range = data.Range >= 25000.0f || data.FixedRange &&
             (!(multi || data.Acceleration != 0.0f || spell_name == "ZoeE"));
 
+        bool irelia_mis = spell_name == "IreliaEMissile";
         int spell_slot = this->char_to_slot(data.SkillshotSlot);
         int danger = this->GetValue<int>("D|" + spell_name + "|Danger");
         std::string caster_name = this->api->GetCharacterName(caster);
@@ -909,7 +911,7 @@ namespace Evade
         bool adjust_height = height == 0.0f || ABS(height) > 100.0f;
         height = adjust_height ? this->api->GetHeight(caster) : height;
         if (data.AddHitbox) hitbox = this->api->GetHitbox(this->my_hero);
-        if (data.FixSpeed) speed = this->api->GetMissileSpeed(missile);
+        if (irelia_mis) speed = this->api->GetMissileSpeed(missile);
 
         auto params = ActiveData(end_pos, start_pos.Clone(), start_pos,
             spell_name, caster_name, caster, object_id, danger, spell_slot,
@@ -935,6 +937,9 @@ namespace Evade
                 0, data.StartPos, data.EndPos.Clone(), 0,
                 0.0f, data.ExtraDelay, data.ProcessNext);
         });
+
+        // Remove primary skillshot after processing related skillshots
+        if (data.SkipAncestor) this->skillshots.Remove(skillshot);
     }
 
     void Program::OnBuffGain(const Buff& buff)

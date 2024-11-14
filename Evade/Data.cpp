@@ -859,6 +859,7 @@ namespace Evade
         data.AddHitbox = true;
         data.Dangerous = true;
         data.FixedRange = true;
+        data.FixSpeed = true;
         data.FogSupport = true;
         data.HardCC = true;
         data.Delay = 0.25f;
@@ -3937,7 +3938,6 @@ namespace Evade
         data.AddHitbox = true;
         data.Dangerous = true;
         data.Exception = true;
-        data.FixSpeed = true;
         data.FogSupport = true;
         data.IgnoreAlive = true;
         data.HardCC = true;
@@ -4473,6 +4473,7 @@ namespace Evade
         data.AddHitbox = true;
         data.Dangerous = true;
         data.FixedRange = true;
+        data.FixSpeed = true;
         data.FogSupport = true;
         data.Delay = 0.6f;
         data.Windup = 0.6f;
@@ -11200,22 +11201,20 @@ namespace Evade
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
-        // Velkoz Q Split
+        // Velkoz Q Implosion
 
         data = SkillshotData();
         data.ChampionName = "Velkoz";
-        data.DisplayName = "Plasma Fission [Split]";
-        data.MissileName = "VelkozQMissileSplit";
-        data.SkillshotName = "VelkozQMissileSplit";
+        data.DisplayName = "Plasma Fission [Implosion]";
+        data.ParticleName = "_Q_SplitImplosion";
+        data.SkillshotName = "VelkozQImplosion";
         data.IconName = "VelkozQ.png";
-        data.Overrider = "VelkozQMissileSplit";
         data.SkillshotSlot = 'Q';
         data.AddHitbox = true;
-        data.Exception = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.SkipAncestor = true;
         data.SoftCC = true;
-        data.Delay = 0.25f;
         data.Radius = 45.0f;
         data.Range = 1100.0f;
         data.Speed = 2100.0f;
@@ -11229,6 +11228,48 @@ namespace Evade
         data.Detectors =
         {
             DetectionType::ON_OBJECT_CREATED
+        };
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 80, 120, 160, 200, 240 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.9f * info.TotalAbilityDamage;
+        };
+        data.DamageType = DamageType::MAGICAL;
+        data.SkillshotType = SkillshotType::LINE;
+        this->skillshots[data.SkillshotName] = data;
+
+        // Velkoz Q Split
+
+        data = SkillshotData();
+        data.ChampionName = "Velkoz";
+        data.DisplayName = "Plasma Fission [Split]";
+        data.MissileName = "VelkozQMissileSplit";
+        data.SkillshotName = "VelkozQSplit";
+        data.IconName = "VelkozQ.png";
+        data.Overrider = "VelkozQSplit";
+        data.SkillshotSlot = 'Q';
+        data.AddHitbox = true;
+        data.Exception = true;
+        data.FixedRange = true;
+        data.FogSupport = true;
+        data.SoftCC = true;
+        data.Delay = 0.5f;
+        data.Radius = 45.0f;
+        data.Range = 1100.0f;
+        data.Speed = 2100.0f;
+        data.DangerLevel = 2;
+        data.Collisions =
+        {
+            CollisionFlag::CHAMPION,
+            CollisionFlag::MINION,
+            CollisionFlag::WIND_WALL
+        };
+        data.Detectors =
+        {
+            DetectionType::ON_ACTIVE_SPELL,
+            DetectionType::ON_OBJECT_CREATED,
+            DetectionType::ON_PROCESS_SPELL
         };
         data.Damage = [](const StatData& info)
         {
@@ -11974,6 +12015,7 @@ namespace Evade
         data.IconName = "XayahE.png";
         data.SkillshotSlot = 'E';
         data.AddHitbox = true;
+        data.BackToCaster = true;
         data.Dangerous = true;
         data.SkipAncestor = true;
         data.HardCC = true;

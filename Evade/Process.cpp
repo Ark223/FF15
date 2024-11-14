@@ -195,6 +195,27 @@ namespace Evade
             }
         }
 
+        // Velkoz Q Implosion
+        else if (name == "VelkozQImplosion")
+        {
+            auto& skillshots = this->program->GetSkillshots();
+            auto missile = skillshots.FirstOrDefault([&](Skillshot* skillshot)
+            {
+                const auto& s_caster = skillshot->Get().Caster;
+                const std::string& s_name = skillshot->Get().SkillshotName;
+                bool same_caster = this->api->Compare(caster, s_caster);
+                return same_caster && s_name == "VelkozQ";
+            });
+            if (missile != nullptr)
+            {
+                const Vector& split = missile->Get().Perpendicular;
+                Vector split_one = start + split, split_two = start - split;
+                result.Append({ caster, "VelkozQSplit", start, split_one });
+                result.Append({ caster, "VelkozQSplit", start, split_two });
+                skillshots.Remove(missile);
+            }
+        }
+
         // Xayah E
         else if (name == "XayahE")
         {
@@ -652,7 +673,34 @@ namespace Evade
         return true;
     }
 
-    Linq<Skillshot*> Process::UpdateSkillshots()
+    Linq<Skillshot*> Process::UodateConsidered()
+    {
+        bool can_evade = this->program->CanEvade();
+        bool dodge_on = this->program->GetValue<bool>("Dodge");
+        if (!can_evade || !dodge_on) return Linq<Skillshot*>();
+
+        bool only_danger = this->program->DodgeDangerous();
+        bool dodge_fog = this->program->GetValue<bool>("DodgeFog");
+        float hp_percent = api->GetHealthRatio(this->hero) * 100.0f;
+
+        // Filter skillshots to find those to evade
+        auto& skillshots = this->program->GetSkillshots();
+        return skillshots.Where([&](Skillshot* skillshot)
+        {
+            bool fog_on = skillshot->Get().FogOfWar;
+            bool processed = skillshot->Get().Processed;
+            const auto& name = skillshot->Get().SkillshotName;
+            bool s_fog = fog_on && this->program->GetValue<bool>("D|" + name + "|Fog");
+            bool s_dangerous = this->program->GetValue<bool>("D|" + name + "|Dangerous");
+            bool s_dodge_on = this->program->GetValue<bool>("D|" + name + "|Dodge");
+            int s_hp_percent = this->program->GetValue<int>("D|" + name + "|Health");
+
+            return s_dodge_on && !processed && (!fog_on || (s_fog && dodge_fog))
+                && hp_percent <= s_hp_percent && (!only_danger || s_dangerous);
+        });
+    }
+
+    void Process::UpdateSkillshots()
     {
         API* api = API::Get();
 
@@ -692,19 +740,19 @@ namespace Evade
             const auto& active_data = skillshot->Get();
 
             float delay = active_data.Delay;
+            float speed = active_data.Speed;
             float start_time = active_data.StartTime;
+            uint32_t object_id = active_data.ObjectId;
             const auto& caster = active_data.Caster;
             const Vector& pos = active_data.Position;
-            const Vector& dest = active_data.DestPos;
-            const Vector& ending = active_data.EndPos;
             const Vector& start = active_data.StartPos;
             const Vector& origin = active_data.OriginPos;
             const std::string& name = active_data.SkillshotName;
             const DetectionType type = active_data.DetectionType;
             const auto& data = this->data->GetSkillshots().at(name);
             bool proc_type = type == DetectionType::ON_PROCESS_SPELL;
-            float elapsed = api->GetTime() - start_time;
-            float distance = start.Distance(pos);
+            float distance = start.Distance(pos), timer = api->GetTime();
+            float elapsed = timer - start_time;
 
             // Update skillshot's hitbox by following the caster
             if (data.FollowCaster && api->IsValid(caster))
@@ -773,6 +821,20 @@ namespace Evade
                 skillshot->Set().Speed = distance < 1350.0f ?
                     1700.0f : 2200.0f - 743250.0f / distance;
             }
+            else if (data.FixSpeed && !proc_type)
+            {
+                auto object = api->GetObjectById(object_id);
+                if (api->IsValid(object))
+                {
+                    auto missile = api->AsMissile(object);
+                    Vector pos = api->GetPosition(missile);
+                    speed = api->GetMissileSpeed(missile);
+                    skillshot->Set().StartTime = timer;
+                    skillshot->Set().StartPos = pos;
+                    skillshot->Set().Speed = speed;
+                    skillshot->FixOrigin();
+                }
+            }
             else if (data.Acceleration != 0.0f)
             {
                 this->UpdateAcceleration(skillshot);
@@ -780,29 +842,6 @@ namespace Evade
 
             // Apply final changes to hitbox
             skillshot->Update(force_update);
-        });
-
-        // Filter skillshots to find those to evade
-        bool can_evade = this->program->CanEvade();
-        bool dodge_on = this->program->GetValue<bool>("Dodge");
-        if (!can_evade || !dodge_on) return Linq<Skillshot*>();
-
-        bool only_danger = this->program->DodgeDangerous();
-        bool dodge_fog = this->program->GetValue<bool>("DodgeFog");
-        float hp_percent = api->GetHealthRatio(this->hero) * 100.0f;
-
-        return skillshots.Where([&](Skillshot* skillshot)
-        {
-            bool fog_on = skillshot->Get().FogOfWar;
-            bool processed = skillshot->Get().Processed;
-            const auto& name = skillshot->Get().SkillshotName;
-            bool s_fog = fog_on && this->program->GetValue<bool>("D|" + name + "|Fog");
-            bool s_dangerous = this->program->GetValue<bool>("D|" + name + "|Dangerous");
-            bool s_dodge_on = this->program->GetValue<bool>("D|" + name + "|Dodge");
-            int s_hp_percent = this->program->GetValue<int>("D|" + name + "|Health");
-
-            return s_dodge_on && !processed && (!fog_on || (s_fog && dodge_fog))
-                && hp_percent <= s_hp_percent && (!only_danger || s_dangerous);
         });
     }
 }

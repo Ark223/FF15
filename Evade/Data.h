@@ -216,8 +216,10 @@ namespace Evade
         bool TrackObject = false;
         bool SoftCC = false;
         bool HardCC = false;
+        bool FastEvade = false;
         bool FixSpeed = false;
         bool Invert = false;
+        bool IsGlobal = false;
         bool IsTrap = false;
         bool Rotate90 = false;
         bool UseDirection = false;

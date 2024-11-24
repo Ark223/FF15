@@ -858,9 +858,11 @@ namespace Evade
         data.SkillshotSlot = 'R';
         data.AddHitbox = true;
         data.Dangerous = true;
+        data.FastEvade = true;
         data.FixedRange = true;
         data.FixSpeed = true;
         data.FogSupport = true;
+        data.IsGlobal = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -895,7 +897,7 @@ namespace Evade
 
         // Aurora Q
 
-        data = SkillshotData();
+        data = SkillshotData(); // Check
         data.ChampionName = "Aurora";
         data.DisplayName = "Twofold Hex";
         data.MissileName = "AuroraQ";
@@ -910,7 +912,7 @@ namespace Evade
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 90.0f;
-        data.Range = 850.0f;
+        data.Range = 900.0f;
         data.Speed = 1600.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
@@ -945,7 +947,7 @@ namespace Evade
         data.Delay = 0.35f;
         data.Windup = 0.35f;
         data.Radius = 87.5f;
-        data.Range = 800.0f;
+        data.Range = 825.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
         data.Detectors =
@@ -2063,6 +2065,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.IsGlobal = true;
         data.Delay = 0.5f;
         data.Windup = 0.5f;
         data.Radius = 160.0f;
@@ -2491,6 +2494,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.IsGlobal = true;
         data.Delay = 1.0f;
         data.Windup = 1.0f;
         data.Radius = 160.0f;
@@ -4418,7 +4422,7 @@ namespace Evade
         {
             float base_scale[] = { 10, 60, 110, 160, 210 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 1.6f * info.TotalAttackDamage;
+            return base_damage + 1.4f * info.TotalAttackDamage;
         };
         data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -4473,8 +4477,10 @@ namespace Evade
         data.AddHitbox = true;
         data.Dangerous = true;
         data.FixedRange = true;
+        data.FastEvade = true;
         data.FixSpeed = true;
         data.FogSupport = true;
+        data.IsGlobal = true;
         data.Delay = 0.6f;
         data.Windup = 0.6f;
         data.Radius = 140.0f;
@@ -5415,9 +5421,9 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 75, 120, 165, 210, 255 };
+            float base_scale[] = { 70, 110, 150, 190, 230 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.7f * info.TotalAbilityDamage;
+            return base_damage + 0.65f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -7679,6 +7685,7 @@ namespace Evade
         data.IconName = "PykeE.png";
         data.SkillshotSlot = 'E';
         data.AddHitbox = true;
+        data.FastEvade = true;
         data.FixedRange = true;
         data.HardCC = true;
         data.Delay = 1.0f;
@@ -9293,7 +9300,7 @@ namespace Evade
             float base_scale[] = { 85, 125, 165, 205, 245 };
             float base_damage = base_scale[info.SpellLevel];
             float bonus_damage = 0.5f * info.BonusAttackDamage;
-            bonus_damage += 0.8f * info.TotalAbilityDamage;
+            bonus_damage += 0.7f * info.TotalAbilityDamage;
             return base_damage + bonus_damage;
         };
         data.DamageType = DamageType::MAGICAL;
@@ -9618,7 +9625,7 @@ namespace Evade
         {
             float base_scale[] = { 10, 20, 30, 40, 50 };
             float base_damage = base_scale[info.SpellLevel];
-            float bonus_damage = 0.04f * info.BonusHealth;
+            float bonus_damage = 0.03f * info.BonusHealth;
             bonus_damage += 0.1f * info.TargetMaxHealth;
             bonus_damage += 0.8f * info.BonusAttackDamage;
             return base_damage + bonus_damage;
@@ -11357,6 +11364,7 @@ namespace Evade
         data.IconName = "VelkozE.png";
         data.SkillshotSlot = 'E';
         data.Dangerous = true;
+        data.FastEvade = true;
         data.FogSupport = true;
         data.HardCC = true;
         data.Delay = 0.25f;
@@ -12170,6 +12178,7 @@ namespace Evade
         data.IconName = "XerathR.png";
         data.SkillshotSlot = 'R';
         data.Dangerous = true;
+        data.FastEvade = true;
         data.FogSupport = true;
         data.Delay = 0.6f;
         data.Radius = 200.0f;
@@ -12617,7 +12626,7 @@ namespace Evade
         {
             float base_scale[] = { 80, 110, 140, 170, 200 };
             float base_damage = base_scale[info.SpellLevel];
-            float bonus_damage = 0.08f * info.MaxHealth;
+            float bonus_damage = 0.06f * info.MaxHealth;
             bonus_damage += 0.6f * info.TotalAbilityDamage;
             return base_damage + bonus_damage;
         };

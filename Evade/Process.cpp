@@ -712,6 +712,7 @@ namespace Evade
             const std::string& name = skillshot->Get().SkillshotName;
             const auto& data = this->data->GetSkillshots().at(name);
             if (!data.IsTrap && !data.TrackObject) return false;
+
             uint32_t object_id = skillshot->Get().ObjectId;
             auto object = this->api->GetObjectById(object_id);
             return !this->api->IsValid(object);
@@ -726,6 +727,7 @@ namespace Evade
             const Vector& position = skillshot->Get().Position;
             const std::string& name = skillshot->Get().SkillshotName;
             const SkillshotType type = skillshot->Get().SkillshotType;
+
             bool sion_stop = name == "SionQ" && api->IsValid(caster) &&
                 (api->HasBuff(caster, h1) || api->HasBuff(caster, h2));
             float distance = position.DistanceSquared(ending);
@@ -741,16 +743,21 @@ namespace Evade
 
             float delay = active_data.Delay;
             float speed = active_data.Speed;
+            float radius = active_data.Radius;
             float start_time = active_data.StartTime;
             uint32_t object_id = active_data.ObjectId;
             const auto& caster = active_data.Caster;
+
+            const Vector& dir = active_data.Direction;
             const Vector& pos = active_data.Position;
             const Vector& start = active_data.StartPos;
             const Vector& origin = active_data.OriginPos;
+
             const std::string& name = active_data.SkillshotName;
             const DetectionType type = active_data.DetectionType;
             const auto& data = this->data->GetSkillshots().at(name);
             bool proc_type = type == DetectionType::ON_PROCESS_SPELL;
+
             float distance = start.Distance(pos), timer = api->GetTime();
             float elapsed = timer - start_time;
 
@@ -800,15 +807,28 @@ namespace Evade
                 force_update = true;
                 float left = MAX(0.0f, 1.0f - elapsed);
                 float speed = api->GetMovementSpeed(this->hero);
+
                 skillshot->Set().DestPos = api->GetPosition(caster);
                 float dist = skillshot->Get().DestPos.Distance(pos);
                 float buffer = (left + dist / 3000.0f) * speed;
+
                 skillshot->Set().Radius = 110.0f + buffer;
                 skillshot->Set().FixedRange = false;
                 skillshot->Set().Range = 12500.0f;
+
                 skillshot->FixOrigin();
             }
             
+            // Cut global skillshots
+            else if (data.IsGlobal)
+            {
+                force_update = true;
+                float hitbox = api->GetHitbox(this->hero);
+                float move_speed = api->GetMovementSpeed(this->hero);
+                float threshold = (radius + hitbox) / move_speed + 1.5f;
+                skillshot->Set().EndPos = pos + dir * (threshold * speed);
+            }
+
             // Adjust skillshot's speed dynamically based on various properties
             if (name == "EnchantedCrystalArrow" && proc_type && elapsed > 0.25f)
             {
@@ -829,6 +849,7 @@ namespace Evade
                     auto missile = api->AsMissile(object);
                     Vector pos = api->GetPosition(missile);
                     speed = api->GetMissileSpeed(missile);
+
                     skillshot->Set().StartTime = timer;
                     skillshot->Set().StartPos = pos;
                     skillshot->Set().Speed = speed;

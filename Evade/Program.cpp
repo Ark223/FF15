@@ -428,7 +428,7 @@ namespace Evade
             this->SwitchOff(true);
         }
 
-        // Turn off evasion if user has disabled it
+        // Turn off evasion if its disabled
         if (!this->GetValue<bool>("Dodge"))
         {
             return this->SwitchOff(true);
@@ -499,34 +499,39 @@ namespace Evade
         this->hash_code = hash;
         float time_diff = this->recalc_timer - timer;
         if (!this->recalc_path || time_diff > 0) return;
+        float health = this->api->GetHealth(this->my_hero);
 
         // Check if any of the skillshots has a dynamic displacement
         bool dynamic = skillshots.Any([&](Skillshot* skillshot)
         {
-            const Vector& start = skillshot->Get().StartPos;
-            const Vector& origin = skillshot->Get().OriginPos;
             const std::string& name = skillshot->Get().SkillshotName;
             const auto& data = this->data->GetSkillshots().at(name);
-            if (data.BackToCaster || data.FollowCaster) return true;
+            if (data.Acceleration != 0 || data.BackToCaster ||
+                data.FastEvade || data.FollowCaster) return true;
             return this->update_id >= skillshot->GetId();
         });
 
         // Sort skillshots by specific names first, then by danger level and damage
         // Lowest priority is assigned to skillshots that include multiple parts
         auto splitted = { "LeonaSolarFlare", "SettW", "SyndraE", "VeigarCage" };
-        skillshots = skillshots.OrderByDescending<int>([&](Skillshot* skillshot)
+        skillshots = skillshots.OrderBy<bool>([&splitted](Skillshot* skillshot)
         {
             const std::string& name = skillshot->Get().SkillshotName;
-            auto begin = splitted.begin(), end = splitted.end();
-            return std::find(begin, end, name) != end ? 1 : 0;
-        });
-        skillshots = skillshots.ThenBy<int>([](Skillshot* skillshot)
+            auto begin = splitted.begin(), ending = splitted.end();
+            return std::find(begin, ending, name) == ending;
+        })
+        .ThenByDescending<bool>([&health](Skillshot* skillshot)
         {
-            return skillshot->Get().DangerLevel;
-        });
-        skillshots = skillshots.ThenBy<float>([](Skillshot* skillshot)
+            return health <= skillshot->Get().Damage;
+        })
+        .ThenBy<float>([](Skillshot* skillshot)
         {
-            return skillshot->Get().Damage;
+            int level = skillshot->Get().DangerLevel;
+            return level * level * skillshot->Get().Damage;
+        })
+        .ThenByDescending<bool>([&safe_area](Skillshot* skillshot)
+        {
+            return safe_area.Contains(skillshot);
         });
 
         // Update item slots and prepare a new evading solution
@@ -534,9 +539,13 @@ namespace Evade
         this->SwitchOff(true); this->recalc_path = false;
 
         // Attempt to find a safe solution
-        int retries = this->GetValue<int>("Retries");
-        while (skillshots.Count() > 0 && retries-- >= 0)
+        int retries = this->GetValue<int>("Retries"), retry = 0;
+        while (skillshots.Count() > 0 && retry++ <= retries)
         {
+            if (retry > 1 && !this->dangerous.Intersect(skillshots).Any())
+            {
+                break;
+            }
             auto solution = this->utils->FindSolution(skillshots, dynamic);
             if (this->utils->ShouldEvade(skillshots, solution, dynamic))
             {

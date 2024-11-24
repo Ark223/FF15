@@ -365,15 +365,6 @@ namespace Evade
             return name == "PykeE" || name == "SejuaniW" || name == "TaricE";
         });
 
-        // Determine if the shortest path should be applied based on certain skillshots
-        bool apply_short = any_dynamic || skillshots.Any([&](Skillshot* skillshot)
-        {
-            const std::string& name = skillshot->Get().SkillshotName;
-            float accel = this->data->GetSkillshots().at(name).Acceleration;
-            std::string velkoz = "VelkozE", xerath = "XerathRMissileWrapper";
-            return name == velkoz || name == xerath || accel != 0.0f;
-        });
-
         // Loop through available evasion options
         size_t size = move_buffers.Count() + 1;
         for (size_t index = 0; index <= size; index++)
@@ -434,7 +425,7 @@ namespace Evade
 
             // Decide whether to evade using the shortest path
             // or by heading toward the mouse position
-            bool short_path = apply_short || index == size;
+            bool short_path = any_dynamic || index == size;
             spots = spots.OrderBy<float>([&](const Vector& spot)
             {
                 return short_path ? spot.DistanceSquared(hero_pos)

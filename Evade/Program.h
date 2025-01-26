@@ -14,7 +14,7 @@ namespace Evade
     class Process;
     class Utilities;
 
-    const std::string EVADE_VERSION = "1.02";
+    const std::string EVADE_VERSION = "1.03";
     constexpr float SAFETY_BUFFER = 30.0f;
 
     enum class CollectionType { ACTIVE, CONSIDERED, DANGEROUS };
@@ -74,9 +74,9 @@ namespace Evade
 
             static void OnTickWrapper();
             static void OnDrawWrapper();
-            static void OnProcessSpellWrapper(Object unit, CastInfo info);
+            static void OnProcessSpellWrapper(Obj_AI_Base unit, CastInfo info);
             static void OnCreateObjectWrapper(Object unit, uint32_t id);
-            static void OnBuffGainWrapper(Buff buff);
+            static void OnBuffGainWrapper(Obj_AI_Base unit, Buff buff);
             static void OnWndProcWrapper(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam);
             static void OnIssueOrderWrapper(VecInt3 pos, int order, int target_id);
 
@@ -96,7 +96,7 @@ namespace Evade
             Vector evade_pos, hero_pos, prev_pos, safe_pos;
             Linq<Skillshot*> considered, dangerous, skillshots;
             std::unordered_map<std::string, Objects> objects;
-            std::unordered_map<std::string, Menu> settings;
+            std::unordered_map<std::string, MenuItem> settings;
             std::function<int(char)> char_to_slot;
             Linq<SpellInfo> evading_spells;
             Linq<ParticleInfo> particles;
@@ -111,12 +111,12 @@ namespace Evade
 
             void OnTick();
             void OnDraw();
-            void OnProcessSpell(const Object& unit, std::string& spell_name,
+            void OnProcessSpell(const Obj_AI_Base& unit, std::string& spell_name,
                 const int spell_level, const Vector& start_pos, const Vector& end_pos,
                 uint32_t target_id, float cast_delay, float travel_time, bool proc_next);
-            void OnProcessSpellInternal(const Object& unit, const CastInfo& info);
-            void OnCreateObject(const Object& unit, uint32_t id);
-            void OnBuffGain(const Buff& buff);
+            void OnProcessSpellInternal(const Obj_AI_Base& unit, const CastInfo& info);
+            void OnCreateObject(const Object& unit, uint32_t object_id);
+            void OnBuffGain(const Obj_AI_Base& unit, const Buff& buff);
             void OnWndProc(UINT msg, WPARAM wparam);
             void OnIssueOrder(const VecInt3& pos, int order);
     };

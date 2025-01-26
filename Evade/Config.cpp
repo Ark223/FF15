@@ -32,46 +32,46 @@ namespace Evade
     }
 
     template<typename T>
-    T Config::GetValue(Menu menu, const std::string& id) const
+    T Config::GetValue(MenuItem menu, const std::string& id) const
     {
         return menu->get<T>(id);
     }
 
-    template bool Config::GetValue<bool>(Menu, const std::string&) const;
+    template bool Config::GetValue<bool>(MenuItem, const std::string&) const;
 
-    template int Config::GetValue<int>(Menu, const std::string&) const;
+    template int Config::GetValue<int>(MenuItem, const std::string&) const;
 
-    Menu Config::AddCheckbox(Menu menu, const std::string& id, const std::string& text, bool value)
+    MenuItem Config::AddCheckbox(MenuItem menu, const std::string& id, const std::string& text, bool value)
     {
         return menu->add_checkbox(id, text, value);
     }
 
-    Menu Config::AddKey(Menu menu, const std::string& id, const std::string& text, int key_value)
+    MenuItem Config::AddKey(MenuItem menu, const std::string& id, const std::string& text, int key_value)
     {
         return menu->add_key(id, text, key_value);
     }
 
-    Menu Config::AddLabel(Menu menu, const std::string& id, const std::string& text, bool center)
+    MenuItem Config::AddLabel(MenuItem menu, const std::string& id, const std::string& text, bool center)
     {
         return menu->add_label(id, text, center, true);
     }
 
-    Menu Config::AddList(Menu menu, const std::string& id, const std::string& text, Items items, int selected)
+    MenuItem Config::AddList(MenuItem menu, const std::string& id, const std::string& text, Items items, int selected)
     {
         return menu->add_list_box(id, text, items, selected);
     }
 
-    Menu Config::AddSlider(Menu menu, const std::string& id, const std::string& text, int value, int min, int max, int step)
+    MenuItem Config::AddSlider(MenuItem menu, const std::string& id, const std::string& text, int value, int min, int max, int step)
     {
         return menu->add_slider_int(id, text, value, min, max, step);
     }
 
-    Menu Config::AddSubMenu(Menu menu, const std::string& id, const std::string& text)
+    MenuItem Config::AddSubMenu(MenuItem menu, const std::string& id, const std::string& text)
     {
         return menu->add_sub_menu(id, text);
     }
 
-    Menu Config::CreateMenu(const std::string& id, const std::string& text)
+    MenuItem Config::CreateMenu(const std::string& id, const std::string& text)
     {
         return this->m_menu->create_menu(id, text);
     }

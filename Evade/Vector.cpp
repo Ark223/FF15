@@ -213,9 +213,9 @@ namespace Evade
         Vector d1 = v1 - *this, d2 = v2 - *this;
         float angle = std::atan2f(d2.y, d2.x);
         angle -= std::atan2f(d1.y, d1.x);
-        if (angle < 0) angle += M_PI_2_F;
-        bool fix = normalize && angle - M_PI > 0;
-        return fix ? (M_PI_2_F - angle) : angle;
+        if (angle < 0) angle += 2.0f * M_PI_F;
+        bool fix = normalize && angle - M_PI_F > 0;
+        return fix ? (2.0f * M_PI_F - angle) : angle;
     }
 
     Vector Vector::LineIntersection(const Vector& a2, const Vector& b1, const Vector& b2) const

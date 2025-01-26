@@ -9,7 +9,7 @@
 namespace Evade
 {
     using Buff = BuffInstance*;
-    using BuffType = sdk::enums::BuffType;
+    using BuffType = SDK::Enums::BuffType;
     using CastInfo = SpellCastInfo*;
     using MissileClient = Missile*;
     using Object = GameObject*;
@@ -17,9 +17,20 @@ namespace Evade
     using Obj_AI_Hero = AIHeroPlayer*;
     using Obj_AI_Minion = AIMinionCommon*;
     using PublicAPI = NS SurrenderAt15*;
-    using SpellState = sdk::enums::SpellState;
-    using VecInt2 = NSSDK structs::math::vector2;
-    using VecInt3 = NSSDK structs::math::vector3;
+    using SpellState = SDK::Enums::SpellState;
+    using VecInt2 = SDK::Structs::Math::Vector2;
+    using VecInt3 = SDK::Structs::Math::Vector3;
+
+    enum class EventType
+    {
+        ON_TICK = 0,
+        ON_DRAW,
+        ON_PROCESS_SPELL,
+        ON_CREATE_OBJECT,
+        ON_BUFF_GAIN,
+        ON_WND_PROC,
+        ON_ISSUE_ORDER
+    };
 
     class API
     {
@@ -33,6 +44,9 @@ namespace Evade
         public:
             static void Destroy();
             static API* Get(PublicAPI api = nullptr);
+
+            void RegisterEvent(EventType type, void* callback);
+            void UnloadEvents();
 
             uint32_t ARGB(int alpha, int red, int green, int blue) const;
             uint32_t FNV1A32(const char* str) const;

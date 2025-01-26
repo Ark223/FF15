@@ -38,13 +38,13 @@ namespace Evade
     void Program::RegisterEvents()
     {
         if (this->libs_loaded == false) return;
-        this->m_api->set_onGameUpdate(OnTickWrapper);
-        this->m_api->set_onDraw(OnDrawWrapper);
-        this->m_api->set_onProcessSpell(OnProcessSpellWrapper);
-        this->m_api->set_onGameObjCreate(OnCreateObjectWrapper);
-        this->m_api->set_onBuffAdd(OnBuffGainWrapper);
-        this->m_api->set_onWndProc(OnWndProcWrapper);
-        this->m_api->set_onIssueOrder(OnIssueOrderWrapper);
+        this->api->RegisterEvent(EventType::ON_TICK, OnTickWrapper);
+        this->api->RegisterEvent(EventType::ON_DRAW, OnDrawWrapper);
+        this->api->RegisterEvent(EventType::ON_PROCESS_SPELL, OnProcessSpellWrapper);
+        this->api->RegisterEvent(EventType::ON_CREATE_OBJECT, OnCreateObjectWrapper);
+        this->api->RegisterEvent(EventType::ON_BUFF_GAIN, OnBuffGainWrapper);
+        this->api->RegisterEvent(EventType::ON_WND_PROC, OnWndProcWrapper);
+        this->api->RegisterEvent(EventType::ON_ISSUE_ORDER, OnIssueOrderWrapper);
     }
 
     void Program::RegisterMenu()
@@ -80,7 +80,7 @@ namespace Evade
         Program::Get()->OnDraw();
     }
 
-    void Program::OnProcessSpellWrapper(Object unit, CastInfo info)
+    void Program::OnProcessSpellWrapper(Obj_AI_Base unit, CastInfo info)
     {
         Program::Get()->OnProcessSpellInternal(unit, info);
     }
@@ -90,9 +90,9 @@ namespace Evade
         Program::Get()->OnCreateObject(unit, id);
     }
 
-    void Program::OnBuffGainWrapper(Buff buff)
+    void Program::OnBuffGainWrapper(Obj_AI_Base unit, Buff buff)
     {
-        Program::Get()->OnBuffGain(buff);
+        Program::Get()->OnBuffGain(unit, buff);
     }
 
     void Program::OnWndProcWrapper(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -539,10 +539,10 @@ namespace Evade
         this->SwitchOff(true); this->recalc_path = false;
 
         // Attempt to find a safe solution
-        int retries = this->GetValue<int>("Retries"), retry = 0;
-        while (skillshots.Count() > 0 && retry++ <= retries)
+        int retries = this->GetValue<int>("Retries"), iter = 0;
+        while (skillshots.Count() > 0 && iter++ <= retries)
         {
-            if (retry > 1 && !this->dangerous.Intersect(skillshots).Any())
+            if (iter > 1 && !this->dangerous.Intersect(skillshots).Any())
             {
                 break;
             }
@@ -662,7 +662,7 @@ namespace Evade
         });
     }
 
-    void Program::OnProcessSpell(const Object& unit, std::string& spell_name,
+    void Program::OnProcessSpell(const Obj_AI_Base& unit, std::string& spell_name,
         const int spell_level, const Vector& start_pos, const Vector& end_pos,
         uint32_t target_id, float cast_delay, float extra_delay, bool proc_next)
     {
@@ -788,7 +788,7 @@ namespace Evade
         if (data.SkipAncestor) this->skillshots.Remove(skillshot);
     }
 
-    void Program::OnProcessSpellInternal(const Object& unit, const CastInfo& info)
+    void Program::OnProcessSpellInternal(const Obj_AI_Base& unit, const CastInfo& info)
     {
         auto name = this->api->GetSpellCastName(info);
         int level = this->api->GetSpellCastLevel(info);
@@ -951,18 +951,14 @@ namespace Evade
         if (data.SkipAncestor) this->skillshots.Remove(skillshot);
     }
 
-    void Program::OnBuffGain(const Buff& buff)
+    void Program::OnBuffGain(const Obj_AI_Base& unit, const Buff& buff)
     {
         const auto& dashes = this->data->GetCustomDashes();
         std::string name = this->api->GetBuffName(buff);
         if (dashes.find(name) == dashes.end()) return;
 
-        // Retrieve the buff owner from buff instance
-        auto owner = this->api->GetBuffOwner(buff);
-        if (!this->api->IsValid(owner)) return;
-
         // Ensure the caster is currently dashing
-        auto caster = this->api->AsHero(owner);
+        auto caster = this->api->AsHero(unit);
         if (!this->api->IsDashing(caster)) return;
         if (!this->api->IsEnemy(caster)) return;
 

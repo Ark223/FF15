@@ -6,9 +6,9 @@
 
 namespace Evade
 {
-    using Menu = menu::AMenu*;
+    using MenuItem = Menu::AMenu*;
     using PublicAPI = NS SurrenderAt15*;
-    using PublicMenuAPI = menu::AMenuConstructor*;
+    using PublicMenuAPI = Menu::AMenuConstructor*;
     using Items = std::vector<std::string>;
 
     class Config
@@ -26,15 +26,15 @@ namespace Evade
             bool IsLoaded() const;
 
             template<typename T>
-            T GetValue(Menu menu, const std::string& id) const;
+            T GetValue(MenuItem menu, const std::string& id) const;
 
-            Menu AddCheckbox(Menu menu, const std::string& id, const std::string& text, bool value);
-            Menu AddKey(Menu menu, const std::string& id, const std::string& text, int key_value);
-            Menu AddLabel(Menu menu, const std::string& id, const std::string& text, bool center = false);
-            Menu AddList(Menu menu, const std::string& id, const std::string& text, Items items, int selected);
-            Menu AddSlider(Menu menu, const std::string& id, const std::string& text, int value, int min, int max, int step);
-            Menu AddSubMenu(Menu menu, const std::string& id, const std::string& text);
-            Menu CreateMenu(const std::string& id, const std::string& text);
+            MenuItem AddCheckbox(MenuItem menu, const std::string& id, const std::string& text, bool value);
+            MenuItem AddKey(MenuItem menu, const std::string& id, const std::string& text, int key_value);
+            MenuItem AddLabel(MenuItem menu, const std::string& id, const std::string& text, bool center = false);
+            MenuItem AddList(MenuItem menu, const std::string& id, const std::string& text, Items items, int selected);
+            MenuItem AddSlider(MenuItem menu, const std::string& id, const std::string& text, int value, int min, int max, int step);
+            MenuItem AddSubMenu(MenuItem menu, const std::string& id, const std::string& text);
+            MenuItem CreateMenu(const std::string& id, const std::string& text);
             void PrintText(const std::string& text);
             void RemoveMenu(const std::string& id);
             void RegisterAPI();

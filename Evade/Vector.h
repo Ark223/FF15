@@ -13,24 +13,20 @@
 #define FLT_MIN 1.175494351e-38f
 #endif
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846f
-#endif
-
-#ifndef M_PI_2
-#define M_PI_2 (M_PI / 2.0f)
+#ifndef M_PI_F
+#define M_PI_F 3.14159265358979323846f
 #endif
 
 #ifndef M_PI_2_F
-#define M_PI_2_F (M_PI * 2.0f)
+#define M_PI_2_F (M_PI_F / 2.0f)
 #endif
 
 #ifndef M_DEG
-#define M_DEG(v) ((v) / M_PI * 180.0f)
+#define M_DEG(v) ((v) / M_PI_F * 180.0f)
 #endif
 
 #ifndef M_RAD
-#define M_RAD(v) ((v) * M_PI / 180.0f)
+#define M_RAD(v) ((v) * M_PI_F / 180.0f)
 #endif
 
 #ifndef ABS

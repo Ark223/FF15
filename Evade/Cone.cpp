@@ -202,7 +202,7 @@ namespace Evade
         {
             Vector middle = (corner[1] + corner[2]) * 0.5f;
             result.AddRange(Geometry::ArcSegmentIntersection(
-                p1, p2, corner[0], middle, hitbox, M_PI_2));
+                p1, p2, corner[0], middle, hitbox, M_PI_2_F));
         }
 
         return result.Distinct();

@@ -169,7 +169,7 @@ namespace Evade
 
             // Check intersection with the corners
             auto arc = Geometry::ArcSegmentIntersection(
-                p1, p2, curr, perp_c, data.Hitbox, M_PI_2);
+                p1, p2, curr, perp_c, data.Hitbox, M_PI_2_F);
             for (const Vector& vec : arc) result.Append(vec);
         }
 

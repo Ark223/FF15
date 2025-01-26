@@ -136,6 +136,14 @@ namespace Evade
             }
         }
 
+        // Mel E Tails
+        else if (name == "MelE")
+        {
+            Vector tail = ending + dir * 525.0f;
+            result.Append({ caster, "MelEFieldTail", ending, ending });
+            result.Append({ caster, "MelEFieldTail", tail, tail, 0.45f });
+        }
+
         // Sylas Q
         else if (name == "SylasQ")
         {
@@ -373,12 +381,14 @@ namespace Evade
         float speed = active_data.Speed;
         float range = active_data.Range;
         float radius = active_data.Radius;
+
         const auto& caster = active_data.Caster;
         const Vector& dir = active_data.Direction;
         const Vector& dest = active_data.DestPos;
         const Vector& ending = active_data.EndPos;
         const Vector& start = active_data.StartPos;
         const Vector& perp = active_data.Perpendicular;
+
         const Collisions& flags = active_data.Collisions;
         const std::string& name = active_data.SkillshotName;
         const DetectionType type = active_data.DetectionType;
@@ -394,7 +404,7 @@ namespace Evade
         if (name == "Volley" && level > 0)
         {
             float angles[] = { 30, 35, 40, 45, 50 };
-            float angle = angles[level] * M_PI / 90.0f;
+            float angle = angles[level] * M_PI_F / 90.0f;
             float offset = -radius * 2.0f / std::sinf(angle);
             skillshot->Set().Delay = delay + offset / speed;
             skillshot->Set().ConeAngle = 2.0f * angle;
@@ -537,15 +547,14 @@ namespace Evade
             skillshot->Set().Range = 800.0f;
         }
 
-        // Check if the range has changed, and if so,
-        // adjust skillshot's origin points accordingly
+        // Adjust skillshot's origin points
         if (range != skillshot->Get().Range)
         {
             skillshot->FixOrigin();
+            range = skillshot->Get().Range;
         }
 
         // Adjust various numeric properties
-        range = skillshot->Get().Range;
         if (name == "AurelionE" || name == "AurelionR")
         {
             int stacks = api->GetBuffCount(caster, 0x42E9ABCB);
@@ -746,8 +755,8 @@ namespace Evade
             float radius = active_data.Radius;
             float start_time = active_data.StartTime;
             uint32_t object_id = active_data.ObjectId;
-            const auto& caster = active_data.Caster;
 
+            const auto& caster = active_data.Caster;
             const Vector& dir = active_data.Direction;
             const Vector& pos = active_data.Position;
             const Vector& start = active_data.StartPos;
@@ -815,7 +824,6 @@ namespace Evade
                 skillshot->Set().Radius = 110.0f + buffer;
                 skillshot->Set().FixedRange = false;
                 skillshot->Set().Range = 12500.0f;
-
                 skillshot->FixOrigin();
             }
             

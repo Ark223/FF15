@@ -121,7 +121,7 @@ namespace Evade
             if (!inter.IsValid()) continue;
 
             // Add rounding to convex corners only
-            float phi = M_PI - p2.AngleBetween(p1, p3);
+            float phi = M_PI_F - p2.AngleBetween(p1, p3);
             if (phi < 0) { result.Add(inter); continue; }
             Vector vertex = p2 + (inter - p2).Normalize() * delta;
             result.Append(Geometry::Arc(p2, vertex, phi, step));

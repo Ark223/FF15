@@ -37,7 +37,7 @@ namespace Evade
         for (const Vector& intersection : intersections)
         {
             float phi = a1.AngleBetween(intersection, a2);
-            if (MIN(phi, M_PI_2_F - phi) <= half_angle)
+            if (MIN(phi, 2.0f * M_PI_F - phi) <= half_angle)
             {
                 result.push_back(intersection);
             }
@@ -109,7 +109,7 @@ namespace Evade
         bool outside = distance > range * range;
         if (outside == true) return false;
         float phi = p1.AngleBetween(pos, p2);
-        phi = MIN(phi, M_PI_2_F - phi);
+        phi = MIN(phi, 2.0f * M_PI_F - phi);
         return phi <= angle * 0.5f;
     }
 

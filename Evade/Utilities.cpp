@@ -420,7 +420,7 @@ namespace Evade
                 const Vector& enemy = threats.Last().first;
                 float angle_a = hero_pos.AngleBetween(mouse, enemy, true);
                 float angle_b = hero_pos.AngleBetween(spot, enemy, true);
-                return angle_a > M_PI_2 && angle_b < M_PI_2;
+                return angle_a > M_PI_2_F && angle_b < M_PI_2_F;
             });
 
             // Decide whether to evade using the shortest path

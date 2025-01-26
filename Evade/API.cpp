@@ -9,6 +9,7 @@ namespace Evade
 
     void API::Destroy()
     {
+        m_instance->UnloadEvents();
         delete m_instance;
         m_instance = nullptr;
     }
@@ -20,6 +21,45 @@ namespace Evade
             m_instance = new API(api);
         }
         return m_instance;
+    }
+
+    void API::RegisterEvent(EventType type, void* callback)
+    {
+        switch (type)
+        {
+            case EventType::ON_TICK:
+                this->m_api->set_on_game_update(callback);
+                break;
+
+            case EventType::ON_DRAW:
+                this->m_api->set_on_draw(callback);
+                break;
+
+            case EventType::ON_PROCESS_SPELL:
+                this->m_api->set_on_process_spell(callback);
+                break;
+
+            case EventType::ON_CREATE_OBJECT:
+                this->m_api->set_on_create_object(callback);
+                break;
+
+            case EventType::ON_BUFF_GAIN:
+                this->m_api->set_on_buff_add(callback);
+                break;
+
+            case EventType::ON_WND_PROC:
+                this->m_api->set_on_wnd_proc(callback);
+                break;
+
+            case EventType::ON_ISSUE_ORDER:
+                this->m_api->set_on_issue_order(callback);
+                break;
+        }
+    }
+
+    void API::UnloadEvents()
+    {
+        // It is handled automatically by core
     }
 
     uint32_t API::ARGB(int alpha, int red, int green, int blue) const
@@ -47,26 +87,20 @@ namespace Evade
     {
         if (this->m_hero != nullptr) return this->m_hero;
         auto manager = this->m_api->get_game_object_manager();
-        for (const auto& hero : manager->get_heros())
-        {
-            if (hero->is_local_player())
-            {
-                this->m_hero = (Obj_AI_Hero)(hero->get_as_hero());
-                break;
-            }
-        }
+        auto hero = manager->get_local_player()->as_hero();
+        this->m_hero = (Obj_AI_Hero)(hero);
         return this->m_hero;
     }
 
     Vector API::GetCursorPos() const
     {
         auto logic = this->m_api->get_hud_manager()->get_cursor_logic();
-        return this->ToVector(*(logic->get_cursor_pos()));
+        return this->ToVector(*(logic->get_cursor_position()));
     }
 
     float API::GetLatency() const
     {
-        return this->m_api->get_net_client()->get_ping() * 0.001f;
+        return this->m_api->get_network_client()->get_ping() * 0.001f;
     }
 
     float API::GetTime() const
@@ -78,17 +112,17 @@ namespace Evade
 
     Obj_AI_Hero API::AsHero(const Object& object) const
     {
-        return (Obj_AI_Hero)(object->get_as_hero());
+        return (Obj_AI_Hero)(object->as_hero());
     }
 
     Obj_AI_Minion API::AsMinion(const Object& object) const
     {
-        return (Obj_AI_Minion)(object->get_as_minion());
+        return (Obj_AI_Minion)(object->as_minion());
     }
 
     MissileClient API::AsMissile(const Object& object) const
     {
-        return (MissileClient)(object->get_as_missile());
+        return (MissileClient)(object->as_missile());
     }
 
     bool API::IsHero(const Object& object) const
@@ -158,18 +192,19 @@ namespace Evade
     void API::DrawCenteredText(const VecInt2& pos, const char* text, uint32_t color)
     {
         auto imgui = this->m_api->get_imgui_helper();
-        VecInt2 fixed = imgui->CalcTextSize(text);
+        auto fixed = imgui->calculate_text_size(text);
         uint32_t abgr = this->FixColor(color);
         fixed.x = pos.x - fixed.x / 2.0f;
         fixed.y = pos.y + fixed.y / 2.0f;
-        imgui->Text(fixed, abgr, text);
+        imgui->draw_text(fixed, abgr, text);
     }
 
     void API::DrawCircle(const Vector& pos, float radius, float height, uint32_t color)
     {
         VecInt3 vec = this->To3D(pos, height);
         uint32_t abgr = this->FixColor(color);
-        this->m_api->get_imgui_helper()->Circle3D(vec, radius, abgr, 2.0f);
+        auto imgui = this->m_api->get_imgui_helper();
+        imgui->draw_circle_3d(vec, radius, abgr, 2.0f);
     }
 
     void API::DrawLine(const Vector& p1, const Vector& p2, float height, uint32_t color)
@@ -177,7 +212,8 @@ namespace Evade
         VecInt2 v1 = this->ToScreen(p1, height);
         VecInt2 v2 = this->ToScreen(p2, height);
         uint32_t abgr = this->FixColor(color);
-        this->m_api->get_imgui_helper()->Line(v1, v2, abgr, 2.0f);
+        auto imgui = this->m_api->get_imgui_helper();
+        imgui->draw_line(v1, v2, abgr, 2.0f);
     }
 
     void API::DrawPolygon(const Poly& poly, float height, uint32_t color)
@@ -185,6 +221,7 @@ namespace Evade
         size_t size = poly.Size();
         std::vector<VecInt2> points(size);
         uint32_t abgr = this->FixColor(color);
+        auto imgui = this->m_api->get_imgui_helper();
 
         for (size_t i = 0; i < size; ++i)
         {
@@ -194,7 +231,7 @@ namespace Evade
         for (size_t i = 0, j = size - 1; i < size; j = i++)
         {
             VecInt2 v1 = points[i], v2 = points[j];
-            this->m_api->get_imgui_helper()->Line(v1, v2, abgr, 2.0f);
+            imgui->draw_line(v1, v2, abgr, 2.0f);
         }
     }
 
@@ -212,10 +249,8 @@ namespace Evade
 
     float API::GetHeight(const Vector& pos) const
     {
-        float height = 0.0f;
-        auto manager = this->m_api->get_nav_mesh();
-        manager->query_height_for_pos(pos.x, pos.y, height);
-        return height;
+        auto manager = this->m_api->get_navigation_mesh();
+        return manager->query_height_for_position({pos.x, 0, pos.y});
     }
 
     VecInt2 API::ToScreen(const Vector& pos, float height)
@@ -228,25 +263,25 @@ namespace Evade
 
     Vector API::GetMissileEndPos(const MissileClient& missile) const
     {
-        return this->ToVector(missile->get_movement()->get_target_pos());
+        return this->ToVector(missile->get_movement()->get_target_position());
     }
 
     Vector API::GetMissileStartPos(const MissileClient& missile) const
     {
-        return this->ToVector(missile->get_movement()->get_start_pos());
+        return this->ToVector(missile->get_movement()->get_start_position());
     }
 
     std::string API::GetMissileName(const MissileClient& missile) const
     {
-        return missile->get_spellcastinfo()->get_spell_data()->get_name();
+        return missile->get_spell_cast_info()->get_spell_data()->get_name();
     }
 
     Object API::GetMissileOwner(const MissileClient& missile) const
     {
-        auto info = missile->get_spellcastinfo();
+        auto info = missile->get_spell_cast_info();
         auto manager = this->m_api->get_game_object_manager();
         uint32_t id = info ? info->get_spell_caster_id() : 0;
-        return id ? manager->get_obj_by_id(id).release() : nullptr;
+        return id ? manager->get_object_by_id(id).release() : nullptr;
     }
 
     float API::GetMissileSpeed(const MissileClient& missile) const
@@ -273,12 +308,12 @@ namespace Evade
 
     Vector API::GetSpellCastEndPos(const CastInfo& info) const
     {
-        return this->ToVector(info->get_end());
+        return this->ToVector(info->get_end_position());
     }
 
     Vector API::GetSpellCastStartPos(const CastInfo& info) const
     {
-        return this->ToVector(info->get_start());
+        return this->ToVector(info->get_start_position());
     }
 
     float API::GetSpellCastStartTime(const CastInfo& info) const
@@ -360,7 +395,7 @@ namespace Evade
 
     float API::GetHealth(const Obj_AI_Base& unit) const
     {
-        return unit->get_health_struct()->current.value;
+        return unit->get_health()->get_current();
     }
 
     float API::GetHealthRatio(const Obj_AI_Base& unit) const
@@ -386,12 +421,12 @@ namespace Evade
 
     float API::GetMaxHealth(const Obj_AI_Base& unit) const
     {
-        return unit->get_health_struct()->max.value;
+        return unit->get_health()->get_maximum();
     }
 
     float API::GetMaxMana(const Obj_AI_Base& unit) const
     {
-        return unit->get_ability_struct()->mana.max.value;
+        return unit->get_ability_resources()->get_mana()->get_maximum();
     }
 
     float API::GetMovementSpeed(const Obj_AI_Base& unit) const
@@ -444,14 +479,14 @@ namespace Evade
 
     bool API::Compare(const Object& a, const Object& b) const
     {
-        if (!a || !b) return false;
+        if (a == nullptr || b == nullptr) return false;
         return this->GetObjectId(a) == this->GetObjectId(b);
     }
 
     Object API::GetObjectById(const uint32_t object_id) const
     {
         auto manager = this->m_api->get_game_object_manager();
-        return manager->get_obj_by_id(object_id).release();
+        return manager->get_object_by_id(object_id).release();
     }
 
     uint32_t API::GetObjectId(const Object& object) const
@@ -461,16 +496,16 @@ namespace Evade
 
     Vector API::GetObjectDirection(const Object& object) const
     {
-        auto emitter = (EffectEmitter*)object->get_as_effect_emitter();
+        auto emitter = (EffectEmitter*)object->as_effect_emitter();
         return this->ToVector(emitter->get_orientation());
     }
 
     Object API::GetObjectOwner(const Object& object) const
     {
         auto manager = this->m_api->get_game_object_manager();
-        auto emitter = (EffectEmitter*)object->get_as_effect_emitter();
-        auto id = emitter ? emitter->get_attachment_obj_id() : 0;
-        return id ? manager->get_obj_by_id(id).release() : nullptr;
+        auto emitter = (EffectEmitter*)object->as_effect_emitter();
+        uint32_t id = emitter ? emitter->get_attachment_object_id() : 0;
+        return id ? manager->get_object_by_id(id).release() : nullptr;
     }
 
     std::string API::GetObjectName(const Object& object) const
@@ -513,7 +548,7 @@ namespace Evade
         float armor_res = armor * armor_pen - bonus - lethality;
         float value = armor < 0 ? 2.0f - 100.0f / (100.0f - armor)
             : armor_res < 0 ? 1.0f : 100.0f / (100.0f + armor_res);
-        return MAX(0.0f, floorf(amount * value));
+        return MAX(0.0f, std::floor(amount * value));
     }
 
     float API::CalcMagicalDamage(Obj_AI_Hero& source, Obj_AI_Hero& target, float amount) const
@@ -525,7 +560,7 @@ namespace Evade
         float magic_res = mr_amo * magic_pen - flat_magic_pen;
         float value = mr_amo < 0 ? 2.0f - 100.0f / (100.0f - mr_amo)
             : magic_res < 0 ? 1.0f : 100.0f / (100.0f + magic_res);
-        return MAX(0.0f, floorf(amount * value));
+        return MAX(0.0f, std::floor(amount * value));
     }
 
     float API::CalcMixedDamage(Obj_AI_Hero& source, Obj_AI_Hero& target, float amount) const
@@ -552,9 +587,9 @@ namespace Evade
         Linq<Obj_AI_Hero> result;
         bool inf = range >= 25000.0f;
         auto manager = this->m_api->get_game_object_manager();
-        for (const auto& hero : manager->get_heros())
+        for (const auto& hero : manager->get_heroes())
         {
-            auto unit = (Obj_AI_Hero)hero->get_as_hero();
+            auto unit = (Obj_AI_Hero)hero->as_hero();
             if (valid && !this->IsValid(unit)) continue;
             if (valid && !this->IsVisible(unit)) continue;
             if (inf) { result.Append(unit); continue; }
@@ -584,7 +619,7 @@ namespace Evade
         auto manager = this->m_api->get_game_object_manager();
         for (const auto& minion : manager->get_minions())
         {
-            auto unit = (Obj_AI_Minion)minion->get_as_minion();
+            auto unit = (Obj_AI_Minion)minion->as_minion();
             if (!this->IsValid(unit)) continue;
             if (!this->IsVisible(unit)) continue;
             std::string name(unit->get_char_name());
@@ -607,41 +642,19 @@ namespace Evade
     {
         uint32_t id = buff->get_caster_id();
         auto manager = this->m_api->get_game_object_manager();
-        return id ? manager->get_obj_by_id(id).release() : nullptr;
+        return id ? manager->get_object_by_id(id).release() : nullptr;
     }
 
     int API::GetBuffCount(const Obj_AI_Hero& unit, uint32_t hash) const
     {
-        auto buffs = unit->get_buffs();
-        for (const auto& buff : buffs)
-        {
-            if (!buff->is_valid() || !buff->is_active())
-            {
-                continue;
-            }
-            if (buff->get_hash() == hash)
-            {
-                return buff->get_count();
-            }
-        }
-        return 0;
+        auto buff = unit->get_buff_manager()->has_buff(hash);
+        return buff ? buff->get_count() : 0;
     }
 
     float API::GetBuffTime(const Obj_AI_Hero& unit, uint32_t hash) const
     {
-        auto buffs = unit->get_buffs();
-        for (const auto& buff : buffs)
-        {
-            if (!buff->is_valid() || !buff->is_active())
-            {
-                continue;
-            }
-            if (buff->get_hash() == hash)
-            {
-                return buff->get_end_time() - this->GetTime();
-            }
-        }
-        return 0.0f;
+        auto buff = unit->get_buff_manager()->has_buff(hash);
+        return buff ? buff->get_end_time() - this->GetTime() : 0;
     }
 
     int API::GetItemSlot(const Obj_AI_Hero& unit, int item_id) const
@@ -657,36 +670,12 @@ namespace Evade
 
     bool API::HasBuff(const Obj_AI_Hero& unit, uint32_t hash) const
     {
-        auto buffs = unit->get_buffs();
-        for (const auto& buff : buffs)
-        {
-            if (!buff->is_valid() || !buff->is_active())
-            {
-                continue;
-            }
-            if (buff->get_hash() == hash)
-            {
-                return true;
-            }
-        }
-        return false;
+        return unit->get_buff_manager()->has_buff(hash) != nullptr;
     }
 
     bool API::HasBuffType(const Obj_AI_Hero& unit, BuffType type) const
     {
-        auto buffs = unit->get_buffs();
-        for (const auto& buff : buffs)
-        {
-            if (!buff->is_valid() || !buff->is_active())
-            {
-                continue;
-            }
-            if (buff->get_type() == type)
-            {
-                return true;
-            }
-        }
-        return false;
+        return unit->get_buff_manager()->has_buff_of_type(type) != nullptr;
     }
 
     // Booleans
@@ -704,7 +693,7 @@ namespace Evade
 
     bool API::IsAttacking(const Obj_AI_Hero& unit) const
     {
-        auto spell_cast = unit->get_spellbook()->get_spellcasting_obj();
+        auto spell_cast = unit->get_spellbook()->get_spell_casting_object();
         return spell_cast && spell_cast->is_auto_attack();
     }
 
@@ -725,7 +714,7 @@ namespace Evade
 
     bool API::IsMoving(const Obj_AI_Base& unit) const
     {
-        return unit->get_nav_path()->is_moving();
+        return unit->get_navigation_path()->is_moving();
     }
 
     bool API::IsValid(const Object& unit) const
@@ -752,22 +741,22 @@ namespace Evade
 
     float API::GetDashSpeed(const Obj_AI_Base& unit) const
     {
-        return unit->get_nav_path()->get_dash_speed();
+        return unit->get_navigation_path()->get_dash_speed();
     }
 
     Vector API::GetDashEndPos(const Obj_AI_Base& unit) const
     {
-        return this->ToVector(unit->get_nav_path()->get_end_pos());
+        return this->ToVector(unit->get_navigation_path()->get_end_position());
     }
 
     Vector API::GetDashStartPos(const Obj_AI_Base& unit) const
     {
-        return this->ToVector(unit->get_nav_path()->get_start_pos());
+        return this->ToVector(unit->get_navigation_path()->get_start_position());
     }
 
     Vector API::GetDirection(const Obj_AI_Base& unit) const
     {
-        return this->ToVector(unit->get_direction()).Rotate(M_PI_2);
+        return this->ToVector(unit->get_direction()).Rotate(M_PI_2_F);
     }
 
     Linq<Vector> API::GetPath(const Vector& pos) const
@@ -791,7 +780,7 @@ namespace Evade
 
     Vector API::GetPathEndPos(const Obj_AI_Base& unit) const
     {
-        auto data = unit->get_nav_path();
+        auto data = unit->get_navigation_path();
         uint32_t count = data->get_path_count();
         size_t size = static_cast<size_t>(count);
         VecInt3 position = unit->get_position();
@@ -819,7 +808,7 @@ namespace Evade
 
     bool API::IsDashing(const Obj_AI_Base& unit) const
     {
-        auto path = unit->get_nav_path();
+        auto path = unit->get_navigation_path();
         return path->is_moving() && path->get_dash_speed() > 0;
     }
 

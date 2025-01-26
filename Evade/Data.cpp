@@ -839,9 +839,9 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float ad_scale[] = { 21, 22, 23, 24, 25 };
-            float damage = ad_scale[info.SpellLevel];
-            return damage * info.TotalAttackDamage / 100.0f;
+            float base_scale[] = { 60, 95, 130, 165, 200 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 1.0f * info.BonusAttackDamage;
         };
         data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::CONE;
@@ -2383,7 +2383,7 @@ namespace Evade
         {
             float base_scale[] = { 125, 250, 375 };
             float base_damage = base_scale[info.SpellLevel];
-            float bonus_damage = 0.65f * info.BonusAttackDamage;
+            float bonus_damage = 0.75f * info.BonusAttackDamage;
             float total_damage = base_damage + bonus_damage;
             float ratio = info.TargetHealth / info.TargetMaxHealth;
             return total_damage * (ratio < 0.3f ? 2.4f : 1.0f);
@@ -3200,7 +3200,7 @@ namespace Evade
         data.Damage = [](const StatData& info)
         {
             float base_scale[] = { 85, 120, 155, 190, 225 };
-            float ad_scale[] = { 40, 70, 100, 130, 160 };
+            float ad_scale[] = { 40, 65, 90, 115, 140 };
             float base_damage = base_scale[info.SpellLevel];
             float bonus_damage = ad_scale[info.SpellLevel];
             bonus_damage *= info.BonusAttackDamage / 100.0f;
@@ -3920,7 +3920,7 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 30, 75, 120, 165, 210 };
+            float base_scale[] = { 30, 60, 90, 120, 150 };
             float base_damage = base_scale[info.SpellLevel];
             float bonus_damage = 1.2f * info.TotalAttackDamage;
             bonus_damage += 1.2f * info.TotalAbilityDamage;
@@ -3949,9 +3949,17 @@ namespace Evade
         data.Range = 12500.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
-        data.Detectors = { DetectionType::ON_OBJECT_CREATED };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Detectors =
+        {
+            DetectionType::ON_OBJECT_CREATED
+        };
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 70, 110, 150, 190, 230 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.8f * info.TotalAbilityDamage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -3984,7 +3992,7 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 125, 250, 375 };
+            float base_scale[] = { 125, 200, 275 };
             float base_damage = base_scale[info.SpellLevel];
             return base_damage + 0.7f * info.TotalAbilityDamage;
         };
@@ -4672,7 +4680,7 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 20, 85, 150, 215, 280 };
+            float base_scale[] = { 10, 75, 140, 205, 270 };
             float base_damage = base_scale[info.SpellLevel];
             return base_damage + 1.05f * info.TotalAttackDamage;
         };
@@ -6375,6 +6383,154 @@ namespace Evade
 
         #pragma endregion
 
+        #pragma region Mel
+
+        // Mel Q
+
+        data = SkillshotData();
+        data.ChampionName = "Mel";
+        data.DisplayName = "Radiant Volley";
+        data.MissileName = "MelQMissile1";
+        data.SkillshotName = "MelQ";
+        data.IconName = "MelQ.png";
+        data.SkillshotSlot = 'Q';
+        data.Dangerous = true;
+        data.FogSupport = true;
+        data.Delay = 0.25f;
+        data.Windup = 0.25f;
+        data.ExtraTime = 0.7f;
+        data.Radius = 250.0f;
+        data.Range = 1000.0f;
+        data.Speed = 5000.0f;
+        data.DangerLevel = 3;
+        data.Collisions =
+        {
+            CollisionFlag::WIND_WALL
+        };
+        data.Detectors =
+        {
+            DetectionType::ON_ACTIVE_SPELL,
+            DetectionType::ON_OBJECT_CREATED,
+            DetectionType::ON_PROCESS_SPELL
+        };
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 78, 112, 152, 198, 250 };
+            float ap_scale[] = { 51, 59.5f, 68, 76.5f, 85 };
+            float base_damage = base_scale[info.SpellLevel];
+            float bonus_damage = ap_scale[info.SpellLevel];
+            bonus_damage *= info.TotalAbilityDamage / 100.0f;
+            return base_damage + bonus_damage;
+        };
+        data.DamageType = DamageType::MAGICAL;
+        data.SkillshotType = SkillshotType::CIRCLE;
+        this->skillshots[data.SkillshotName] = data;
+
+        // Mel E Orb
+
+        data = SkillshotData();
+        data.ChampionName = "Mel";
+        data.DisplayName = "Solar Snare [Orb]";
+        data.SkillshotName = "MelE";
+        data.IconName = "MelE.png";
+        data.SkillshotSlot = 'E';
+        data.AddHitbox = true;
+        data.Dangerous = true;
+        data.FixedRange = true;
+        data.HardCC = true;
+        data.Delay = 0.25f;
+        data.Windup = 0.25f;
+        data.Radius = 80.0f;
+        data.Range = 525.0f;
+        data.Offset = 100.0f;
+        data.Speed = 1000.0f;
+        data.DangerLevel = 3;
+        data.Collisions =
+        {
+            CollisionFlag::WIND_WALL
+        };
+        data.Detectors =
+        {
+            DetectionType::ON_ACTIVE_SPELL,
+            DetectionType::ON_OBJECT_CREATED,
+            DetectionType::ON_PROCESS_SPELL
+        };
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 60, 100, 140, 180, 220 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.5f * info.TotalAbilityDamage;
+        };
+        data.DamageType = DamageType::MAGICAL;
+        data.SkillshotType = SkillshotType::LINE;
+        this->skillshots[data.SkillshotName] = data;
+
+        // Mel E Field (Travel)
+
+        data = SkillshotData();
+        data.ChampionName = "Mel";
+        data.DisplayName = "Solar Snare [Field, Travel]";
+        data.SkillshotName = "MelEFieldTravel";
+        data.IconName = "MelE.png";
+        data.SkillshotSlot = 'E';
+        data.Dangerous = true;
+        data.FixedRange = true;
+        data.SoftCC = true;
+        data.Radius = 250.0f;
+        data.Range = 525.0f;
+        data.Speed = 1000.0f;
+        data.DangerLevel = 2;
+        data.Collisions =
+        {
+            CollisionFlag::WIND_WALL
+        };
+        data.Detectors =
+        {
+            DetectionType::ON_PROCESS_SPELL
+        };
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 60, 100, 140, 180, 220 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.5f * info.TotalAbilityDamage;
+        };
+        data.DamageType = DamageType::MAGICAL;
+        data.SkillshotType = SkillshotType::LINE;
+        this->skillshots[data.SkillshotName] = data;
+
+        // Mel E Field (Tail)
+
+        data = SkillshotData();
+        data.ChampionName = "Mel";
+        data.DisplayName = "Solar Snare [Field, Tail]";
+        data.SkillshotName = "MelEFieldTail";
+        data.IconName = "MelE.png";
+        data.SkillshotSlot = 'E';
+        data.Dangerous = true;
+        data.SoftCC = true;
+        data.Delay = 0.75f;
+        data.Radius = 250.0f;
+        data.DangerLevel = 2;
+        data.Collisions =
+        {
+            CollisionFlag::WIND_WALL
+        };
+        data.Detectors =
+        {
+            DetectionType::ON_PROCESS_SPELL
+        };
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 60, 100, 140, 180, 220 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.5f * info.TotalAbilityDamage;
+        };
+        data.DamageType = DamageType::MAGICAL;
+        data.SkillshotType = SkillshotType::CIRCLE;
+        this->skillshots[data.SkillshotName] = data;
+
+        #pragma endregion
+
         #pragma region Milio
 
         // Milio Q Missile
@@ -7580,9 +7736,9 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 80, 120, 160, 200, 240 };
+            float base_scale[] = { 60, 110, 160, 210, 260 };
             float base_damage = base_scale[info.SpellLevel];
-            float bonus_damage = 1.8f * info.BonusAttackDamage;
+            float bonus_damage = 2.0f * info.BonusAttackDamage;
             bonus_damage += 0.18f * info.TargetMaxHealth;
             return base_damage + bonus_damage;
         };
@@ -10351,11 +10507,11 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 85, 125, 165, 205, 245 };
+            float base_scale[] = { 75, 120, 165, 210, 255 };
             float base_damage = base_scale[info.SpellLevel];
             float bonus_damage = 1.0f * info.TotalAbilityDamage;
             float extra_damage = 6 + 42 / 17.0f * info.UnitLevel;
-            extra_damage += 0.02f * info.TotalAbilityDamage;
+            extra_damage += 0.015f * info.TotalAbilityDamage;
             extra_damage *= info.BonusHealth / 100.0f;
             extra_damage += 0.04f * info.BonusHealth;
             return base_damage + bonus_damage + extra_damage;
@@ -11694,17 +11850,18 @@ namespace Evade
         data = SkillshotData();
         data.ChampionName = "Viktor";
         data.DisplayName = "Graviton Field";
-        data.ParticleName = "_Catalyst_green";
-        data.SkillshotName = "ViktorW";
-        data.IconName = "ViktorGravitonField.png";
+        data.ParticleName = "_W_AOE_green";
+        data.SkillshotName = "ViktorWParticle";
+        data.IconName = "ViktorW.png";
         data.SkillshotSlot = 'W';
         data.Exception = true;
+        data.FastEvade = true;
         data.FogSupport = true;
         data.IgnoreAlive = true;
         data.HardCC = true;
-        data.Delay = 1.5f;
-        data.ParticleDelay = 1.5f;
-        data.ExtraTime = 2.5f;
+        data.Delay = 0.75f;
+        data.ParticleDelay = 0.75f;
+        data.ExtraTime = 3.75f;
         data.Windup = 0.25f;
         data.Radius = 300.0f;
         data.Range = 800.0f;
@@ -11719,14 +11876,14 @@ namespace Evade
         data.SkillshotType = SkillshotType::CIRCLE;
         this->skillshots[data.SkillshotName] = data;
 
-        // Viktor E1
+        // Viktor E Standard
 
         data = SkillshotData();
         data.ChampionName = "Viktor";
         data.DisplayName = "Death Ray [Standard]";
-        data.MissileName = "ViktorDeathRayMissile";
-        data.SkillshotName = "ViktorDeathRayMissile";
-        data.IconName = "ViktorDeathRay.png";
+        data.MissileName = "ViktorEMissile(?!2)";
+        data.SkillshotName = "ViktorEMissile";
+        data.IconName = "ViktorE.png";
         data.SkillshotSlot = 'E';
         data.AddHitbox = true;
         data.Exception = true;
@@ -11753,14 +11910,48 @@ namespace Evade
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
-        // Viktor E2
+        // Viktor E Evolved
+
+        data = SkillshotData();
+        data.ChampionName = "Viktor";
+        data.DisplayName = "Death Ray [Evolved]";
+        data.MissileName = "ViktorEAugMissile";
+        data.SkillshotName = "ViktorEAugMissile";
+        data.IconName = "ViktorE.png";
+        data.SkillshotSlot = 'E';
+        data.AddHitbox = true;
+        data.Exception = true;
+        data.FogSupport = true;
+        data.Radius = 80.0f;
+        data.Range = 600.0f;
+        data.Speed = 1050.0f;
+        data.DangerLevel = 2;
+        data.Collisions =
+        {
+            CollisionFlag::WIND_WALL
+        };
+        data.Detectors =
+        {
+            DetectionType::ON_OBJECT_CREATED
+        };
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 70, 110, 150, 190, 230 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.5f * info.TotalAbilityDamage;
+        };
+        data.DamageType = DamageType::MAGICAL;
+        data.SkillshotType = SkillshotType::LINE;
+        this->skillshots[data.SkillshotName] = data;
+
+        // Viktor E Aftershock
 
         data = SkillshotData();
         data.ChampionName = "Viktor";
         data.DisplayName = "Death Ray [Aftershock]";
-        data.MissileName = "ViktorDeathRayMissile2";
-        data.SkillshotName = "ViktorDeathRayMissile2";
-        data.IconName = "ViktorDeathRay.png";
+        data.MissileName = "ViktorEMissile2";
+        data.SkillshotName = "ViktorEMissile2";
+        data.IconName = "ViktorE.png";
         data.SkillshotSlot = 'E';
         data.AddHitbox = true;
         data.Exception = true;
@@ -11782,40 +11973,6 @@ namespace Evade
             float base_scale[] = { 20, 50, 80, 110, 140 };
             float base_damage = base_scale[info.SpellLevel];
             return base_damage + 0.8f * info.TotalAbilityDamage;
-        };
-        data.DamageType = DamageType::MAGICAL;
-        data.SkillshotType = SkillshotType::LINE;
-        this->skillshots[data.SkillshotName] = data;
-
-        // Viktor E Evolved
-
-        data = SkillshotData();
-        data.ChampionName = "Viktor";
-        data.DisplayName = "Death Ray [Evolved]";
-        data.MissileName = "ViktorEAugMissile";
-        data.SkillshotName = "ViktorEAugMissile";
-        data.IconName = "ViktorDeathRay.png";
-        data.SkillshotSlot = 'E';
-        data.AddHitbox = true;
-        data.Exception = true;
-        data.FogSupport = true;
-        data.Radius = 80.0f;
-        data.Range = 600.0f;
-        data.Speed = 1050.0f;
-        data.DangerLevel = 2;
-        data.Collisions =
-        {
-            CollisionFlag::WIND_WALL
-        };
-        data.Detectors =
-        {
-            DetectionType::ON_OBJECT_CREATED
-        };
-        data.Damage = [](const StatData& info)
-        {
-            float base_scale[] = { 70, 110, 150, 190, 230 };
-            float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.5f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -13248,6 +13405,7 @@ namespace Evade
             {"LeonaREpicenter", {"LeonaSolarFlare"}},
             {"LilliaERollingMissile", {"LilliaE"}},
             {"MalzaharQSecond", {"MalzaharQ"}},
+            {"MelE", {"MelEFieldTravel"}},
             {"MordekaiserQ2", {"MordekaiserQ"}},
             {"OrianaIzunaCenter", {"OrianaIzuna"}},
             {"RenataEExplosion", {"RenataE"}},
@@ -13274,6 +13432,7 @@ namespace Evade
             {"KarmaQMissileMantra", {"KarmaQExplosion", ConnectionType::EXTEND_LENGTH}},
             {"LeonaSolarFlare", {"LeonaREpicenter", ConnectionType::FOLLOW_ORIGIN}},
             {"MalzaharQ", {"MalzaharQSecond", ConnectionType::FOLLOW_ORIGIN}},
+            {"MelE", {"MelEFieldTravel", ConnectionType::EXTEND_LENGTH}},
             {"MordekaiserQ", {"MordekaiserQ2", ConnectionType::FOLLOW_ORIGIN}},
             {"NaafiriE", {"NaafiriEFlurry", ConnectionType::FOLLOW_ORIGIN}},
             {"OrianaIzuna", {"OrianaIzunaCenter", ConnectionType::FOLLOW_ORIGIN}},

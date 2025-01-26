@@ -10,9 +10,8 @@ namespace Evade
         this->InitSkillshots();
         this->InitEvadingSpells();
         this->InitShieldSpells();
-        this->InitAntiRecalcs();
         this->InitConnectors();
-        this->InitCustomDashes();
+        this->InitDashBuffs();
         this->InitPatterns();
         this->InitStoppers();
     }
@@ -2119,6 +2118,10 @@ namespace Evade
         data.Range = 700.0f;
         data.Speed = 1650.0f;
         data.DangerLevel = 1;
+        data.Exclusions =
+        {
+            "EkkoQ2"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -2155,6 +2158,10 @@ namespace Evade
         data.Range = 400.0f;
         data.Speed = 200.0f;
         data.DangerLevel = 1;
+        data.Exclusions =
+        {
+            "EkkoQ"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -2781,6 +2788,10 @@ namespace Evade
         data.Range = 1150.0f;
         data.Speed = 2100.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "GnarBigQLand"
+        };
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -2817,6 +2828,10 @@ namespace Evade
         data.Radius = 200.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "GnarBigQ"
+        };
         data.Detectors =
         {
             DetectionType::ON_ACTIVE_SPELL,
@@ -3267,6 +3282,10 @@ namespace Evade
         data.Range = 1100.0f;
         data.Speed = 2100.0f;
         data.DangerLevel = 5;
+        data.Exclusions =
+        {
+            "GravesRExplosion"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -3302,6 +3321,10 @@ namespace Evade
         data.Range = 590.0f;
         data.DangerLevel = 5;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "GravesChargeShot"
+        };
         data.Detectors =
         {
             DetectionType::ON_ACTIVE_SPELL,
@@ -3490,6 +3513,10 @@ namespace Evade
         data.Range = 970.0f;
         data.Speed = 1200.0f;
         data.DangerLevel = 3;
+        data.Exclusions =
+        {
+            "HeimerdingerEUlt"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -3532,6 +3559,10 @@ namespace Evade
         data.Range = 900.0f;
         data.Speed = 2000.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "HweiQQExplosion"
+        };
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -3573,6 +3604,10 @@ namespace Evade
         data.Radius = 240.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "HweiQQ"
+        };
         data.Detectors =
         {
             DetectionType::ON_ACTIVE_SPELL,
@@ -5728,6 +5763,10 @@ namespace Evade
         data.Range = 1200.0f;
         data.DangerLevel = 5;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "LeonaSolarFlare"
+        };
         data.Detectors =
         {
             DetectionType::ON_ACTIVE_SPELL,
@@ -5762,6 +5801,10 @@ namespace Evade
         data.Range = 1200.0f;
         data.DangerLevel = 5;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "LeonaREpicenter"
+        };
         data.Detectors =
         {
             DetectionType::ON_ACTIVE_SPELL,
@@ -6283,6 +6326,10 @@ namespace Evade
         data.Speed = 1600.0f;
         data.DangerLevel = 1;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "MalzaharQ"
+        };
         data.Detectors =
         {
             DetectionType::ON_ACTIVE_SPELL,
@@ -6318,6 +6365,10 @@ namespace Evade
         data.Speed = 1600.0f;
         data.DangerLevel = 1;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "MalzaharQSecond"
+        };
         data.Detectors =
         {
             DetectionType::ON_ACTIVE_SPELL,
@@ -6390,7 +6441,7 @@ namespace Evade
         data = SkillshotData();
         data.ChampionName = "Mel";
         data.DisplayName = "Radiant Volley";
-        data.MissileName = "MelQMissile1";
+        data.MissileName = "MelQMissile1(?!0)";
         data.SkillshotName = "MelQ";
         data.IconName = "MelQ.png";
         data.SkillshotSlot = 'Q';
@@ -6445,6 +6496,11 @@ namespace Evade
         data.Offset = 100.0f;
         data.Speed = 1000.0f;
         data.DangerLevel = 3;
+        data.Exclusions =
+        {
+            "MelEFieldTravel",
+            "MelEFieldTail"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -6480,6 +6536,11 @@ namespace Evade
         data.Range = 525.0f;
         data.Speed = 1000.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "MelE",
+            "MelEFieldTail"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -6511,6 +6572,11 @@ namespace Evade
         data.Delay = 0.75f;
         data.Radius = 250.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "MelE",
+            "MelEFieldTravel"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -6553,6 +6619,10 @@ namespace Evade
         data.Range = 1200.0f;
         data.Speed = 1200.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "MilioQHit"
+        };
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -6594,6 +6664,10 @@ namespace Evade
         data.Range = 12500.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "MilioQ"
+        };
         data.Detectors =
         {
             DetectionType::ON_OBJECT_CREATED
@@ -6628,6 +6702,10 @@ namespace Evade
         data.Range = 275.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "MordekaiserQ2"
+        };
         data.Detectors =
         {
             DetectionType::ON_ACTIVE_SPELL,
@@ -6667,6 +6745,10 @@ namespace Evade
         data.Offset = 275.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "MordekaiserQ"
+        };
         data.Detectors =
         {
             DetectionType::ON_ACTIVE_SPELL,
@@ -7397,6 +7479,10 @@ namespace Evade
         data.Speed = 1400.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "OrianaIzunaCenter"
+        };
         data.Detectors =
         {
             DetectionType::ON_OBJECT_CREATED
@@ -7425,6 +7511,10 @@ namespace Evade
         data.Speed = 1400.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "OrianaIzuna"
+        };
         data.Detectors =
         {
             DetectionType::ON_OBJECT_CREATED
@@ -8540,6 +8630,10 @@ namespace Evade
         data.Range = 800.0f;
         data.Speed = 1450.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "RenataEExplosion"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -8573,6 +8667,10 @@ namespace Evade
         data.SoftCC = true;
         data.Radius = 225.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "RenataE"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -9441,6 +9539,10 @@ namespace Evade
         data.Range = 925.0f;
         data.Speed = 1575.0f;
         data.DangerLevel = 1;
+        data.Exclusions =
+        {
+            "ShyvanaFireballDragon2"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -9480,6 +9582,10 @@ namespace Evade
         data.Range = 975.0f;
         data.Speed = 1575.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "ShyvanaFireball"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -10121,6 +10227,10 @@ namespace Evade
         data.MinSpeed = 1125.0f;
         data.MaxSpeed = 1800.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "SwainEDetonation"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -10195,6 +10305,10 @@ namespace Evade
         data.HardCC = true;
         data.Radius = 100.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "SwainE"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -10411,6 +10525,10 @@ namespace Evade
         data.Range = 800.0f;
         data.Speed = 2500.0f;
         data.DangerLevel = 3;
+        data.Exclusions =
+        {
+            "SyndraESphereMissile"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -10449,6 +10567,10 @@ namespace Evade
         data.Range = 950.0f;
         data.Speed = 2000.0f;
         data.DangerLevel = 3;
+        data.Exclusions =
+        {
+            "SyndraE"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -11566,6 +11688,10 @@ namespace Evade
         data.Range = 500.0f;
         data.Speed = 700.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "VexQAccelerated"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -11599,6 +11725,10 @@ namespace Evade
         data.Range = 700.0f;
         data.Speed = 3200.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "VexQ"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -12553,6 +12683,10 @@ namespace Evade
         data.Range = 1050.0f;
         data.Speed = 1500.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "YoneQ3Dash"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -12591,6 +12725,10 @@ namespace Evade
         data.Speed = 1500.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "YoneQ3"
+        };
         data.Detectors =
         {
             DetectionType::ON_ACTIVE_SPELL,
@@ -12968,6 +13106,10 @@ namespace Evade
         data.Range = 850.0f;
         data.Speed = 1700.0f;
         data.DangerLevel = 1;
+        data.Exclusions =
+        {
+            "ZiggsQ"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -13391,34 +13533,6 @@ namespace Evade
         this->shields[""] = ShieldSpellData();
     }
 
-    void Data::InitAntiRecalcs()
-    {
-        this->anti_recalcs =
-        {
-            {"EkkoQ2", {"EkkoQ"}},
-            {"GnarBigQ", {"GnarBigQLand"}},
-            {"GravesChargeShot", {"GravesRExplosion"}},
-            {"GravesRExplosion", {"GravesChargeShot"}},
-            {"HweiQQ", {"HweiQQExplosion"}},
-            {"KarmaQMissileMantra", {"KarmaQExplosion"}},
-            {"LeonaSolarFlare", {"LeonaREpicenter"}},
-            {"LeonaREpicenter", {"LeonaSolarFlare"}},
-            {"LilliaERollingMissile", {"LilliaE"}},
-            {"MalzaharQSecond", {"MalzaharQ"}},
-            {"MelE", {"MelEFieldTravel"}},
-            {"MordekaiserQ2", {"MordekaiserQ"}},
-            {"OrianaIzunaCenter", {"OrianaIzuna"}},
-            {"RenataEExplosion", {"RenataE"}},
-            {"RumbleRLand", {"RumbleRMissile"}},
-            {"SettWInner", {"SettW"}},
-            {"ShyvanaFireballDragon2", {"ShyvanaE2"}},
-            {"SwainEDetonation", {"SwainE"}},
-            {"SyndraESphereMissile", {"SyndraE"}},
-            {"VexQAccelerated", {"VexQ"}},
-            {"ZoeEc", {"ZoeE"}}
-        };
-    }
-
     void Data::InitConnectors()
     {
         this->connectors =
@@ -13442,7 +13556,6 @@ namespace Evade
             {"QiyanaQ_Rock", {"QiyanaQExplosion", ConnectionType::FOLLOW_ORIGIN}},
             {"RellW_Dismount", {"RellW2", ConnectionType::FOLLOW_ORIGIN}},
             {"RenataE", {"RenataEExplosion", ConnectionType::EXTEND_LENGTH}},
-            {"RumbleRMissile", {"RumbleRLand", ConnectionType::FOLLOW_ORIGIN}},
             {"SettW", {"SettWInner", ConnectionType::FOLLOW_ORIGIN}},
             {"ShyvanaFireballDragon2", {"ShyvanaE2", ConnectionType::EXTEND_LENGTH}},
             {"SmolderW", {"SmolderW2", ConnectionType::EXTEND_LENGTH}},
@@ -13454,9 +13567,9 @@ namespace Evade
         };
     }
 
-    void Data::InitCustomDashes()
+    void Data::InitDashBuffs()
     {
-        this->custom_dashes =
+        this->dash_buffs =
         {
             {"hecarimultsound", {"HecarimRDash"}},
             {"ViQDash", {"ViQDash"}},

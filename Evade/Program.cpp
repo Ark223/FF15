@@ -367,6 +367,26 @@ namespace Evade
         this->ResetSkillshots();
     }
 
+    // Public API methods
+
+    bool Program::IsEvading() const
+    {
+        return this->evade_pos.IsValid();
+    }
+
+    bool Program::IsSafe(float x, float y) const
+    {
+        return this->IsDangerous(x, y);
+    }
+
+    bool Program::IsDangerous(float x, float y) const
+    {
+        return this->skillshots.Any([&x, &y](Skillshot* skillshot)
+        {
+            return skillshot->IsDangerous(Vector(x, y));
+        });
+    }
+
     // Events
 
     void Program::OnTick()
@@ -953,9 +973,9 @@ namespace Evade
 
     void Program::OnBuffGain(const Obj_AI_Base& unit, const Buff& buff)
     {
-        const auto& dashes = this->data->GetCustomDashes();
+        const auto& buffs = this->data->GetDashBuffs();
         std::string name = this->api->GetBuffName(buff);
-        if (dashes.find(name) == dashes.end()) return;
+        if (buffs.find(name) == buffs.end()) return;
 
         // Ensure the caster is currently dashing
         auto caster = this->api->AsHero(unit);
@@ -963,7 +983,7 @@ namespace Evade
         if (!this->api->IsEnemy(caster)) return;
 
         // Exit if a similar spell is already detected
-        auto& spell_name = dashes.at(name).PrimaryName;
+        auto& spell_name = buffs.at(name).PrimaryName;
         if (this->skillshots.Any([&](Skillshot* skillshot)
         {
             const auto& s_caster = skillshot->Get().Caster;

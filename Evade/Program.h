@@ -34,6 +34,10 @@ namespace Evade
 
             static Program* Get();
 
+            bool IsEvading() const;
+            bool IsSafe(float x, float y) const;
+            bool IsDangerous(float x, float y) const;
+
             const bool CanEvade() const { return this->can_evade; }
             const bool CanUseSpell() const { return !this->dont_use_spell; }
             const bool DependencyCheck() const { return this->libs_loaded; }

@@ -177,6 +177,7 @@ namespace Evade
         std::string MissileName = "";
         std::string ParticleName = "";
         std::string Overrider = "";
+        std::vector<std::string> Exclusions;
         std::vector<CollisionFlag> Collisions;
         std::vector<DetectionType> Detectors;
         SkillshotType SkillshotType;
@@ -265,9 +266,8 @@ namespace Evade
             SkillshotTable skillshots;
             EvadingSpellTable evaders;
             ShieldSpellTable shields;
-            Miscellaneous anti_recalcs;
             Miscellaneous connectors;
-            Miscellaneous custom_dashes;
+            Miscellaneous dash_buffs;
             Miscellaneous patterns;
             Miscellaneous stoppers;
             static Data* m_instance;
@@ -276,9 +276,8 @@ namespace Evade
             void InitSkillshots();
             void InitEvadingSpells();
             void InitShieldSpells();
-            void InitAntiRecalcs();
             void InitConnectors();
-            void InitCustomDashes();
+            void InitDashBuffs();
             void InitPatterns();
             void InitStoppers();
 
@@ -289,9 +288,8 @@ namespace Evade
             const SkillshotTable& GetSkillshots() const { return this->skillshots; }
             const EvadingSpellTable& GetEvadingSpells() const { return this->evaders; }
             const ShieldSpellTable& GetShieldSpells() const { return this->shields; }
-            const Miscellaneous& GetAntiRecalcs() const { return this->anti_recalcs; }
             const Miscellaneous& GetConnectors() const { return this->connectors; }
-            const Miscellaneous& GetCustomDashes() const { return this->custom_dashes; }
+            const Miscellaneous& GetDashBuffs() const { return this->dash_buffs; }
             const Miscellaneous& GetPatterns() const { return this->patterns; }
             const Miscellaneous& GetStoppers() const { return this->stoppers; }
     };

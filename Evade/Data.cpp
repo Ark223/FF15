@@ -6492,7 +6492,7 @@ namespace Evade
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 80.0f;
-        data.Range = 525.0f;
+        data.Range = 1050.0f;
         data.Offset = 100.0f;
         data.Speed = 1000.0f;
         data.DangerLevel = 3;
@@ -6532,8 +6532,10 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.SoftCC = true;
+        data.Delay = 0.675f;
         data.Radius = 250.0f;
-        data.Range = 525.0f;
+        data.Range = 950.0f;
+        data.Offset = 425.0f;
         data.Speed = 1000.0f;
         data.DangerLevel = 2;
         data.Exclusions =
@@ -13546,7 +13548,7 @@ namespace Evade
             {"KarmaQMissileMantra", {"KarmaQExplosion", ConnectionType::EXTEND_LENGTH}},
             {"LeonaSolarFlare", {"LeonaREpicenter", ConnectionType::FOLLOW_ORIGIN}},
             {"MalzaharQ", {"MalzaharQSecond", ConnectionType::FOLLOW_ORIGIN}},
-            {"MelE", {"MelEFieldTravel", ConnectionType::EXTEND_LENGTH}},
+            {"MelE", {"MelEFieldTravel", ConnectionType::FOLLOW_ORIGIN}},
             {"MordekaiserQ", {"MordekaiserQ2", ConnectionType::FOLLOW_ORIGIN}},
             {"NaafiriE", {"NaafiriEFlurry", ConnectionType::FOLLOW_ORIGIN}},
             {"OrianaIzuna", {"OrianaIzunaCenter", ConnectionType::FOLLOW_ORIGIN}},

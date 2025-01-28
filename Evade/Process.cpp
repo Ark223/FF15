@@ -37,6 +37,7 @@ namespace Evade
         const Vector& ending = active_data.EndPos;
         const Vector& start = active_data.StartPos;
         const Vector& perp = active_data.Perpendicular;
+
         const std::string& name = active_data.SkillshotName;
         const DetectionType type = active_data.DetectionType;
         const auto& data = this->data->GetSkillshots().at(name);
@@ -136,12 +137,12 @@ namespace Evade
             }
         }
 
-        // Mel E Tails
+        // Mel E Field
         else if (name == "MelE")
         {
-            Vector tail = ending + dir * 525.0f;
-            result.Append({ caster, "MelEFieldTail", ending, ending });
-            result.Append({ caster, "MelEFieldTail", tail, tail, 0.45f });
+            Vector field_start = ending - dir * 525.0f;
+            result.Append({ caster, "MelEFieldTail", field_start, field_start });
+            result.Append({ caster, "MelEFieldTail", ending, ending, 0.45f });
         }
 
         // Sylas Q

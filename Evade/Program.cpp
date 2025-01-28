@@ -643,8 +643,7 @@ namespace Evade
                 green = this->GetValue<int>("DisabledG");
                 blue = this->GetValue<int>("DisabledB");
             }
-            else if (skillshot->Get().Undodgeable &&
-                this->dangerous.Contains(skillshot))
+            else if (skillshot->Get().Undodgeable)
             {
                 alpha = this->GetValue<int>("UndodgeableA");
                 red = this->GetValue<int>("UndodgeableR");

@@ -113,7 +113,7 @@ namespace Evade
         if (data.empty()) return sum;
         for (const auto& element : data)
         {
-            sum += static_cast<double>(element);
+            sum += (double)(element);
         }
         return sum / data.size();
     }
@@ -126,7 +126,7 @@ namespace Evade
         if (data.empty()) return sum;
         for (const auto& element : data)
         {
-            sum += static_cast<double>(selector(element));
+            sum += (double)(selector(element));
         }
         return sum / data.size();
     }
@@ -139,7 +139,7 @@ namespace Evade
         result.reserve(data.size());
         for (const auto& element : data)
         {
-            result.push_back(static_cast<TResult>(element));
+            result.push_back((TResult)(element));
         }
         return Linq<TResult>(result);
     }
@@ -574,12 +574,11 @@ namespace Evade
     template<typename T>
     void Linq<T>::Order()
     {
-        int size = static_cast<int>(data.size());
         comparer = [](const T& a, const T& b)
         {
             return a < b;
         };
-        QuickSort(0, size - 1, size);
+        MergeSort((int)(data.size()));
     }
 
     template<typename T>
@@ -587,24 +586,22 @@ namespace Evade
     Linq<T> Linq<T>::OrderBy(TKeySelector<TKey> key_selector) const
     {
         Linq<T> result(data);
-        int size = static_cast<int>(data.size());
         result.comparer = [key_selector](const T& a, const T& b)
         {
             return key_selector(a) < key_selector(b);
         };
-        result.QuickSort(0, size - 1, size);
+        result.MergeSort((int)(data.size()));
         return result;
     }
 
     template<typename T>
     void Linq<T>::OrderDescending()
     {
-        int size = static_cast<int>(data.size());
         comparer = [](const T& a, const T& b)
         {
             return a > b;
         };
-        QuickSort(0, size - 1, size);
+        MergeSort((int)(data.size()));
     }
 
     template<typename T>
@@ -612,12 +609,11 @@ namespace Evade
     Linq<T> Linq<T>::OrderByDescending(TKeySelector<TKey> key_selector) const
     {
         Linq<T> result(data);
-        int size = static_cast<int>(data.size());
         result.comparer = [key_selector](const T& a, const T& b)
         {
             return key_selector(a) > key_selector(b);
         };
-        result.QuickSort(0, size - 1, size);
+        result.MergeSort((int)(data.size()));
         return result;
     }
 
@@ -885,14 +881,14 @@ namespace Evade
     template<typename TKey>
     Linq<T>& Linq<T>::ThenBy(TKeySelector<TKey> key_selector)
     {
-        auto prev_comparer = comparer;
-        comparer = [prev_comparer, key_selector](const T& a, const T& b)
+        auto prev_comp = comparer;
+        comparer = [prev_comp, key_selector](const T& a, const T& b)
         {
-            if (prev_comparer && prev_comparer(a, b)) return true;
-            if (prev_comparer && prev_comparer(b, a)) return false;
+            if (prev_comp && prev_comp(a, b)) return true;
+            if (prev_comp && prev_comp(b, a)) return false;
             return key_selector(a) < key_selector(b);
         };
-        MergeSort(static_cast<int>(data.size()));
+        MergeSort((int)(data.size()));
         return *this;
     }
 
@@ -900,14 +896,14 @@ namespace Evade
     template<typename TKey>
     Linq<T>& Linq<T>::ThenByDescending(TKeySelector<TKey> key_selector)
     {
-        auto prev_comparer = comparer;
-        comparer = [prev_comparer, key_selector](const T& a, const T& b)
+        auto prev_comp = comparer;
+        comparer = [prev_comp, key_selector](const T& a, const T& b)
         {
-            if (prev_comparer && prev_comparer(a, b)) return true;
-            if (prev_comparer && prev_comparer(b, a)) return false;
+            if (prev_comp && prev_comp(a, b)) return true;
+            if (prev_comp && prev_comp(b, a)) return false;
             return key_selector(a) > key_selector(b);
         };
-        MergeSort(static_cast<int>(data.size()));
+        MergeSort((int)(data.size()));
         return *this;
     }
 
@@ -1078,38 +1074,6 @@ namespace Evade
                 int right = min(left + 2 * i - 1, size - 1);
                 if (mid < right) Merge(left, mid, right);
             }
-        }
-    }
-
-    template<typename T>
-    int Linq<T>::Partition(int low, int high, int size)
-    {
-        int i = low, j = high;
-        T& pivot = data[i + ((j - i) >> 1)];
-
-        while (true)
-        {
-            while (i < size && comparer(data[i], pivot))
-            {
-                i++;
-            }
-            while (j >= 0 && comparer(pivot, data[j]))
-            {
-                j--;
-            }
-            if (i >= j) return j;
-            SwapValues(data[i++], data[j--]);
-        }
-    }
-
-    template<typename T>
-    void Linq<T>::QuickSort(int low, int high, int size)
-    {
-        if (low < high)
-        {
-            int pivot = Partition(low, high, size);
-            QuickSort(low, pivot - 1, size);
-            QuickSort(pivot + 1, high, size);
         }
     }
 

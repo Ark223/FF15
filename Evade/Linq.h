@@ -27,8 +27,6 @@ namespace Evade
             void InsertionSort(int left, int right);
             void Merge(int left, int mid, int right);
             void MergeSort(int size);
-            int Partition(int low, int high, int size);
-            void QuickSort(int low, int high, int size);
             void SwapValues(T& a, T& b);
 
         public:

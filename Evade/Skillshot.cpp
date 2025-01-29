@@ -3,13 +3,13 @@
 
 namespace Evade
 {
-    int Skillshot::unique_id = 0;
+    int Skillshot::counter = 0;
 
     Skillshot::Skillshot(const ActiveData& data) : data(data) {}
 
     void Skillshot::Initialize(const ActiveData& data)
     {
-        unique_id++;
+        this->unique_id = counter++;
         this->FixOrigin();
         this->Update(true);
     }

@@ -683,7 +683,7 @@ namespace Evade
         return true;
     }
 
-    Linq<Skillshot*> Process::UodateConsidered()
+    Linq<Skillshot*> Process::UpdateConsidered()
     {
         bool can_evade = this->program->CanEvade();
         bool dodge_on = this->program->GetValue<bool>("Dodge");

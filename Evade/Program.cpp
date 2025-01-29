@@ -341,7 +341,7 @@ namespace Evade
 
     void Program::ResetSkillshots()
     {
-        this->considered.ForEach([](Skillshot* skillshot)
+        this->skillshots.ForEach([](Skillshot* skillshot)
         {
             skillshot->Set().Undodgeable = false;
         });
@@ -468,10 +468,10 @@ namespace Evade
         }
 
         // Update and get all skillshots considered for evasion
-        this->considered = this->process->UodateConsidered();
+        this->considered = this->process->UpdateConsidered();
 
         // Retrieve all skillshots that our hero is currently inside of
-        this->dangerous = this->skillshots.Where([&](Skillshot* skillshot)
+        this->dangerous = this->considered.Where([&](Skillshot* skillshot)
         {
             return skillshot->IsDangerous(this->hero_pos);
         });
@@ -509,7 +509,7 @@ namespace Evade
             [](uint32_t hash_value, Skillshot* skillshot)
         {
             const int unique_id = skillshot->GetId();
-            return (hash_value * 31 + unique_id) % 0xFFFFFFFF;
+            return ((hash_value << 5) - hash_value) + unique_id;
         });
 
         // Reset evasion if hash code has recently changed
@@ -519,9 +519,9 @@ namespace Evade
         this->hash_code = hash;
         float time_diff = this->recalc_timer - timer;
         if (!this->recalc_path || time_diff > 0) return;
-        float health = this->api->GetHealth(this->my_hero);
 
-        // Check if any of the skillshots has a dynamic displacement
+        // Check if any skillshot has a dynamic displacement
+        float health = this->api->GetHealth(this->my_hero);
         bool dynamic = skillshots.Any([&](Skillshot* skillshot)
         {
             const std::string& name = skillshot->Get().SkillshotName;
@@ -542,16 +542,15 @@ namespace Evade
         })
         .ThenByDescending<bool>([&health](Skillshot* skillshot)
         {
-            return health <= skillshot->Get().Damage;
+            return health > skillshot->Get().Damage;
         })
-        .ThenBy<float>([](Skillshot* skillshot)
+        .ThenBy<int>([](Skillshot* skillshot)
         {
-            int level = skillshot->Get().DangerLevel;
-            return level * level * skillshot->Get().Damage;
+            return skillshot->Get().DangerLevel;
         })
-        .ThenByDescending<bool>([&safe_area](Skillshot* skillshot)
+        .ThenByDescending<int>([](Skillshot* skillshot)
         {
-            return safe_area.Contains(skillshot);
+            return skillshot->GetId();
         });
 
         // Update item slots and prepare a new evading solution

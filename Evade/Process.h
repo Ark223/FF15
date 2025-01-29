@@ -35,7 +35,7 @@ namespace Evade
             void PredictCollision(Skillshot* skillshot, bool fix);
             void UpdateAcceleration(Skillshot* skillshot);
             bool UpdateData(Skillshot* skillshot, int level);
-            Linq<Skillshot*> UodateConsidered();
+            Linq<Skillshot*> UpdateConsidered();
             void UpdateSkillshots();
     };
 }

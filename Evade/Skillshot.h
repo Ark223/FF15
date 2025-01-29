@@ -19,7 +19,8 @@ namespace Evade
     class Skillshot
     {
         private:
-            static int unique_id;
+            static int counter;
+            int unique_id = 0;
 
         public:
             explicit Skillshot(const ActiveData& data);

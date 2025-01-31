@@ -369,6 +369,11 @@ namespace Evade
 
     // Public API methods
 
+    bool Program::IsEnabled() const
+    {
+        return this->GetValue<bool>("Dodge");
+    }
+
     bool Program::IsEvading() const
     {
         return this->evade_pos.IsValid();
@@ -381,10 +386,38 @@ namespace Evade
 
     bool Program::IsDangerous(float x, float y) const
     {
-        return this->skillshots.Any([&x, &y](Skillshot* skillshot)
+        return this->skillshots.Any([&](Skillshot* skillshot)
         {
             return skillshot->IsDangerous(Vector(x, y));
         });
+    }
+
+    float Program::CalculateDamage() const
+    {
+        const auto& data = this->data->GetSkillshots();
+        std::unordered_map<std::string, bool> excluded;
+
+        return this->dangerous.Aggregate<float>(0.0f, [&](float total, auto skillshot)
+        {
+            // Skip calculation if related skillshot was already handled
+            const std::string& name = skillshot->Get().SkillshotName;
+            if (excluded.find(name) != excluded.end()) return total;
+
+            // Mark processed skillshots to prevent duplicate damage
+            for (const auto& excl_name : data.at(name).Exclusions)
+            {
+                excluded[excl_name] = true;
+            }
+            return total + skillshot->Get().Damage;
+        });
+    }
+
+    float Program::TimeToHit(float x, float y) const
+    {
+        return MAX(0.0f, this->dangerous.Min([&](Skillshot* skillshot)
+        {
+            return skillshot->TimeToHit(Vector(x, y), true);
+        }));
     }
 
     // Events
@@ -915,6 +948,7 @@ namespace Evade
         });
 
         bool visible = this->api->IsVisible(caster);
+        if (!visible && !this->GetValue<bool>("DetectFog")) return;
         bool multi = this->data->GetConnectors().count(spell_name) > 0;
         bool fixed_range = data.Range >= 25000.0f || data.FixedRange &&
             (!(multi || data.Acceleration != 0.0f || spell_name == "ZoeE"));
@@ -994,8 +1028,8 @@ namespace Evade
         std::string proc_name = spell_name;
         Vector start = this->api->GetDashStartPos(caster);
         Vector ending = this->api->GetDashEndPos(caster);
-        this->OnProcessSpell(caster, proc_name, 0,
-            start, ending, 0, 0.0f, 0.0f, false);
+        this->OnProcessSpell(caster, proc_name, 0, start,
+            ending, (uint32_t)0, 0.0f, 0.0f, false);
     }
 
     void Program::OnWndProc(UINT msg, WPARAM wparam)

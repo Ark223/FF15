@@ -14,7 +14,7 @@ namespace Evade
     class Process;
     class Utilities;
 
-    const std::string EVADE_VERSION = "1.03";
+    const std::string EVADE_VERSION = "1.04";
     constexpr float SAFETY_BUFFER = 30.0f;
 
     enum class CollectionType { ACTIVE, CONSIDERED, DANGEROUS };
@@ -34,10 +34,6 @@ namespace Evade
 
             static Program* Get();
 
-            bool IsEvading() const;
-            bool IsSafe(float x, float y) const;
-            bool IsDangerous(float x, float y) const;
-
             const bool CanEvade() const { return this->can_evade; }
             const bool CanUseSpell() const { return !this->dont_use_spell; }
             const bool DependencyCheck() const { return this->libs_loaded; }
@@ -55,6 +51,14 @@ namespace Evade
                 return type == CollectionType::ACTIVE ? this->skillshots : type ==
                     CollectionType::CONSIDERED ? this->considered : this->dangerous;
             }
+
+            bool IsEnabled() const;
+            bool IsEvading() const;
+            bool IsSafe(float x, float y) const;
+            bool IsDangerous(float x, float y) const;
+
+            float CalculateDamage() const;
+            float TimeToHit(float x, float y) const;
 
             void RecalculatePath(float delay = 0.0f);
             void RequestUpdateOnce(int id, float delay = 0.0f);

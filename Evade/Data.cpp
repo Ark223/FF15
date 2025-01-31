@@ -11393,7 +11393,7 @@ namespace Evade
         data = SkillshotData();
         data.ChampionName = "Veigar";
         data.DisplayName = "Event Horizon [Inner]";
-        data.SkillshotName = "VeigarCage";
+        data.SkillshotName = "VeigarEventHorizon";
         data.IconName = "VeigarEventHorizon.png";
         data.SkillshotSlot = 'E';
         data.Dangerous = true;
@@ -11401,7 +11401,7 @@ namespace Evade
         data.Delay = 0.75f;
         data.ExtraTime = 3.0f;
         data.Windup = 0.25f;
-        data.Radius = 291.0f;
+        data.Radius = 290.1f;
         data.Range = 725.0f;
         data.DangerLevel = 3;
         data.Collisions = {};
@@ -11420,7 +11420,7 @@ namespace Evade
         data = SkillshotData();
         data.ChampionName = "Veigar";
         data.DisplayName = "Event Horizon [Outer]";
-        data.SkillshotName = "VeigarEventHorizon";
+        data.SkillshotName = "VeigarCage";
         data.IconName = "VeigarEventHorizon.png";
         data.SkillshotSlot = 'E';
         data.Dangerous = true;

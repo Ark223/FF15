@@ -565,8 +565,8 @@ namespace Evade
         });
 
         // Sort skillshots by specific names first, then by danger level and damage
-        // Lowest priority is assigned to skillshots that include multiple parts
-        auto splitted = { "LeonaSolarFlare", "SettW", "SyndraE", "VeigarCage" };
+        // The lowest priority is assigned to skillshots that include multiple parts
+        auto splitted = { "LeonaSolarFlare", "SettW", "SyndraE", "VeigarEventHorizon" };
         skillshots = skillshots.OrderBy<bool>([&splitted](Skillshot* skillshot)
         {
             const std::string& name = skillshot->Get().SkillshotName;

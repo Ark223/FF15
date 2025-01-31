@@ -414,10 +414,10 @@ namespace Evade
 
     float Program::TimeToHit(float x, float y) const
     {
-        return MAX(0.0f, this->dangerous.Min([&](Skillshot* skillshot)
+        return this->dangerous.Aggregate<float>(-1.0f, [&](float result, auto skillshot)
         {
-            return skillshot->TimeToHit(Vector(x, y), true);
-        }));
+            return MIN(result, MAX(0.0f, skillshot->TimeToHit(Vector(x, y), true)));
+        });
     }
 
     // Events

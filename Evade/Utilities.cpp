@@ -254,10 +254,11 @@ namespace Evade
             float dist = position.Distance(destination);
             if (dash_range > 0 && dist - dash_range > 0)
             {
-                // Verify the hybrid solution (base movement + dash)
                 float duration = dash_range / path.Speed + path.Delay;
                 Path new_path = Path(speed, duration + 0.125f, delta,
                     position + rotated * dash_range, path.EndPos);
+
+                // Verify hybrid solution (base movement + dash)
                 if (skillshots.Any([&](Skillshot* skillshot)
                 {
                     return skillshot->IsPathDangerous(new_path);
@@ -305,20 +306,21 @@ namespace Evade
 
     Solution Utilities::FindSolution(Linq<Skillshot*> skillshots, bool any_dynamic)
     {
+        API* api = this->api;
         using Threat = std::pair<Vector, float>;
         SpellInfo spell; Solution solution;
 
-        Vector mouse = this->api->GetCursorPos();
-        Vector path_end = this->api->GetPathEndPos(this->hero);
+        Vector mouse = api->GetCursorPos();
+        Vector path_end = api->GetPathEndPos(this->hero);
         const Vector& hero_pos = this->program->GetHeroPos();
         Vector direction = (path_end - hero_pos).Normalize();
         CollectionType col_type = CollectionType::DANGEROUS;
 
         int buffer = this->program->GetValue<int>("Delta");
         float move_speed = this->program->GetMoveSpeed();
-        float latency = this->api->GetLatency() / 2.0f + 0.034f;
+        float latency = api->GetLatency() / 2.0f + 0.034f;
         float range = (float)this->program->GetValue<int>("Search");
-        auto enemies = this->api->GetEnemyHeroes(range, hero_pos, true);
+        auto enemies = api->GetEnemyHeroes(range, hero_pos, true);
 
         // Find the maximum danger level among unsafe skillshots
         int level = skillshots.Max([](Skillshot* skillshot)
@@ -335,8 +337,8 @@ namespace Evade
             const auto& data = evading_spells.at(info.SpellName);
             int danger = this->program->GetValue<int>(id + "Danger");
             bool use_spell = this->program->GetValue<bool>(id + "UseSpell");
-            return info.SpellSlot != -1 && data.Condition() && use_spell &&
-                danger <= level && this->api->CanUseSpell(info.SpellSlot);
+            return info.SpellSlot != -1 && data.Condition(api) && use_spell
+                && danger <= level && api->CanUseSpell(info.SpellSlot);
         });
 
         // Filter spells to those that provide movement buffs or dashes
@@ -374,7 +376,7 @@ namespace Evade
             const auto& spell_data = evading_spells.at(spell.SpellName);
             float delta = index < size ? 0.15f : any_cage ? 0.05f : 0.0f;
             float delay = using_spell ? spell_data.Delay + latency : latency;
-            float speed = using_spell ? spell_data.Speed() : move_speed;
+            float speed = using_spell ? spell_data.Speed(api) : move_speed;
             float dash_range = using_spell ? spell_data.Range : 0.0f;
             bool fixed_range = using_spell && (any_dynamic == true &&
                 spell_data.EvadingType == EvadingType::DASH_TARGETED ||
@@ -408,7 +410,7 @@ namespace Evade
             // Find the threat closest to the direction indicated by mouse
             auto threats = enemies.Select<Threat>([&](auto enemy)
             {
-                Vector position = this->api->GetPosition(enemy);
+                Vector position = api->GetPosition(enemy);
                 float distance = position.DistanceSquared(mouse);
                 return std::make_pair(position, distance);
             })
@@ -454,6 +456,7 @@ namespace Evade
         // Retrieve considered skillshots that are dodgeable
         auto& dangerous = this->program->GetSkillshots(col_type);
         auto candidates = dangerous.Intersect(skillshots);
+        Linq<Skillshot*> blocked = Linq<Skillshot*>();
 
         // Process spells which do not influence pathing
         for (const auto& info : active_spells.Except(move_buffers))
@@ -463,7 +466,7 @@ namespace Evade
             // Use spell that provides crowd control immunity
             if (data.EvadingType == EvadingType::CC_IMMUNITY)
             {
-                auto blocked = candidates.Where([](Skillshot* skillshot)
+                blocked = candidates.Where([](Skillshot* skillshot)
                 {
                     bool soft_cc = skillshot->Get().SoftCC;
                     bool hard_cc = skillshot->Get().HardCC;
@@ -475,33 +478,23 @@ namespace Evade
                 {
                     skillshot->Set().Processed = true;
                 });
-
-                if (!data.IsTargeted)
-                {
-                    Skillshot* skillshot = blocked.First();
-                    const Vector& position = skillshot->Get().Position;
-                    Vector cast_position = hero_pos.Extend(position, 100.0f);
-                    return { cast_position, info, nullptr, data.Delay, true };
-                }
-                return { Vector(), info, this->hero, data.Delay, true };
             }
 
-            // Use spell to absorb damage or make the hero invulnerable
-            if (data.EvadingType == EvadingType::DAMAGE_ABSORPTION ||
+            // Use spell to absorb damage or make hero invulnerable
+            if (data.EvadingType == EvadingType::ABSORPTION ||
                 data.EvadingType == EvadingType::INVULNERABILITY)
             {
                 candidates.ForEach([](Skillshot* skillshot)
                 {
                     skillshot->Set().Processed = true;
                 });
-                return { Vector(), info, this->hero, data.Delay, true };
             }
 
-            // Use spell that creates a wind wall to block projectiles
+            // Use wind wall to block incoming projectiles
             if (data.EvadingType == EvadingType::WIND_WALL)
             {
                 CollisionFlag flag = CollisionFlag::WIND_WALL;
-                auto blocked = candidates.Where([&flag](Skillshot* skillshot)
+                blocked = candidates.Where([&flag](Skillshot* skillshot)
                 {
                     const Collisions& flags = skillshot->Get().Collisions;
                     return std::find(flags.begin(), flags.end(), flag) != flags.end();
@@ -512,12 +505,18 @@ namespace Evade
                 {
                     skillshot->Set().Processed = true;
                 });
+            }
 
-                Skillshot* skillshot = blocked.First();
+            // Finalize evading solution
+            if (!data.IsTargeted && blocked.Any())
+            {
+                Skillshot* skillshot = blocked.Last();
                 const Vector& position = skillshot->Get().Position;
                 Vector cast_position = hero_pos.Extend(position, 100.0f);
                 return { cast_position, info, nullptr, data.Delay, true };
             }
+            return { Vector(), info, this->hero, data.Delay, true };
+
         }
         return solution; // Return the best available solution (suboptimal)
     }
@@ -594,7 +593,9 @@ namespace Evade
             });
 
             if (active.Count() == 0) continue;
+            bool targeted = spell.IsTargeted;
             float distance = pos.Distance(hero_pos);
+            float height = this->api->GetHeight(ally);
             float time = distance / spell.Speed + spell.Delay;
 
             // Find the maximum danger level and minimum hit time
@@ -609,7 +610,8 @@ namespace Evade
 
             // Check conditions and cast the spell if necessary
             if (danger < minimum || hit_time <= time) continue;
-            this->api->CastSpell(slot, ally); return;
+            if (targeted) return this->api->CastSpell(slot, ally);
+            return this->api->CastSpell(slot, pos, height);
         }
     }
 

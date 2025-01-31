@@ -54,9 +54,8 @@ namespace Evade
 
     enum class EvadingType
     {
-        AUTO_WALK = 0,
+        ABSORPTION = 0,
         CC_IMMUNITY,
-        DAMAGE_ABSORPTION,
         DASH_FIXED,
         DASH_TARGETED,
         INVULNERABILITY,
@@ -240,8 +239,8 @@ namespace Evade
         float Delay = 0.0f;
         float Range = 0.0f;
         bool IsTargeted = false;
-        std::function<float()> Speed;
-        std::function<bool()> Condition;
+        std::function<float(API*)> Speed;
+        std::function<bool(API*)> Condition;
     };
 
     struct ShieldSpellData

@@ -8168,7 +8168,7 @@ namespace Evade
             DetectionType::ON_PROCESS_SPELL
         };
         data.Damage = [](const StatData& info)
-    {
+        {
             API* api = API::Get();
             uint32_t hash = api->FNV1A32("QiyanaQ_Rock");
 
@@ -13497,6 +13497,8 @@ namespace Evade
 
         #pragma region Local
 
+        // Summoner Flash
+
         EvadingSpellData data;
         data.ChampionName = "Local";
         data.DisplayName = "Summoner Flash";
@@ -13505,14 +13507,992 @@ namespace Evade
         data.SpellSlot = 'G';
         data.Range = 400.0f;
         data.DangerLevel = 5;
-        data.Speed = []() { return FLT_MAX; };
-        data.Condition = []() { return true; };
+        data.Speed = [](API*) { return FLT_MAX; };
+        data.Condition = [](API*) { return true; };
         data.EvadingType = EvadingType::DASH_FIXED;
         this->evaders[data.SpellName] = data;
 
         #pragma endregion
 
+        #pragma region Aatrox
+
+        // Aatrox E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Aatrox";
+        data.DisplayName = "Umbral Dash";
+        data.IconName = "AatroxE.png";
+        data.SpellName = "AatroxE";
+        data.SpellSlot = 'E';
+        data.Range = 300.0f;
+        data.DangerLevel = 3;
+        data.Speed = [](API*) { return 800.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Ahri
+
+        // Ahri W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Ahri";
+        data.DisplayName = "Fox-Fire";
+        data.IconName = "AhriW.png";
+        data.SpellName = "AhriW";
+        data.SpellSlot = 'W';
+        data.DangerLevel = 1;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 1.4f * api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        // Ahri R
+
+        data = EvadingSpellData();
+        data.ChampionName = "Ahri";
+        data.DisplayName = "Spirit Rush";
+        data.IconName = "AhriR.png";
+        data.SpellName = "AhriR";
+        data.SpellSlot = 'R';
+        data.Range = 500.0f;
+        data.DangerLevel = 4;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 1200.0f + api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Annie
+
+        // Annie E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Annie";
+        data.DisplayName = "Molten Shield";
+        data.IconName = "AnnieE.png";
+        data.SpellName = "AnnieE";
+        data.SpellSlot = 'E';
+        data.DangerLevel = 1;
+        data.IsTargeted = true;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            int level = api->GetLevel(hero) - 1;
+            float speed = api->GetMovementSpeed(hero);
+            return (1.2f + 0.3f / 17.0f * level) * speed;
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Belveth
+
+        // Belveth Q
+
+        data = EvadingSpellData();
+        data.ChampionName = "Belveth";
+        data.DisplayName = "Void Surge";
+        data.IconName = "BelvethQ.png";
+        data.SpellName = "BelvethQ";
+        data.SpellSlot = 'Q';
+        data.Range = 400.0f;
+        data.DangerLevel = 1;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            int level = api->GetSpellLevel(hero, 0);
+            float speed = api->GetMovementSpeed(hero);
+            return 750.0f + 50.0f * level + speed;
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Blitzcrank
+
+        // Blitzcrank W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Blitzcrank";
+        data.DisplayName = "Overdrive";
+        data.IconName = "Overdrive.png";
+        data.SpellName = "Overdrive";
+        data.SpellSlot = 'W';
+        data.DangerLevel = 2;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            int level = api->GetSpellLevel(hero, 1);
+            float speed = api->GetMovementSpeed(hero);
+            return (1.55f + 0.05f * level) * speed;
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Braum
+
+        // Braum E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Braum";
+        data.DisplayName = "Unbreakable";
+        data.IconName = "BraumE.png";
+        data.SpellName = "BraumE";
+        data.SpellSlot = 'E';
+        data.DangerLevel = 1;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::WIND_WALL;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Caitlyn
+
+        // Caitlyn E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Caitlyn";
+        data.DisplayName = "90 Caliber Net";
+        data.IconName = "CaitlynE.png";
+        data.SpellName = "CaitlynE";
+        data.SpellSlot = 'E';
+        data.Delay = 0.15f;
+        data.Range = 390.0f;
+        data.DangerLevel = 2;
+        data.Speed = [](API*) { return 600.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Corki
+
+        // Corki W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Corki";
+        data.DisplayName = "Valkyrie";
+        data.IconName = "CarpetBomb.png";
+        data.SpellName = "CarpetBomb";
+        data.SpellSlot = 'W';
+        data.Range = 600.0f;
+        data.DangerLevel = 3;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 650.0f + api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Draven
+
+        // Draven W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Draven";
+        data.DisplayName = "Blood Rush";
+        data.IconName = "DravenFury.png";
+        data.SpellName = "DravenFury";
+        data.SpellSlot = 'W';
+        data.DangerLevel = 2;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            int level = api->GetSpellLevel(hero, 1);
+            float speed = api->GetMovementSpeed(hero);
+            return (1.45f + 0.05f * level) * speed;
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Ekko
+
+        // Ekko E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Ekko";
+        data.DisplayName = "Phase Dive";
+        data.IconName = "EkkoE.png";
+        data.SpellName = "EkkoE";
+        data.SpellSlot = 'E';
+        data.Range = 325.0f;
+        data.DangerLevel = 1;
+        data.Speed = [](API*) { return 1150.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Ezreal
+
+        // Ezreal E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Ezreal";
+        data.DisplayName = "Arcane Shift";
+        data.IconName = "EzrealE.png";
+        data.SpellName = "EzrealE";
+        data.SpellSlot = 'E';
+        data.Delay = 0.25f;
+        data.Range = 475.0f;
+        data.DangerLevel = 3;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Fiora
+
+        // Fiora Q
+
+        data = EvadingSpellData();
+        data.ChampionName = "Fiora";
+        data.DisplayName = "Lunge";
+        data.IconName = "FioraQ.png";
+        data.SpellName = "FioraQ";
+        data.SpellSlot = 'Q';
+        data.Range = 400.0f;
+        data.DangerLevel = 1;
+        data.Speed = [](API*) { return 900.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_TARGETED;
+        this->evaders[data.SpellName] = data;
+
+        // Fiora W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Fiora";
+        data.DisplayName = "Riposte";
+        data.IconName = "FioraW.png";
+        data.SpellName = "FioraW";
+        data.SpellSlot = 'W';
+        data.DangerLevel = 1;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::CC_IMMUNITY;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Fizz
+
+        // Fizz E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Fizz";
+        data.DisplayName = "Playful";
+        data.IconName = "FizzE.png";
+        data.SpellName = "FizzE";
+        data.SpellSlot = 'E';
+        data.DangerLevel = 3;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::INVULNERABILITY;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Garen
+
+        // Garen Q
+
+        data = EvadingSpellData();
+        data.ChampionName = "Garen";
+        data.DisplayName = "Decisive Strike";
+        data.IconName = "GarenQ.png";
+        data.SpellName = "GarenQ";
+        data.SpellSlot = 'Q';
+        data.DangerLevel = 1;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 1.35f * api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Gnar
+
+        // Gnar E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Gnar";
+        data.DisplayName = "Hop";
+        data.IconName = "GnarE.png";
+        data.SpellName = "GnarE";
+        data.SpellSlot = 'E';
+        data.Range = 475.0f;
+        data.DangerLevel = 3;
+        data.Speed = [](API*) { return 900.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_TARGETED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Graves
+
+        // Graves E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Graves";
+        data.DisplayName = "Quickdraw";
+        data.IconName = "GravesMove.png";
+        data.SpellName = "GravesMove";
+        data.SpellSlot = 'E';
+        data.Range = 375.0f;
+        data.DangerLevel = 1;
+        data.Speed = [](API*) { return 1225.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_TARGETED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Kaisa
+
+        // Kaisa E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Kaisa";
+        data.DisplayName = "Supercharge";
+        data.IconName = "KaisaE.png";
+        data.SpellName = "KaisaE";
+        data.SpellSlot = 'E';
+        data.DangerLevel = 3;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            float move_speed = api->GetMovementSpeed(hero);
+            float attack_speed = api->GetAttackSpeedMod(hero);
+            float speed_mod = MIN(attack_speed - 1.0f, 1.0f);
+            return 1.3f * (1.0f + speed_mod) * move_speed;
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Karma
+
+        // Karma E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Karma";
+        data.DisplayName = "Inspire";
+        data.IconName = "KarmaSolKimShield.png";
+        data.SpellName = "KarmaSolKimShield";
+        data.SpellSlot = 'E';
+        data.DangerLevel = 1;
+        data.IsTargeted = true;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 1.4f * api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Kassadin
+
+        // Kassadin R
+
+        data = EvadingSpellData();
+        data.ChampionName = "Kassadin";
+        data.DisplayName = "Rift Walk";
+        data.IconName = "RiftWalk.png";
+        data.SpellName = "RiftWalk";
+        data.SpellSlot = 'R';
+        data.Delay = 0.25f;
+        data.Range = 500.0f;
+        data.DangerLevel = 2;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_TARGETED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Kayle
+
+        // Kayle W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Kayle";
+        data.DisplayName = "Celestial Blessing";
+        data.IconName = "KayleW.png";
+        data.SpellName = "KayleW";
+        data.SpellSlot = 'W';
+        data.Delay = 0.25f;
+        data.DangerLevel = 1;
+        data.IsTargeted = true;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            int level = api->GetSpellLevel(hero, 1);
+            float speed = api->GetMovementSpeed(hero);
+            float damage = api->GetTotalAbilityDamage(hero);
+            float base_mod = 1.0f + 0.2f + 0.04f * level;
+            return (base_mod + 0.0008f * damage) * speed;
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Kennen
+
+        // Kennen E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Kennen";
+        data.DisplayName = "Lightning Rush";
+        data.IconName = "KennenLightningRush.png";
+        data.SpellName = "KennenLightningRush";
+        data.SpellSlot = 'E';
+        data.DangerLevel = 3;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 2.0f * api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Khazix
+
+        // Khazix E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Khazix";
+        data.DisplayName = "Leap";
+        data.IconName = "KhazixE.png";
+        data.SpellName = "KhazixE";
+        data.SpellSlot = 'E';
+        data.Range = 700.0f;
+        data.DangerLevel = 3;
+        data.Speed = [](API*) { return 1300.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_TARGETED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Kindred
+
+        // Kindred Q
+
+        data = EvadingSpellData();
+        data.ChampionName = "Kindred";
+        data.DisplayName = "Dance of Arrows";
+        data.IconName = "KindredQ.png";
+        data.SpellName = "KindredQ";
+        data.SpellSlot = 'Q';
+        data.Range = 300.0f;
+        data.DangerLevel = 1;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 500.0f + api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Leblanc
+
+        // Leblanc W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Leblanc";
+        data.DisplayName = "Distortion";
+        data.IconName = "LeblancW.png";
+        data.SpellName = "LeblancW";
+        data.SpellSlot = 'W';
+        data.Range = 600.0f;
+        data.DangerLevel = 2;
+        data.Speed = [](API*) { return 1450.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Lucian
+
+        // Lucian E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Lucian";
+        data.DisplayName = "Relentless Pursuit";
+        data.IconName = "LucianE.png";
+        data.SpellName = "LucianE";
+        data.SpellSlot = 'E';
+        data.Range = 425.0f;
+        data.DangerLevel = 2;
+        data.Speed = [](API*) { return 1350.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Mel
+
+        // Mel W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Mel";
+        data.DisplayName = "Rebuttal";
+        data.IconName = "MelW.png";
+        data.SpellName = "MelW";
+        data.SpellSlot = 'W';
+        data.DangerLevel = 3;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::INVULNERABILITY;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Morgana
+
+        // Morgana E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Morgana";
+        data.DisplayName = "Black Shield";
+        data.IconName = "MorganaE.png";
+        data.SpellName = "MorganaE";
+        data.SpellSlot = 'E';
+        data.DangerLevel = 1;
+        data.IsTargeted = true;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::CC_IMMUNITY;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Neeko
+
+        // Neeko W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Neeko";
+        data.DisplayName = "Shapesplitter";
+        data.IconName = "NeekoW.png";
+        data.SpellName = "NeekoW";
+        data.SpellSlot = 'W';
+        data.DangerLevel = 2;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            int level = api->GetSpellLevel(hero, 1);
+            float speed = api->GetMovementSpeed(hero);
+            return (1.15f + 0.05f * level) * speed;
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Nocturne
+
+        // Nocturne W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Nocturne";
+        data.DisplayName = "Shroud of Darkness";
+        data.IconName = "NocturneShroudofDarkness.png";
+        data.SpellName = "NocturneShroudofDarkness";
+        data.SpellSlot = 'W';
+        data.DangerLevel = 2;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::INVULNERABILITY;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Qiyana
+
+        // Qiyana W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Qiyana";
+        data.DisplayName = "Terrashape";
+        data.IconName = "QiyanaW.png";
+        data.SpellName = "QiyanaW";
+        data.SpellSlot = 'W';
+        data.Range = 300.0f;
+        data.DangerLevel = 1;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 440.0f + api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Renekton
+
+        // Renekton E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Renekton";
+        data.DisplayName = "Slice / Dice";
+        data.IconName = "RenektonSliceAndDice.png";
+        data.SpellName = "RenektonSliceAndDice";
+        data.SpellSlot = 'E';
+        data.Range = 450.0f;
+        data.DangerLevel = 2;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 760.0f + api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Riven
+
+        // Riven E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Riven";
+        data.DisplayName = "Valor";
+        data.IconName = "RivenFeint.png";
+        data.SpellName = "RivenFeint";
+        data.SpellSlot = 'E';
+        data.Range = 250.0f;
+        data.DangerLevel = 1;
+        data.Speed = [](API*) { return 1200.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Samira
+
+        // Samira W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Samira";
+        data.DisplayName = "Blade Whirl";
+        data.IconName = "SamiraW.png";
+        data.SpellName = "SamiraW";
+        data.SpellSlot = 'W';
+        data.Delay = 0.01f;
+        data.DangerLevel = 1;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::WIND_WALL;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Sejuani
+
+        // Sejuani Q
+
+        data = EvadingSpellData();
+        data.ChampionName = "Sejuani";
+        data.DisplayName = "Arctic Assault";
+        data.IconName = "SejuaniQ.png";
+        data.SpellName = "SejuaniQ";
+        data.SpellSlot = 'Q';
+        data.Range = 650.0f;
+        data.DangerLevel = 2;
+        data.Speed = [](API*) { return 1000.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_TARGETED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Seraphine
+
+        // Seraphine W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Seraphine";
+        data.DisplayName = "Surround Sound";
+        data.IconName = "SeraphineW.png";
+        data.SpellName = "SeraphineW";
+        data.SpellSlot = 'W';
+        data.DangerLevel = 1;
+        data.IsTargeted = true;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            float speed = api->GetMovementSpeed(hero);
+            float damage = api->GetTotalAbilityDamage(hero);
+            return (1.2f + 0.02f * damage / 100.0f) * speed;
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Shaco
+
+        // Shaco Q
+
+        data = EvadingSpellData();
+        data.ChampionName = "Shaco";
+        data.DisplayName = "Deceive";
+        data.IconName = "Deceive.png";
+        data.SpellName = "Deceive";
+        data.SpellSlot = 'Q';
+        data.Delay = 0.125f;
+        data.Range = 400.0f;
+        data.DangerLevel = 2;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Shen
+
+        // Shen E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Shen";
+        data.DisplayName = "Shadow Dash";
+        data.IconName = "ShenE.png";
+        data.SpellName = "ShenE";
+        data.SpellSlot = 'E';
+        data.Range = 600.0f;
+        data.DangerLevel = 3;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 800.0f + api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Sivir
+
+        // Sivir E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Sivir";
+        data.DisplayName = "Spell Shield";
+        data.IconName = "SivirE.png";
+        data.SpellName = "SivirE";
+        data.SpellSlot = 'E';
+        data.DangerLevel = 1;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::INVULNERABILITY;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Smolder
+
+        // Smolder E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Smolder";
+        data.DisplayName = "Flap, Flap, Flap";
+        data.IconName = "SmolderE.png";
+        data.SpellName = "SmolderE";
+        data.SpellSlot = 'E';
+        data.DangerLevel = 3;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 1.75f * api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Sona
+
+        // Sona E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Sona";
+        data.DisplayName = "Song of Celerity";
+        data.IconName = "SonaE.png";
+        data.SpellName = "SonaE";
+        data.SpellSlot = 'E';
+        data.DangerLevel = 1;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            float speed = api->GetMovementSpeed(hero);
+            float damage = api->GetTotalAbilityDamage(hero);
+            return (1.2f + 0.02f * damage / 100.0f) * speed;
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Shen
+
+        // Shen E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Shen";
+        data.DisplayName = "Abscond";
+        data.IconName = "SylasE.png";
+        data.SpellName = "SylasE";
+        data.SpellSlot = 'E';
+        data.Range = 400.0f;
+        data.DangerLevel = 3;
+        data.Condition = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return api->GetSpellName(hero, 2) == "SylasE";
+        };
+        data.Speed = [](API* api) { return 1450.0f; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Teemo
+
+        // Teemo W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Teemo";
+        data.DisplayName = "Move Quick";
+        data.IconName = "TeemoW.png";
+        data.SpellName = "TeemoW";
+        data.SpellSlot = 'W';
+        data.DangerLevel = 1;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            int level = api->GetSpellLevel(hero, 1);
+            float speed = api->GetMovementSpeed(hero);
+            return (1.08f + 0.04f * level) * speed;
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Vayne
+
+        // Vayne Q
+
+        data = EvadingSpellData();
+        data.ChampionName = "Vayne";
+        data.DisplayName = "Tumble";
+        data.IconName = "VayneTumble.png";
+        data.SpellName = "VayneTumble";
+        data.SpellSlot = 'Q';
+        data.Range = 250.0f;
+        data.DangerLevel = 1;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 500.0f + api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Vi
+
+        // Vi Q
+
+        data = EvadingSpellData();
+        data.ChampionName = "Vi";
+        data.DisplayName = "Vault Breaker";
+        data.IconName = "ViQ.png";
+        data.SpellName = "ViQ";
+        data.SpellSlot = 'Q';
+        data.Range = 250.0f;
+        data.DangerLevel = 1;
+        data.Speed = [](API*) { return 1450.0f; };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Vladimir
+
+        // Vladimir W
+
+        data = EvadingSpellData();
+        data.ChampionName = "Vladimir";
+        data.DisplayName = "Sanguine Pool";
+        data.IconName = "VladimirSanguinePool.png";
+        data.SpellName = "VladimirSanguinePool";
+        data.SpellSlot = 'W';
+        data.DangerLevel = 3;
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::INVULNERABILITY;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
         #pragma region Yasuo
+
+        // Yasuo W
 
         data = EvadingSpellData();
         data.ChampionName = "Yasuo";
@@ -13522,10 +14502,58 @@ namespace Evade
         data.SpellSlot = 'W';
         data.Delay = 0.0125f;
         data.DangerLevel = 1;
-        data.Condition = []() { return true; };
+        data.Condition = [](API*) { return true; };
         data.EvadingType = EvadingType::WIND_WALL;
         this->evaders[data.SpellName] = data;
         
+        #pragma endregion
+
+        #pragma region Zeri
+
+        // Zeri E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Zeri";
+        data.DisplayName = "Spark Surge";
+        data.IconName = "ZeriE.png";
+        data.SpellName = "ZeriE";
+        data.SpellSlot = 'Q';
+        data.Range = 300.0f;
+        data.DangerLevel = 3;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            return 600.0f + api->GetMovementSpeed(hero);
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::DASH_FIXED;
+        this->evaders[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Zilean
+
+        // Zilean E
+
+        data = EvadingSpellData();
+        data.ChampionName = "Zilean";
+        data.DisplayName = "Time Warp";
+        data.IconName = "TimeWarp.png";
+        data.SpellName = "TimeWarp";
+        data.SpellSlot = 'E';
+        data.DangerLevel = 1;
+        data.IsTargeted = true;
+        data.Speed = [](API* api)
+        {
+            const auto& hero = api->GetHero();
+            int level = api->GetSpellLevel(hero, 2);
+            float speed = api->GetMovementSpeed(hero);
+            return (1.25f + 0.15f * level) * speed;
+        };
+        data.Condition = [](API*) { return true; };
+        data.EvadingType = EvadingType::MOVEMENT_BUFF;
+        this->evaders[data.SpellName] = data;
+
         #pragma endregion
     }
 
@@ -13533,6 +14561,145 @@ namespace Evade
     {
         this->shields = ShieldSpellTable();
         this->shields[""] = ShieldSpellData();
+
+        #pragma region Annie
+
+        // Annie E
+
+        ShieldSpellData data;
+        data.ChampionName = "Annie";
+        data.DisplayName = "Molten Shield";
+        data.IconName = "AnnieE.png";
+        data.SpellName = "AnnieE";
+        data.SpellSlot = 'E';
+        data.Range = 800.0f;
+        data.IsTargeted = true;
+        data.ShieldType = EvadingType::ABSORPTION;
+        this->shields[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Janna
+
+        // Janna E
+
+        data = ShieldSpellData();
+        data.ChampionName = "Janna";
+        data.DisplayName = "Eye of the Storm";
+        data.IconName = "EyeOfTheStorm.png";
+        data.SpellName = "EyeOfTheStorm";
+        data.SpellSlot = 'E';
+        data.Range = 800.0f;
+        data.IsTargeted = true;
+        data.ShieldType = EvadingType::ABSORPTION;
+        this->shields[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Karma
+
+        // Karma E
+
+        data = ShieldSpellData();
+        data.ChampionName = "Karma";
+        data.DisplayName = "Inspire";
+        data.IconName = "KarmaSolKimShield.png";
+        data.SpellName = "KarmaSolKimShield";
+        data.SpellSlot = 'E';
+        data.Range = 800.0f;
+        data.IsTargeted = true;
+        data.ShieldType = EvadingType::ABSORPTION;
+        this->shields[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Lux
+
+        // Lux W
+
+        data = ShieldSpellData();
+        data.ChampionName = "Lux";
+        data.DisplayName = "Prismatic Barrier";
+        data.IconName = "LuxPrismaticWave.png";
+        data.SpellName = "LuxPrismaticWave";
+        data.SpellSlot = 'W';
+        data.Delay = 0.25f;
+        data.Range = 1175.0f;
+        data.Speed = 2400.0f;
+        data.ShieldType = EvadingType::ABSORPTION;
+        this->shields[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Morgana
+
+        // Morgana E
+
+        data = ShieldSpellData();
+        data.ChampionName = "Morgana";
+        data.DisplayName = "Black Shield";
+        data.IconName = "MorganaE.png";
+        data.SpellName = "MorganaE";
+        data.SpellSlot = 'E';
+        data.Range = 800.0f;
+        data.IsTargeted = true;
+        data.ShieldType = EvadingType::CC_IMMUNITY;
+        this->shields[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Orianna
+
+        // Orianna E
+
+        data = ShieldSpellData();
+        data.ChampionName = "Orianna";
+        data.DisplayName = "Command: Protect";
+        data.IconName = "OrianaRedactCommand.png";
+        data.SpellName = "OrianaRedactCommand";
+        data.SpellSlot = 'E';
+        data.Range = 1120.0f;
+        data.Speed = 1850.0f;
+        data.IsTargeted = true;
+        data.ShieldType = EvadingType::ABSORPTION;
+        this->shields[data.SpellName] = data;
+
+        #pragma endregion
+
+        #pragma region Seraphine
+
+        // Seraphine W
+
+        data = ShieldSpellData();
+        data.ChampionName = "Seraphine";
+        data.DisplayName = "Surround Sound";
+        data.IconName = "SeraphineW.png";
+        data.SpellName = "SeraphineW";
+        data.SpellSlot = 'W';
+        data.Range = 800.0f;
+        data.IsTargeted = true;
+        data.ShieldType = EvadingType::ABSORPTION;
+        this->shields[data.SpellName] = data;
+
+        #pragma endregion
+        
+        #pragma region Taric
+
+        // Taric W
+
+        data = ShieldSpellData();
+        data.ChampionName = "Taric";
+        data.DisplayName = "Bastion";
+        data.IconName = "TaricW.png";
+        data.SpellName = "TaricW";
+        data.SpellSlot = 'W';
+        data.Delay = 0.25f;
+        data.Range = 800.0f;
+        data.IsTargeted = true;
+        data.ShieldType = EvadingType::ABSORPTION;
+        this->shields[data.SpellName] = data;
+
+        #pragma endregion
     }
 
     void Data::InitConnectors()

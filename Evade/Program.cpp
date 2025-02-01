@@ -504,7 +504,7 @@ namespace Evade
         this->considered = this->process->UpdateConsidered();
 
         // Retrieve all skillshots that our hero is currently inside of
-        this->dangerous = this->considered.Where([&](Skillshot* skillshot)
+        this->dangerous = this->skillshots.Where([&](Skillshot* skillshot)
         {
             return skillshot->IsDangerous(this->hero_pos);
         });

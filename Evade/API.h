@@ -129,9 +129,7 @@ namespace Evade
             float GetTotalAttackDamage(const Obj_AI_Base& unit) const;
 
             bool Compare(const Object& a, const Object& b) const;
-            Object GetObjectById(const uint32_t object_id) const;
             uint32_t GetObjectId(const Object& object) const;
-            Object GetObjectOwner(const Object& object) const;
             std::string GetObjectName(const Object& object) const;
             std::string GetCharacterName(const Obj_AI_Base& unit) const;
             std::string GetSpellName(const Obj_AI_Hero& unit, int slot) const;

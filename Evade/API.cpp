@@ -131,7 +131,7 @@ namespace Evade
 
     ParticleEmitter API::AsParticle(const Object& object) const
     {
-        return (EffectEmitter*)(object->as_effect_emitter());
+        return (ParticleEmitter)(object->as_effect_emitter());
     }
 
     bool API::IsHero(const Object& object) const
@@ -497,23 +497,9 @@ namespace Evade
         return this->GetObjectId(a) == this->GetObjectId(b);
     }
 
-    Object API::GetObjectById(const uint32_t object_id) const
-    {
-        auto manager = this->m_api->get_game_object_manager();
-        return manager->get_object_by_id(object_id).release();
-    }
-
     uint32_t API::GetObjectId(const Object& object) const
     {
         return object->get_id();
-    }
-
-    Object API::GetObjectOwner(const Object& object) const
-    {
-        auto manager = this->m_api->get_game_object_manager();
-        auto emitter = (EffectEmitter*)object->as_effect_emitter();
-        uint32_t id = emitter ? emitter->get_attachment_object_id() : 0;
-        return id ? manager->get_object_by_id(id).release() : nullptr;
     }
 
     std::string API::GetObjectName(const Object& object) const

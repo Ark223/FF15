@@ -405,7 +405,7 @@ namespace Evade
         if (name == "Volley" && level > 0)
         {
             float angles[] = { 30, 35, 40, 45, 50 };
-            float angle = angles[level] * M_PI_F / 90.0f;
+            float angle = angles[level] * M_PI_F / 360.0f;
             float offset = -radius * 2.0f / std::sinf(angle);
             skillshot->Set().Delay = delay + offset / speed;
             skillshot->Set().ConeAngle = 2.0f * angle;
@@ -477,7 +477,7 @@ namespace Evade
             speed = api->GetMovementSpeed(caster) * 1.5f;
             skillshot->Set().Range = MAX(800.0f, speed);
         }
-        else if (name == "RellW2")
+        else if (name == "LeeSinR" || name == "RellW2")
         {
             skillshot->Set().StartPos = ending;
             skillshot->Set().EndPos = ending + dir * range;
@@ -714,35 +714,21 @@ namespace Evade
     {
         API* api = API::Get();
 
-        // Remove all traps that are no longer valid
+        // Remove all skillshots that have expired
         auto& skillshots = this->program->GetSkillshots();
         skillshots.RemoveAll([&](Skillshot* skillshot)
         {
-            if (skillshot->Get().ObjectId == 0) return false;
-            const std::string& name = skillshot->Get().SkillshotName;
-            const auto& data = this->data->GetSkillshots().at(name);
-            if (!data.IsTrap && !data.TrackObject) return false;
-
-            uint32_t object_id = skillshot->Get().ObjectId;
-            auto object = this->api->GetObjectById(object_id);
-            return !this->api->IsValid(object);
-        });
-
-        // Remove all skillshots that have expired
-        skillshots.RemoveAll([&](Skillshot* skillshot)
-        {
-            uint32_t h1 = 0xC76B603D, h2 = 0xF8F52C78;
             const auto& caster = skillshot->Get().Caster;
             const Vector& ending = skillshot->Get().EndPos;
             const Vector& position = skillshot->Get().Position;
             const std::string& name = skillshot->Get().SkillshotName;
             const SkillshotType type = skillshot->Get().SkillshotType;
 
+            uint32_t h1 = 0xC76B603D, h2 = 0xF8F52C78; // Sion Q buffs
             bool sion_stop = name == "SionQ" && api->IsValid(caster) &&
                 (api->HasBuff(caster, h1) || api->HasBuff(caster, h2));
-            float distance = position.DistanceSquared(ending);
-            return skillshot->IsExpired() || distance <= 100
-                && type == SkillshotType::LINE || sion_stop;
+            return skillshot->IsExpired() || type == SkillshotType::LINE
+                && position.DistanceSquared(ending) <= 100 || sion_stop;
         });
 
         // Iterate through each skillshot to update its state
@@ -752,12 +738,12 @@ namespace Evade
             const auto& active_data = skillshot->Get();
 
             float delay = active_data.Delay;
+            float range = active_data.Range;
             float speed = active_data.Speed;
             float radius = active_data.Radius;
-            float start_time = active_data.StartTime;
-            uint32_t object_id = active_data.ObjectId;
 
             const auto& caster = active_data.Caster;
+            const auto& object = active_data.ObjectPtr;
             const Vector& dir = active_data.Direction;
             const Vector& pos = active_data.Position;
             const Vector& start = active_data.StartPos;
@@ -768,8 +754,9 @@ namespace Evade
             const auto& data = this->data->GetSkillshots().at(name);
             bool proc_type = type == DetectionType::ON_PROCESS_SPELL;
 
-            float distance = start.Distance(pos), timer = api->GetTime();
-            float elapsed = timer - start_time;
+            float timer = active_data.StartTime;
+            float elapsed = api->GetTime() - timer;
+            float distance = start.Distance(pos);
 
             // Update skillshot's hitbox by following the caster
             if (data.FollowCaster && api->IsValid(caster))
@@ -834,8 +821,9 @@ namespace Evade
                 force_update = true;
                 float hitbox = api->GetHitbox(this->hero);
                 float move_speed = api->GetMovementSpeed(this->hero);
-                float threshold = (radius + hitbox) / move_speed + 1.5f;
-                skillshot->Set().EndPos = pos + dir * (threshold * speed);
+                float threshold = (radius + hitbox) / move_speed + 1.25f;
+                float offset = MIN(range - distance, threshold * speed);
+                skillshot->Set().EndPos = pos + dir * offset;
             }
 
             // Adjust skillshot's speed dynamically based on various properties
@@ -850,20 +838,17 @@ namespace Evade
                 skillshot->Set().Speed = distance < 1350.0f ?
                     1700.0f : 2200.0f - 743250.0f / distance;
             }
-            else if (data.FixSpeed && !proc_type)
+            else if (data.FixSpeed && !proc_type && api->IsValid(object))
             {
-                auto object = api->GetObjectById(object_id);
-                if (api->IsValid(object))
-                {
-                    auto missile = api->AsMissile(object);
-                    Vector pos = api->GetPosition(missile);
-                    speed = api->GetMissileSpeed(missile);
+                timer = api->GetTime();
+                auto missile = (MissileClient)object;
+                Vector pos = api->GetPosition(missile);
+                speed = api->GetMissileSpeed(missile);
 
-                    skillshot->Set().StartTime = timer;
-                    skillshot->Set().StartPos = pos;
-                    skillshot->Set().Speed = speed;
-                    skillshot->FixOrigin();
-                }
+                skillshot->Set().StartTime = timer;
+                skillshot->Set().StartPos = pos;
+                skillshot->Set().Speed = speed;
+                skillshot->FixOrigin();
             }
             else if (data.Acceleration != 0.0f)
             {

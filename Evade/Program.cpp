@@ -42,6 +42,7 @@ namespace Evade
         this->api->RegisterEvent(EventType::ON_DRAW, OnDrawWrapper);
         this->api->RegisterEvent(EventType::ON_PROCESS_SPELL, OnProcessSpellWrapper);
         this->api->RegisterEvent(EventType::ON_CREATE_OBJECT, OnCreateObjectWrapper);
+        this->api->RegisterEvent(EventType::ON_DELETE_OBJECT, OnDeleteObjectWrapper);
         this->api->RegisterEvent(EventType::ON_BUFF_GAIN, OnBuffGainWrapper);
         this->api->RegisterEvent(EventType::ON_WND_PROC, OnWndProcWrapper);
         this->api->RegisterEvent(EventType::ON_ISSUE_ORDER, OnIssueOrderWrapper);
@@ -85,9 +86,14 @@ namespace Evade
         Program::Get()->OnProcessSpellInternal(unit, info);
     }
 
-    void Program::OnCreateObjectWrapper(Object unit, uint32_t id)
+    void Program::OnCreateObjectWrapper(Object object, uint32_t object_id)
     {
-        Program::Get()->OnCreateObject(unit, id);
+        Program::Get()->OnCreateObject(object, object_id);
+    }
+
+    void Program::OnDeleteObjectWrapper(Object object)
+    {
+        Program::Get()->OnDeleteObjectInternal(object);
     }
 
     void Program::OnBuffGainWrapper(Obj_AI_Base unit, Buff buff)
@@ -154,7 +160,7 @@ namespace Evade
         this->settings["Delta"] = this->config->AddSlider(core, "Delta", "Collision Time Delta", 0, 0, 100, 5);
         this->settings["Interval"] = this->config->AddSlider(core, "Interval", "Force Click Interval", 35, 25, 50, 1);
         this->settings["Points"] = this->config->AddSlider(core, "Points", "Maximum Evade Points", 32, 8, 32, 1);
-        this->settings["Reaction"] = this->config->AddSlider(core, "Reaction", "Minimum Reaction Time", 0, 0, 250, 10);
+        this->settings["Reaction"] = this->config->AddSlider(core, "Reaction", "Minimum Reaction Time", 150, 0, 250, 10);
         this->settings["Retries"] = this->config->AddSlider(core, "Retries", "Solution Finder Retries", 1, 0, 3, 1);
         this->settings["Search"] = this->config->AddSlider(core, "Search", "Threat Search Range", 1000, 0, 1500, 100);
 
@@ -799,7 +805,7 @@ namespace Evade
         if (data.AddHitbox) hitbox = this->api->GetHitbox(this->my_hero);
 
         auto params = ActiveData(dest_pos, unit_pos.Clone(), start_pos,
-            spell_name, caster_name, caster, (uint32_t)0, danger, slot,
+            spell_name, caster_name, caster, nullptr, danger, slot,
             data.FixedRange, !visible, data.Invert, data.HardCC,
             data.SoftCC, data.Rotate90, height, hitbox, data.Offset,
             data.Range, data.SideRange, data.Radius, data.InnerRadius,
@@ -854,6 +860,7 @@ namespace Evade
     void Program::OnCreateObject(const Object& object, uint32_t object_id)
     {
         if (!this->api->IsValid(object)) return;
+        ParticleEmitter particle = nullptr;
         MissileClient missile = nullptr;
         Object unit = nullptr;
         std::string spell_name;
@@ -882,6 +889,9 @@ namespace Evade
         }
         else if (this->api->IsParticle(object))
         {
+            particle = this->api->AsParticle(object);
+            if (!this->api->IsValid(particle)) return;
+
             // Retrieve spell name based on particle name
             std::string object_name = this->api->GetObjectName(object);
             auto info = this->particles.FirstOrDefault([&](auto& info)
@@ -951,19 +961,20 @@ namespace Evade
         if (!visible && !this->GetValue<bool>("DetectFog")) return;
         bool multi = this->data->GetConnectors().count(spell_name) > 0;
         bool fixed_range = data.Range >= 25000.0f || data.FixedRange &&
-            (!(multi || data.Acceleration != 0.0f || spell_name == "ZoeE"));
+            !multi && data.Acceleration == 0.0f && data.Range != 12500.0f;
 
         bool irelia_mis = spell_name == "IreliaEMissile";
         int spell_slot = this->char_to_slot(data.SkillshotSlot);
         int danger = this->GetValue<int>("D|" + spell_name + "|Danger");
         std::string caster_name = this->api->GetCharacterName(caster);
         DetectionType detect_type = DetectionType::ON_OBJECT_CREATED;
+        Object obj_ptr = missile ? (Object)missile : (Object)particle;
 
         Vector object_pos = this->api->GetPosition(object), dir;
         Vector start_pos = object_pos, end_pos = object_pos.Clone();
         if (missile) end_pos = this->api->GetMissileEndPos(missile);
         if (missile) start_pos = this->api->GetMissileStartPos(missile);
-        if (data.UseEmitter) dir = this->api->GetObjectDirection(object);
+        if (data.UseEmitter) dir = this->api->GetDirection(particle);
         if (dir.IsValid()) end_pos = start_pos + dir * data.Range;
 
         float cone_angle = M_RAD(data.ConeAngle), speed = data.Speed;
@@ -975,7 +986,7 @@ namespace Evade
         if (irelia_mis) speed = this->api->GetMissileSpeed(missile);
 
         auto params = ActiveData(end_pos, start_pos.Clone(), start_pos,
-            spell_name, caster_name, caster, object_id, danger, spell_slot,
+            spell_name, caster_name, caster, obj_ptr, danger, spell_slot,
             fixed_range, !visible, data.Invert, data.HardCC, data.SoftCC,
             data.Rotate90, height, hitbox, 0.0f, data.Range, data.SideRange,
             data.Radius, data.InnerRadius, data.OuterRadius, cone_angle,
@@ -1001,6 +1012,26 @@ namespace Evade
 
         // Remove primary skillshot after processing related skillshots
         if (data.SkipAncestor) this->skillshots.Remove(skillshot);
+    }
+
+    void Program::OnDeleteObject(const Object& object, uint32_t object_id)
+    {
+        // Remove all traps and/or explosions that are dead
+        const auto& skillshots = this->data->GetSkillshots();
+        this->skillshots.RemoveAll([&](Skillshot* skillshot)
+        {
+            auto& data = skillshots.at(skillshot->Get().SkillshotName);
+            if (!data.IsTrap && !data.TrackObject) return false;
+
+            const auto& particle = skillshot->Get().ObjectPtr;
+            return this->api->GetObjectId(particle) == object_id;
+        });
+    }
+
+    void Program::OnDeleteObjectInternal(const Object& object)
+    {
+        uint32_t object_id = API::Get()->GetObjectId(object);
+        this->OnDeleteObject(object, object_id);
     }
 
     void Program::OnBuffGain(const Obj_AI_Base& unit, const Buff& buff)
@@ -1086,7 +1117,7 @@ namespace Evade
         Vector pos = Vector(2700.0f, 1800.0f);
 
         ActiveData params = ActiveData(dest, pos, pos, skill_name,
-            char_name, unit, (uint32_t)0, level, 0, false, false, false,
+            char_name, unit, nullptr, level, 0, false, false, false,
             true, true, false, height, (box ? hitbox : 0.0f) + extra,
             0.0f, range, 0.0f, radius, 0.0f, 0.0f, cone_angle, delay,
             0.0f, infinite == true ? FLT_MAX : speed, collisions,

@@ -14,7 +14,7 @@ namespace Evade
     class Process;
     class Utilities;
 
-    const std::string EVADE_VERSION = "1.04";
+    const std::string EVADE_VERSION = "1.05";
     constexpr float SAFETY_BUFFER = 30.0f;
 
     enum class CollectionType { ACTIVE, CONSIDERED, DANGEROUS };
@@ -83,7 +83,8 @@ namespace Evade
             static void OnTickWrapper();
             static void OnDrawWrapper();
             static void OnProcessSpellWrapper(Obj_AI_Base unit, CastInfo info);
-            static void OnCreateObjectWrapper(Object unit, uint32_t id);
+            static void OnCreateObjectWrapper(Object object, uint32_t object_id);
+            static void OnDeleteObjectWrapper(Object object);
             static void OnBuffGainWrapper(Obj_AI_Base unit, Buff buff);
             static void OnWndProcWrapper(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam);
             static void OnIssueOrderWrapper(VecInt3 pos, int order, int target_id);
@@ -123,7 +124,9 @@ namespace Evade
                 const int spell_level, const Vector& start_pos, const Vector& end_pos,
                 uint32_t target_id, float cast_delay, float travel_time, bool proc_next);
             void OnProcessSpellInternal(const Obj_AI_Base& unit, const CastInfo& info);
-            void OnCreateObject(const Object& unit, uint32_t object_id);
+            void OnCreateObject(const Object& object, uint32_t object_id);
+            void OnDeleteObject(const Object& object, uint32_t object_id);
+            void OnDeleteObjectInternal(const Object& object);
             void OnBuffGain(const Obj_AI_Base& unit, const Buff& buff);
             void OnWndProc(UINT msg, WPARAM wparam);
             void OnIssueOrder(const VecInt3& pos, int order);

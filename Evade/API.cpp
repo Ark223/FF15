@@ -42,6 +42,10 @@ namespace Evade
             case EventType::ON_CREATE_OBJECT:
                 this->m_api->set_on_create_object(callback);
                 break;
+                
+            case EventType::ON_DELETE_OBJECT:
+                this->m_api->set_on_delete_object(callback);
+                break;
 
             case EventType::ON_BUFF_GAIN:
                 this->m_api->set_on_buff_add(callback);
@@ -123,6 +127,11 @@ namespace Evade
     MissileClient API::AsMissile(const Object& object) const
     {
         return (MissileClient)(object->as_missile());
+    }
+
+    ParticleEmitter API::AsParticle(const Object& object) const
+    {
+        return (EffectEmitter*)(object->as_effect_emitter());
     }
 
     bool API::IsHero(const Object& object) const
@@ -259,7 +268,12 @@ namespace Evade
         return this->m_api->get_render_helper()->world_to_screen(vec);
     }
 
-    // Missile data
+    // Missile and particle data
+
+    Vector API::GetDirection(const ParticleEmitter& particle) const
+    {
+        return this->ToVector(particle->get_orientation());
+    }
 
     Vector API::GetMissileEndPos(const MissileClient& missile) const
     {
@@ -492,12 +506,6 @@ namespace Evade
     uint32_t API::GetObjectId(const Object& object) const
     {
         return object->get_id();
-    }
-
-    Vector API::GetObjectDirection(const Object& object) const
-    {
-        auto emitter = (EffectEmitter*)object->as_effect_emitter();
-        return this->ToVector(emitter->get_orientation());
     }
 
     Object API::GetObjectOwner(const Object& object) const

@@ -16,6 +16,7 @@ namespace Evade
     using Obj_AI_Base = AIBaseCommon*;
     using Obj_AI_Hero = AIHeroPlayer*;
     using Obj_AI_Minion = AIMinionCommon*;
+    using ParticleEmitter = EffectEmitter*;
     using PublicAPI = NS SurrenderAt15*;
     using SpellState = SDK::Enums::SpellState;
     using VecInt2 = SDK::Structs::Math::Vector2;
@@ -27,6 +28,7 @@ namespace Evade
         ON_DRAW,
         ON_PROCESS_SPELL,
         ON_CREATE_OBJECT,
+        ON_DELETE_OBJECT,
         ON_BUFF_GAIN,
         ON_WND_PROC,
         ON_ISSUE_ORDER
@@ -59,6 +61,7 @@ namespace Evade
             Obj_AI_Hero AsHero(const Object& object) const;
             Obj_AI_Minion AsMinion(const Object& object) const;
             MissileClient AsMissile(const Object& object) const;
+            ParticleEmitter AsParticle(const Object& object) const;
             bool IsHero(const Object& object) const;
             bool IsMinion(const Object& object) const;
             bool IsMissile(const Object& object) const;
@@ -81,6 +84,7 @@ namespace Evade
             float GetHeight(const Vector& pos) const;
             VecInt2 ToScreen(const Vector& pos, float height);
 
+            Vector GetDirection(const ParticleEmitter& particle) const;
             Vector GetMissileEndPos(const MissileClient& missile) const;
             Vector GetMissileStartPos(const MissileClient& missile) const;
             std::string GetMissileName(const MissileClient& missile) const;
@@ -127,7 +131,6 @@ namespace Evade
             bool Compare(const Object& a, const Object& b) const;
             Object GetObjectById(const uint32_t object_id) const;
             uint32_t GetObjectId(const Object& object) const;
-            Vector GetObjectDirection(const Object& object) const;
             Object GetObjectOwner(const Object& object) const;
             std::string GetObjectName(const Object& object) const;
             std::string GetCharacterName(const Obj_AI_Base& unit) const;

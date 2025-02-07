@@ -110,10 +110,10 @@ namespace Evade
         std::vector<CollisionFlag> Collisions;
         std::vector<Vector> StartArc, EndArc;
         Obj_AI_Hero Caster = nullptr;
+        Object ObjectPtr = nullptr;
         Poly OffsetPoly, Polygon;
         DamageFunc DamageFunc;
         DamageType DamageType;
-        uint32_t ObjectId = 0;
         int DangerLevel = 0;
         int SkillshotSlot = 0;
         float ArcStep = 0.0f;
@@ -145,7 +145,7 @@ namespace Evade
         ActiveData(const Vector& dest_pos, const Vector& origin_pos,
             const Vector& start_pos, const std::string& skill_name,
             const std::string& caster_name, const Obj_AI_Hero& caster,
-            uint32_t object_id, int danger_level, int slot, bool fixed_range,
+            const Object& object, int danger_level, int slot, bool fixed_range,
             bool fog_of_war, bool invert_origin, bool hard_cc, bool soft_cc,
             bool rotate90, float height, float hitbox, float offset,
             float range, float side_range, float radius, float inner_radius,
@@ -156,7 +156,7 @@ namespace Evade
         ) :
             DestPos(dest_pos), OriginPos(origin_pos), StartPos(start_pos),
             SkillshotName(skill_name), CasterName(caster_name), Caster(caster),
-            ObjectId(object_id), DangerLevel(danger_level), SkillshotSlot(slot),
+            ObjectPtr(object), DangerLevel(danger_level), SkillshotSlot(slot),
             FixedRange(fixed_range), FogOfWar(fog_of_war), Invert(invert_origin),
             HardCC(hard_cc), SoftCC(soft_cc), Rotate90(rotate90), Height(height),
             Hitbox(hitbox), Offset(offset), Range(range), SideRange(side_range),

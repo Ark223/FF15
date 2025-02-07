@@ -1593,7 +1593,7 @@ namespace Evade
         {
             float base_scale[] = { 75, 110, 145, 180, 215 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.7f * info.TotalAbilityDamage;
+            return base_damage + 0.65f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::CIRCLE;
@@ -3387,7 +3387,30 @@ namespace Evade
 
         #pragma region Hecarim
 
-        // Hecarim R
+        // Hecarim R Dash
+
+        data = SkillshotData();
+        data.ChampionName = "Hecarim";
+        data.DisplayName = "Onslaught of Shadows [Dash]";
+        data.SkillshotName = "HecarimRDash";
+        data.IconName = "HecarimUlt.png";
+        data.SkillshotSlot = 'R';
+        data.Dangerous = true;
+        data.Exception = true;
+        data.IgnoreAlive = true;
+        data.HardCC = true;
+        data.Radius = 315.0f;
+        data.Range = 1650.0f;
+        data.Speed = 1100.0f;
+        data.DangerLevel = 4;
+        data.Collisions = {};
+        data.Detectors = { DetectionType::ON_NEW_PATH };
+        data.Damage = [](const auto&) { return 0.0f; };
+        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.SkillshotType = SkillshotType::CIRCLE;
+        this->skillshots[data.SkillshotName] = data;
+
+        // Hecarim R Shadows
 
         data = SkillshotData();
         data.ChampionName = "Hecarim";
@@ -3400,18 +3423,26 @@ namespace Evade
         data.Dangerous = true;
         data.Exception = true;
         data.FogSupport = true;
-        data.HardCC = true;
         data.Radius = 40.0f;
         data.Range = 1650.0f;
         data.Speed = 1100.0f;
-        data.DangerLevel = 4;
+        data.DangerLevel = 3;
         data.Collisions = {};
+        data.Exclusions =
+        {
+            "HecarimShadows"
+        };
         data.Detectors =
         {
             DetectionType::ON_OBJECT_CREATED
         };
-        data.Damage = [](const auto&) { return 0.0f; };
-        data.DamageType = DamageType::TRUE_DAMAGE;
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 150, 250, 350 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 1.0f * info.TotalAbilityDamage;
+        };
+        data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
@@ -4252,9 +4283,9 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 60, 115, 170, 225, 280, 335 };
+            float base_scale[] = { 60, 110, 160, 210, 260, 310 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 1.25f * info.BonusAttackDamage;
+            return base_damage + 1.4f * info.BonusAttackDamage;
         };
         data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -4289,9 +4320,9 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 84, 161, 238, 315, 392, 469 };
+            float base_scale[] = { 84, 154, 224, 294, 364, 434 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 1.75f * info.BonusAttackDamage;
+            return base_damage + 1.96f * info.BonusAttackDamage;
         };
         data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -5049,7 +5080,7 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 150, 190, 230, 270, 310 };
+            float base_scale[] = { 150, 200, 250, 300, 350 };
             float base_damage = base_scale[info.SpellLevel];
             return base_damage + 1.7f * info.BonusAttackDamage;
         };
@@ -5667,7 +5698,7 @@ namespace Evade
         data.DisplayName = "Sonic Wave";
         data.MissileName = "LeeSinQOne";
         data.SkillshotName = "LeeSinQOne";
-        data.IconName = "BlindMonkQOne.png";
+        data.IconName = "LeeSinQOne.png";
         data.SkillshotSlot = 'Q';
         data.AddHitbox = true;
         data.Dangerous = true;
@@ -5699,6 +5730,38 @@ namespace Evade
             float missing_hp = info.TargetMaxHealth - info.TargetHealth;
             float missing_hp_ratio = missing_hp / info.TargetMaxHealth;
             return (base_damage + bonus_damage) * (1.0f + missing_hp_ratio);
+        };
+        data.DamageType = DamageType::PHYSICAL;
+        data.SkillshotType = SkillshotType::LINE;
+        this->skillshots[data.SkillshotName] = data;
+
+        // LeeSin R
+
+        data = SkillshotData();
+        data.ChampionName = "LeeSin";
+        data.DisplayName = "Dragon's Rage";
+        data.SkillshotName = "LeeSinR";
+        data.IconName = "LeeSinR.png";
+        data.SkillshotSlot = 'R';
+        data.AddHitbox = false;
+        data.Dangerous = true;
+        data.FixedRange = true;
+        data.HardCC = true;
+        data.Delay = 0.25f;
+        data.Radius = 160.0f;
+        data.Range = 800.0f;
+        data.Speed = 865.0f;
+        data.DangerLevel = 5;
+        data.Detectors =
+        {
+            DetectionType::ON_ACTIVE_SPELL,
+            DetectionType::ON_PROCESS_SPELL
+        };
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 175, 400, 625 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 2.0f * info.BonusAttackDamage;
         };
         data.DamageType = DamageType::PHYSICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -5884,6 +5947,89 @@ namespace Evade
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::CIRCLE;
+        this->skillshots[data.SkillshotName] = data;
+
+        // Lillia E Lob
+
+        data = SkillshotData();
+        data.ChampionName = "Lillia";
+        data.DisplayName = "Swirlseed [Lob]";
+        data.MissileName = "LilliaE(?!Rolling)";
+        data.SkillshotName = "LilliaE";
+        data.IconName = "LilliaE.png";
+        data.SkillshotSlot = 'E';
+        data.FogSupport = true;
+        data.SoftCC = true;
+        data.Delay = 0.4f;
+        data.Radius = 150.0f;
+        data.Range = 700.0f;
+        data.Speed = 1400.0f;
+        data.DangerLevel = 3;
+        data.Collisions = {};
+        data.Exclusions =
+        {
+            "LilliaERollingMissile"
+        };
+        data.Detectors =
+        {
+            DetectionType::ON_ACTIVE_SPELL,
+            DetectionType::ON_OBJECT_CREATED,
+            DetectionType::ON_PROCESS_SPELL
+        };
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 60, 85, 110, 135, 160 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.5f * info.TotalAbilityDamage;
+        };
+        data.DamageType = DamageType::MAGICAL;
+        data.SkillshotType = SkillshotType::CIRCLE;
+        this->skillshots[data.SkillshotName] = data;
+
+        // Lillia E Roll
+
+        data = SkillshotData();
+        data.ChampionName = "Lillia";
+        data.DisplayName = "Swirlseed [Roll]";
+        data.MissileName = "LilliaERollingMissile(?!Short)";
+        data.SkillshotName = "LilliaERollingMissile";
+        data.Overrider = "LilliaERollingMissile";
+        data.IconName = "LilliaE.png";
+        data.SkillshotSlot = 'E';
+        data.AddHitbox = true;
+        data.Exception = true;
+        data.FixedRange = true;
+        data.FogSupport = true;
+        data.IsGlobal = true;
+        data.SoftCC = true;
+        data.Radius = 60.0f;
+        data.Range = 12500.0f;
+        data.Speed = 1150.0f;
+        data.DangerLevel = 3;
+        data.Exclusions =
+        {
+            "LilliaE"
+        };
+        data.Collisions =
+        {
+            CollisionFlag::CHAMPION,
+            CollisionFlag::MINION,
+            CollisionFlag::WIND_WALL
+        };
+        data.Detectors =
+        {
+            DetectionType::ON_ACTIVE_SPELL,
+            DetectionType::ON_OBJECT_CREATED,
+            DetectionType::ON_PROCESS_SPELL
+        };
+        data.Damage = [](const StatData& info)
+        {
+            float base_scale[] = { 60, 85, 110, 135, 160 };
+            float base_damage = base_scale[info.SpellLevel];
+            return base_damage + 0.5f * info.TotalAbilityDamage;
+        };
+        data.DamageType = DamageType::MAGICAL;
+        data.SkillshotType = SkillshotType::LINE;
         this->skillshots[data.SkillshotName] = data;
 
         #pragma endregion
@@ -10247,7 +10393,7 @@ namespace Evade
         {
             float base_scale[] = { 80, 120, 160, 200, 240 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.6f * info.TotalAbilityDamage;
+            return base_damage + 0.7f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -10288,7 +10434,7 @@ namespace Evade
         {
             float base_scale[] = { 80, 120, 160, 200, 240 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.6f * info.TotalAbilityDamage;
+            return base_damage + 0.7f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -10324,7 +10470,7 @@ namespace Evade
         {
             float base_scale[] = { 80, 120, 160, 200, 240 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.6f * info.TotalAbilityDamage;
+            return base_damage + 0.7f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::CIRCLE;
@@ -10913,9 +11059,9 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 100, 150, 200, 250, 300 };
+            float base_scale[] = { 100, 155, 210, 265, 320 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.9f * info.TotalAbilityDamage;
+            return base_damage + 1.0f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -13486,8 +13632,7 @@ namespace Evade
 
         #pragma endregion
 
-        // Missing: Aatrox Q2, Akshan Q, Aurelion Sol R, Azir R,
-        // FiddleSticks E, Hecarim R, LeeSin R, Lillia E, Rumble R, Yuumi Q
+        // Missing: Akshan Q, Aurelion Sol R, Azir R, FiddleSticks E, Rumble R, Yuumi Q
     }
 
     void Data::InitEvadingSpells()
@@ -14714,6 +14859,7 @@ namespace Evade
             {"HweiQQ", {"HweiQQExplosion", ConnectionType::EXTEND_LENGTH}},
             {"KarmaQMissileMantra", {"KarmaQExplosion", ConnectionType::EXTEND_LENGTH}},
             {"LeonaSolarFlare", {"LeonaREpicenter", ConnectionType::FOLLOW_ORIGIN}},
+            {"LilliaE", {"LilliaERollingMissile", ConnectionType::EXTEND_LENGTH}},
             {"MalzaharQ", {"MalzaharQSecond", ConnectionType::FOLLOW_ORIGIN}},
             {"MelE", {"MelEFieldTravel", ConnectionType::FOLLOW_ORIGIN}},
             {"MordekaiserQ", {"MordekaiserQ2", ConnectionType::FOLLOW_ORIGIN}},

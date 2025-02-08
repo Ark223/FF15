@@ -221,6 +221,44 @@ namespace Evade
     }
 
     template<typename T>
+    void Linq<T>::Delete(const T& element)
+    {
+        for (auto it = data.begin(); it != data.end(); ++it)
+        {
+            if (*it == element)
+            {
+                if constexpr(std::is_pointer<T>::value)
+                {
+                    delete *it;
+                }
+                data.erase(it);
+                break;
+            }
+        }
+    }
+
+    template<typename T>
+    template<typename TPredicate>
+    void Linq<T>::DeleteAll(TPredicate predicate)
+    {
+        for (auto it = data.begin(); it != data.end();)
+        {
+            if (predicate(*it))
+            {
+                if constexpr(std::is_pointer<T>::value)
+                {
+                    delete *it;
+                }
+                it = data.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
+
+    template<typename T>
     Linq<T> Linq<T>::Distinct() const
     {
         std::vector<T> result;
@@ -626,20 +664,9 @@ namespace Evade
     template<typename T>
     void Linq<T>::Remove(const T& element)
     {
-        for (auto it = data.begin(); it != data.end();)
+        for (auto it = data.begin(); it != data.end(); ++it)
         {
-            if (*it == element)
-            {
-                if constexpr(std::is_pointer<T>::value)
-                {
-                    delete *it;
-                }
-                it = data.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
+            if (*it == element) return data.erase(it);
         }
     }
 
@@ -651,10 +678,6 @@ namespace Evade
         {
             if (predicate(*it))
             {
-                if constexpr(std::is_pointer<T>::value)
-                {
-                    delete *it;
-                }
                 it = data.erase(it);
             }
             else

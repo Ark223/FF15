@@ -33,6 +33,7 @@ namespace Evade
             MenuItem AddLabel(MenuItem menu, const std::string& id, const std::string& text, bool center = false);
             MenuItem AddList(MenuItem menu, const std::string& id, const std::string& text, Items items, int selected);
             MenuItem AddSlider(MenuItem menu, const std::string& id, const std::string& text, int value, int min, int max, int step);
+            MenuItem AddToggle(MenuItem menu, const std::string& id, const std::string& text, int key_value, bool value);
             MenuItem AddSubMenu(MenuItem menu, const std::string& id, const std::string& text);
             MenuItem CreateMenu(const std::string& id, const std::string& text);
             void PrintText(const std::string& text);

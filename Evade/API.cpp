@@ -681,8 +681,7 @@ namespace Evade
 
     bool API::IsAlly(const Obj_AI_Base& unit) const
     {
-        if (this->IsEnemy(unit)) return false;
-        return !this->Compare(unit, this->m_hero);
+        return !this->IsEnemy(unit);
     }
 
     bool API::IsAttacking(const Obj_AI_Hero& unit) const

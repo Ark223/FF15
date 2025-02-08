@@ -143,6 +143,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -188,6 +189,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 100.0f;
@@ -231,6 +233,7 @@ namespace Evade
         data.BackToCaster = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Radius = 100.0f;
         data.Range = 12500.0f;
         data.Speed = 2600.0f;
@@ -270,6 +273,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -316,6 +320,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 60.0f;
@@ -470,6 +475,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -684,6 +690,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.35f;
         data.Windup = 0.35f;
         data.Radius = 60.0f;
@@ -774,6 +781,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.5f;
         data.Windup = 0.5f;
         data.Radius = 125.0f;
@@ -861,6 +869,7 @@ namespace Evade
         data.FixedRange = true;
         data.FixSpeed = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.IsGlobal = true;
         data.HardCC = true;
         data.Delay = 0.25f;
@@ -907,6 +916,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -981,6 +991,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -1019,6 +1030,7 @@ namespace Evade
         data.SkillshotSlot = 'R';
         data.Dangerous = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.5f;
         data.Windup = 0.5f;
@@ -1099,6 +1111,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -1175,6 +1188,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -1255,6 +1269,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -1297,6 +1312,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.5f;
         data.Windup = 0.5f;
@@ -1384,6 +1400,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 1.0f;
         data.Windup = 1.0f;
@@ -1429,6 +1446,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.625f;
         data.Windup = 0.625f;
         data.Radius = 90.0f;
@@ -1471,7 +1489,7 @@ namespace Evade
         data.Dangerous = true;
         data.Exception = true;
         data.FogSupport = true;
-        data.TrackObject = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.IsTrap = true;
         data.Delay = 1.05f;
@@ -1499,6 +1517,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.15f;
         data.Windup = 0.15f;
@@ -1717,6 +1736,7 @@ namespace Evade
         data.IconName = "PhosphorusBomb.png";
         data.SkillshotSlot = 'Q';
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 275.0f;
@@ -1757,6 +1777,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.175f;
         data.Windup = 0.175f;
         data.Radius = 40.0f;
@@ -1797,6 +1818,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.175f;
         data.Windup = 0.175f;
         data.Radius = 40.0f;
@@ -1975,6 +1997,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -2024,6 +2047,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -2064,6 +2088,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.IsGlobal = true;
         data.Delay = 0.5f;
         data.Windup = 0.5f;
@@ -2196,6 +2221,7 @@ namespace Evade
         data.BackToCaster = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Radius = 100.0f;
         data.Range = 12500.0f;
@@ -2297,6 +2323,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -2337,6 +2364,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 60.0f;
@@ -2415,6 +2443,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 60.0f;
@@ -2457,6 +2486,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 80.0f;
@@ -2501,6 +2531,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.IsGlobal = true;
         data.Delay = 1.0f;
         data.Windup = 1.0f;
@@ -2587,6 +2618,7 @@ namespace Evade
         data.AddHitbox = true;
         data.Dangerous = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -2698,6 +2730,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -2742,6 +2775,7 @@ namespace Evade
         data.Exception = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Radius = 75.0f;
         data.Range = 3000.0f;
@@ -2989,6 +3023,7 @@ namespace Evade
         data.IconName = "GragasQ.png";
         data.SkillshotSlot = 'Q';
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.ExtraTime = 0.25f;
@@ -3027,7 +3062,7 @@ namespace Evade
         data.IconName = "GragasQ.png";
         data.SkillshotSlot = 'Q';
         data.FogSupport = true;
-        data.TrackObject = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.ExtraTime = 4.25f;
         data.Radius = 300.0f;
@@ -3092,6 +3127,7 @@ namespace Evade
         data.SkillshotSlot = 'R';
         data.Dangerous = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.75f;
         data.Windup = 0.25f;
@@ -3200,6 +3236,7 @@ namespace Evade
         data.AddHitbox = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Radius = 100.0f;
         data.Range = 900.0f;
         data.Speed = 1600.0f;
@@ -3236,6 +3273,7 @@ namespace Evade
         data.SkillshotSlot = 'W';
         data.AddHitbox = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -3357,6 +3395,7 @@ namespace Evade
         data.Dangerous = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Radius = 60.0f;
         data.Range = 1350.0f;
@@ -3501,6 +3540,7 @@ namespace Evade
         data.SkillshotSlot = 'E';
         data.Dangerous = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -3745,6 +3785,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -3785,6 +3826,7 @@ namespace Evade
         data.SkillshotSlot = 'E';
         data.Dangerous = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.ExtraTime = 2.5f;
@@ -3855,6 +3897,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -3889,7 +3932,7 @@ namespace Evade
         data = SkillshotData();
         data.ChampionName = "Illaoi";
         data.DisplayName = "Tentacle Smash";
-        data.ParticleName = "_Q_IndicatorRed";
+        data.ParticleName = "_Q_Indicator";
         data.SkillshotName = "IllaoiQParticle";
         data.IconName = "IllaoiQ.png";
         data.SkillshotSlot = 'Q';
@@ -3902,7 +3945,7 @@ namespace Evade
         data.ParticleDelay = 0.75f;
         data.Windup = 0.75f;
         data.Radius = 100.0f;
-        data.Range = 975.0f;
+        data.Range = 800.0f;
         data.Offset = -50.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
@@ -3936,6 +3979,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 50.0f;
@@ -4083,6 +4127,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -4129,6 +4174,7 @@ namespace Evade
         data.Dangerous = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Radius = 120.0f;
         data.Range = 1760.0f;
@@ -4263,6 +4309,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.2143f;
         data.Windup = 0.2143f;
         data.Radius = 70.0f;
@@ -4304,6 +4351,7 @@ namespace Evade
         data.AddHitbox = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Radius = 70.0f;
         data.Range = 1600.0f;
         data.Speed = 2350.0f;
@@ -4384,7 +4432,7 @@ namespace Evade
         data.SkillshotSlot = 'E';
         data.AddHitbox = true;
         data.FogSupport = true;
-        data.TrackObject = true;
+        data.HookObject = true;
         data.IsTrap = true;
         data.SoftCC = true;
         data.Delay = 0.8f;
@@ -4422,6 +4470,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -4514,6 +4563,7 @@ namespace Evade
         data.Dangerous = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 1.1f;
         data.MissileDelay = 1.1f;
@@ -4554,6 +4604,7 @@ namespace Evade
         data.FastEvade = true;
         data.FixSpeed = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.IsGlobal = true;
         data.Delay = 0.6f;
         data.Windup = 0.6f;
@@ -4637,6 +4688,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.UseWindup = true;
         data.Radius = 70.0f;
@@ -4681,6 +4733,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.4f;
         data.Windup = 0.4f;
         data.Radius = 100.0f;
@@ -4727,6 +4780,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 40.0f;
@@ -4796,6 +4850,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -5027,6 +5082,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.UseWindup = true;
         data.Radius = 75.0f;
@@ -5173,6 +5229,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.175f;
         data.Windup = 0.175f;
         data.Radius = 50.0f;
@@ -5217,6 +5274,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 70.0f;
@@ -5361,6 +5419,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -5437,6 +5496,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.UseWindup = true;
         data.Radius = 70.0f;
         data.Range = 1200.0f;
@@ -5476,6 +5536,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -5588,6 +5649,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -5658,6 +5720,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -5704,6 +5767,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 60.0f;
@@ -5784,6 +5848,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -6000,6 +6065,7 @@ namespace Evade
         data.Exception = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.IsGlobal = true;
         data.SoftCC = true;
         data.Radius = 60.0f;
@@ -6048,6 +6114,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -6088,6 +6155,7 @@ namespace Evade
         data.AddHitbox = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Radius = 90.0f;
         data.Range = 825.0f;
@@ -6124,6 +6192,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 125.0f;
@@ -6250,6 +6319,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -6287,6 +6357,7 @@ namespace Evade
         data.IconName = "LuxLightStrikeKugel.png";
         data.SkillshotSlot = 'E';
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.ExtraTime = 0.25f;
@@ -6326,7 +6397,7 @@ namespace Evade
         data.Overrider = "LuxLightStrikeKugel";
         data.SkillshotSlot = 'E';
         data.FogSupport = true;
-        data.TrackObject = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.ExtraTime = 5.25f;
         data.Radius = 310.0f;
@@ -6547,6 +6618,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.35f;
         data.Windup = 0.35f;
@@ -6760,6 +6832,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -6968,6 +7041,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -7014,6 +7088,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 50.0f;
@@ -7173,6 +7248,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.5f;
         data.Windup = 0.5f;
@@ -7217,6 +7293,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -7261,6 +7338,7 @@ namespace Evade
         data.IconName = "NeekoQ.png";
         data.SkillshotSlot = 'Q';
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -7302,6 +7380,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -7346,6 +7425,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 40.0f;
@@ -7386,7 +7466,7 @@ namespace Evade
         data.Dangerous = true;
         data.Exception = true;
         data.FogSupport = true;
-        data.TrackObject = true;
+        data.HookObject = true;
         data.IsTrap = true;
         data.Delay = 1.35f;
         data.ParticleDelay = 1.35f;
@@ -7500,6 +7580,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 60.0f;
@@ -7543,6 +7624,7 @@ namespace Evade
         data.Dangerous = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Radius = 75.0f;
         data.Range = 1750.0f;
@@ -7578,6 +7660,7 @@ namespace Evade
         data.SkillshotSlot = 'Q';
         data.AddHitbox = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -7832,6 +7915,7 @@ namespace Evade
         data.Exception = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Radius = 200.0f;
         data.Range = 5000.0f;
@@ -7913,6 +7997,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 55.0f;
@@ -7997,6 +8082,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.35f;
         data.Windup = 0.35f;
@@ -8041,6 +8127,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.2f;
         data.Windup = 0.2f;
@@ -8347,6 +8434,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -8392,6 +8480,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 60.0f;
@@ -8440,6 +8529,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 65.0f;
@@ -8553,6 +8643,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.125f;
         data.Windup = 0.125f;
         data.Radius = 65.0f;
@@ -8730,6 +8821,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -8928,6 +9020,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -8970,6 +9063,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -9064,6 +9158,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -9109,6 +9204,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 55.0f;
@@ -9155,6 +9251,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.UseDirection = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -9270,6 +9367,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -9344,6 +9442,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -9467,12 +9566,14 @@ namespace Evade
         data.MissileName = "SeraphineEMissile";
         data.SkillshotName = "SeraphineECast";
         data.IconName = "SeraphineE.png";
+        data.Overrider = "SeraphineECast";
         data.SkillshotSlot = 'E';
         data.AddHitbox = true;
         data.Dangerous = true;
         data.Exception = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -9513,6 +9614,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.5f;
         data.Windup = 0.5f;
@@ -9681,16 +9783,13 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 60.0f;
         data.Range = 925.0f;
         data.Speed = 1575.0f;
         data.DangerLevel = 1;
-        data.Exclusions =
-        {
-            "ShyvanaFireballDragon2"
-        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -9724,15 +9823,15 @@ namespace Evade
         data.SkillshotSlot = 'E';
         data.AddHitbox = true;
         data.FogSupport = true;
-        data.Delay = 0.25f;
-        data.Windup = 0.25f;
+        data.Delay = 0.3333f;
+        data.Windup = 0.3333f;
         data.Radius = 60.0f;
         data.Range = 975.0f;
         data.Speed = 1575.0f;
         data.DangerLevel = 2;
         data.Exclusions =
         {
-            "ShyvanaFireball"
+            "ShyvanaE2"
         };
         data.Collisions =
         {
@@ -9776,6 +9875,10 @@ namespace Evade
         data.ExtraTime = 4.0f;
         data.Radius = 345.0f;
         data.DangerLevel = 2;
+        data.Exclusions =
+        {
+            "ShyvanaFireballDragon2"
+        };
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -9887,6 +9990,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -9930,6 +10034,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.UseWindup = true;
         data.Radius = 90.0f;
         data.Range = 1250.0f;
@@ -9970,6 +10075,7 @@ namespace Evade
         data.BackToCaster = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Radius = 100.0f;
         data.Range = 12500.0f;
         data.Speed = 1200.0f;
@@ -10013,6 +10119,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.UseWindup = true;
         data.Radius = 90.0f;
@@ -10166,6 +10273,7 @@ namespace Evade
         data.AddHitbox = true;
         data.Dangerous = true;
         data.FixedRange = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 1.0f;
         data.Windup = 0.75f;
@@ -10213,6 +10321,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -10254,6 +10363,7 @@ namespace Evade
         data.IconName = "SorakaQ.png";
         data.SkillshotSlot = 'Q';
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -10413,6 +10523,7 @@ namespace Evade
         data.Dangerous = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Radius = 90.0f;
         data.Range = 12500.0f;
@@ -10558,6 +10669,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -10696,7 +10808,7 @@ namespace Evade
         data.SkillshotType = SkillshotType::CONE;
         this->skillshots[data.SkillshotName] = data;
 
-        // Syndra EQ
+        // Syndra QE
 
         data = SkillshotData();
         data.ChampionName = "Syndra";
@@ -10756,6 +10868,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -10840,6 +10953,7 @@ namespace Evade
         data.Exception = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 100.0f;
@@ -10996,7 +11110,7 @@ namespace Evade
         data.Dangerous = true;
         data.Exception = true;
         data.FogSupport = true;
-        data.TrackObject = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.IsTrap = true;
         data.Delay = 0.65f;
@@ -11038,6 +11152,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.5f;
         data.Windup = 0.5f;
@@ -11310,6 +11425,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.5f;
         data.Windup = 0.5f;
@@ -11354,6 +11470,7 @@ namespace Evade
         data.Exception = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Radius = 75.0f;
         data.Range = 1595.0f;
         data.Speed = 1900.0f;
@@ -11425,6 +11542,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.2419f;
         data.Windup = 0.2419f;
@@ -11469,6 +11587,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 70.0f;
@@ -11605,6 +11724,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -11686,6 +11806,7 @@ namespace Evade
         data.Exception = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.5f;
         data.Radius = 45.0f;
@@ -11906,6 +12027,7 @@ namespace Evade
         data.IconName = "VexE.png";
         data.SkillshotSlot = 'E';
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -11949,6 +12071,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 130.0f;
@@ -12058,6 +12181,7 @@ namespace Evade
         data.Exception = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Radius = 60.0f;
         data.Range = 900.0f;
@@ -12166,6 +12290,7 @@ namespace Evade
         data.AddHitbox = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Radius = 80.0f;
         data.Range = 600.0f;
         data.Speed = 1050.0f;
@@ -12200,6 +12325,7 @@ namespace Evade
         data.AddHitbox = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Radius = 80.0f;
         data.Range = 600.0f;
         data.Speed = 1050.0f;
@@ -12234,6 +12360,7 @@ namespace Evade
         data.AddHitbox = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Radius = 80.0f;
         data.Range = 600.0f;
         data.Speed = 1500.0f;
@@ -12424,6 +12551,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.UseWindup = true;
         data.Radius = 50.0f;
         data.Range = 1100.0f;
@@ -12574,6 +12702,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -12752,6 +12881,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.UseWindup = true;
         data.Radius = 90.0f;
@@ -12825,6 +12955,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.UseWindup = true;
         data.Radius = 80.0f;
@@ -13002,6 +13133,7 @@ namespace Evade
         data.FixedRange = true;
         data.FogSupport = true;
         data.IgnoreAlive = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.Delay = 0.15f;
         data.Radius = 35.0f;
@@ -13046,6 +13178,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.33f;
         data.Windup = 0.33f;
@@ -13206,6 +13339,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.SoftCC = true;
         data.UseWindup = true;
         data.Radius = 40.0f;
@@ -13288,6 +13422,7 @@ namespace Evade
         data.SkillshotSlot = 'W';
         data.Dangerous = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -13374,6 +13509,7 @@ namespace Evade
         data.AddHitbox = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 50.0f;
@@ -13418,6 +13554,7 @@ namespace Evade
         data.AddHitbox = true;
         data.Exception = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.Radius = 70.0f;
         data.Range = 12500.0f;
         data.Speed = 2500.0f;
@@ -13461,6 +13598,7 @@ namespace Evade
         data.Exception = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.3f;
         data.Windup = 0.3f;
@@ -13567,6 +13705,7 @@ namespace Evade
         data.Dangerous = true;
         data.FixedRange = true;
         data.FogSupport = true;
+        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
@@ -14662,7 +14801,7 @@ namespace Evade
         data.DisplayName = "Spark Surge";
         data.IconName = "ZeriE.png";
         data.SpellName = "ZeriE";
-        data.SpellSlot = 'Q';
+        data.SpellSlot = 'E';
         data.Range = 300.0f;
         data.DangerLevel = 3;
         data.Speed = [](API* api)

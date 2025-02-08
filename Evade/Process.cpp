@@ -221,7 +221,7 @@ namespace Evade
                 Vector split_one = start + split, split_two = start - split;
                 result.Append({ caster, "VelkozQSplit", start, split_one });
                 result.Append({ caster, "VelkozQSplit", start, split_two });
-                skillshots.Remove(missile);
+                skillshots.Delete(missile);
             }
         }
 
@@ -716,7 +716,7 @@ namespace Evade
 
         // Remove all skillshots that have expired
         auto& skillshots = this->program->GetSkillshots();
-        skillshots.RemoveAll([&](Skillshot* skillshot)
+        skillshots.DeleteAll([&](Skillshot* skillshot)
         {
             const auto& caster = skillshot->Get().Caster;
             const Vector& ending = skillshot->Get().EndPos;

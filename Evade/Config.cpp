@@ -66,6 +66,11 @@ namespace Evade
         return menu->add_slider_int(id, text, value, min, max, step);
     }
 
+    MenuItem Config::AddToggle(MenuItem menu, const std::string& id, const std::string& text, int key_value, bool value)
+    {
+        return menu->add_key_toggle(id, text, key_value, value);
+    }
+
     MenuItem Config::AddSubMenu(MenuItem menu, const std::string& id, const std::string& text)
     {
         return menu->add_sub_menu(id, text);

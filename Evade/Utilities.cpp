@@ -526,8 +526,8 @@ namespace Evade
         Vector zero = Vector(0.0f, 0.0f);
         const Vector& hero_pos = this->program->GetHeroPos();
 
-        // Guess the owner as internal owner id is not always valid
-        auto enemies = this->api->GetHeroes(FLT_MAX, zero, false);
+        // Guess the owner as owner id provided by core is not always valid
+        auto enemies = this->api->GetEnemyHeroes(FLT_MAX, zero, false);
         enemies = enemies.Where([&](const auto& enemy)
         {
             std::string enemy_name = this->api->GetCharacterName(enemy);
@@ -578,11 +578,12 @@ namespace Evade
         });
 
         // Iterate over each found ally
-        if (allies.Count() == 0) return;
         for (const auto& ally : allies)
         {
-            // Filter skillshots that are dangerous to the ally
+            if (this->api->Compare(ally, this->hero)) continue;
             Vector pos = this->api->GetPosition(ally);
+
+            // Filter skillshots that are dangerous to the ally
             auto active = skillshots.Where([&](Skillshot* skillshot)
             {
                 bool soft_cc = skillshot->Get().SoftCC;

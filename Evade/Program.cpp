@@ -169,7 +169,7 @@ namespace Evade
 
         // Standard options
         this->config->AddLabel(main, "Standard", "Standard Options", true);
-        this->settings["Dodge"] = this->config->AddCheckbox(main, "Dodge", "Dodge Skillshots", true);
+        this->settings["Dodge"] = this->config->AddToggle(main, "Dodge", "Dodge Skillshots", (int)('\\'), true);
         this->settings["Draw"] = this->config->AddCheckbox(main, "Draw", "Draw Skillshots", true);
         this->settings["Path"] = this->config->AddCheckbox(main, "Path", "Draw Evade Path", true);
         this->settings["Status"] = this->config->AddCheckbox(main, "Status", "Draw Evade Status", true);
@@ -190,9 +190,10 @@ namespace Evade
         auto allies = ally_units.Select<std::string>([&](const auto& u) { return N(u); });
         auto enemies = enemy_units.Select<std::string>([&](const auto& u) { return N(u); });
 
+        bool mel = enemies.Any([](const auto& n) { return n == "Mel"; });
         bool sylas = enemies.Any([](const auto& n) { return n == "Sylas"; });
         bool viego = enemies.Any([](const auto& n) { return n == "Viego"; });
-        auto units = ((sylas || viego) ? allies.Concat(enemies) : enemies);
+        auto units = ((mel || sylas || viego) ? allies.Concat(enemies) : enemies);
         units = units.OrderBy<std::string>([](const auto& n) { return n; });
 
         // Spell settings
@@ -385,6 +386,22 @@ namespace Evade
         return this->evade_pos.IsValid();
     }
 
+    bool Program::IsInsideHardCC() const
+    {
+        return this->dangerous.Any([](Skillshot* skillshot)
+        {
+            return skillshot->Get().HardCC;
+        });
+    }
+
+    bool Program::IsInsideSoftCC() const
+    {
+        return this->dangerous.Any([](Skillshot* skillshot)
+        {
+            return skillshot->Get().SoftCC;
+        });
+    }
+
     bool Program::IsSafe(float x, float y) const
     {
         return this->IsDangerous(x, y);
@@ -398,6 +415,15 @@ namespace Evade
         });
     }
 
+    float Program::TimeToHit(float x, float y) const
+    {
+        return this->dangerous.Aggregate<float>(-1.0f, [&](float result, auto skillshot)
+        {
+            float time = skillshot->TimeToHit(Vector(x, y), true);
+            return MAX(0.0f, result < 0 ? time : MIN(result, time));
+        });
+    }
+
     float Program::CalculateDamage() const
     {
         const auto& data = this->data->GetSkillshots();
@@ -405,24 +431,27 @@ namespace Evade
 
         return this->dangerous.Aggregate<float>(0.0f, [&](float total, auto skillshot)
         {
-            // Skip calculation if related skillshot was already handled
+            const auto& caster = skillshot->Get().Caster;
             const std::string& name = skillshot->Get().SkillshotName;
-            if (excluded.find(name) != excluded.end()) return total;
+            std::string id = std::to_string(this->api->GetObjectId(caster));
 
-            // Mark processed skillshots to prevent duplicate damage
-            for (const auto& excl_name : data.at(name).Exclusions)
+            // Skip calculation if relationship was already handled before
+            if (excluded.find(name + id) != excluded.end()) return total;
+
+            // Mark related skillshots to prevent duplicate damage
+            for (const auto& exclusion : data.at(name).Exclusions)
             {
-                excluded[excl_name] = true;
+                excluded[exclusion + id] = true;
             }
             return total + skillshot->Get().Damage;
         });
     }
 
-    float Program::TimeToHit(float x, float y) const
+    int Program::GetDangerLevel() const
     {
-        return this->dangerous.Aggregate<float>(-1.0f, [&](float result, auto skillshot)
+        return this->dangerous.Aggregate(0, [](int danger, auto skillshot)
         {
-            return MIN(result, MAX(0.0f, skillshot->TimeToHit(Vector(x, y), true)));
+            return MAX(danger, skillshot->Get().DangerLevel);
         });
     }
 
@@ -433,7 +462,7 @@ namespace Evade
         // Remove invalid or dead objects from collections
         for (auto& [key, collection] : this->objects)
         {
-            collection.RemoveAll([&](auto object)
+            collection.DeleteAll([&](auto object)
             {
                 return !this->api->IsValid(object)
                     || !this->api->IsAlive(object);
@@ -768,7 +797,7 @@ namespace Evade
         if (spell_name == "FlashFrost")
         {
             size_t count = this->skillshots.Count();
-            this->skillshots.RemoveAll([&](Skillshot* skillshot)
+            this->skillshots.DeleteAll([&](Skillshot* skillshot)
             {
                 const auto& s_caster = skillshot->Get().Caster;
                 const std::string& s_name = skillshot->Get().SkillshotName;
@@ -842,7 +871,7 @@ namespace Evade
         });
 
         // Remove primary skillshot after processing related skillshots
-        if (data.SkipAncestor) this->skillshots.Remove(skillshot);
+        if (data.SkipAncestor) this->skillshots.Delete(skillshot);
     }
 
     void Program::OnProcessSpellInternal(const Obj_AI_Base& unit, const CastInfo& info)
@@ -931,23 +960,39 @@ namespace Evade
         auto caster = this->api->AsHero(unit);
         if (!this->api->IsEnemy(caster)) return;
 
-        const auto& data = this->data->GetSkillshots().at(spell_name);
-        bool check_dups = data.IgnoreAlive || !data.Exception;
+        // Mel should never be able to replicate particles, return
+        std::string caster_name = this->api->GetCharacterName(caster);
+        if (particle != nullptr && caster_name == "Mel") return;
 
-        // Ignore duplicates and similar skillshots from the same caster
-        if (check_dups && this->skillshots.Any([&](Skillshot* skillshot)
+        // Store duplicates and similar skillshots for further processing
+        auto duplicates = this->skillshots.Where([&](Skillshot* skillshot)
         {
             const auto& s_caster = skillshot->Get().Caster;
             const std::string& s_name = skillshot->Get().SkillshotName;
-            const DetectionType s_type = skillshot->Get().DetectionType;
+            bool same_caster = this->api->Compare(caster, s_caster);
+            return same_caster == true && spell_name == s_name;
+        });
+
+        // Save an object to track the missile skillshot
+        Skillshot* duplicate = duplicates.FirstOrDefault();
+        if (missile && duplicate && !duplicate->Get().ObjectPtr)
+        {
+            duplicate->Set().ObjectPtr = (Object)missile;
+        };
+
+        // Ignore duplicated instances from the same caster
+        auto& data = this->data->GetSkillshots().at(spell_name);
+        bool check_dups = data.IgnoreAlive || !data.Exception;
+        if (check_dups && duplicates.Any([&](Skillshot* skillshot)
+        {
+            DetectionType s_type = skillshot->Get().DetectionType;
             bool proc_type = s_type == DetectionType::ON_PROCESS_SPELL;
-            return this->api->Compare(caster, s_caster) && spell_name ==
-                s_name && (data.IgnoreAlive || !data.Exception && proc_type);
+            return data.IgnoreAlive || !data.Exception && proc_type;
         }))
         return;
 
         // Remove all similar triggered skillshots that should be overridden by new one
-        if (data.Overrider != "") this->skillshots.RemoveAll([&](Skillshot* skillshot)
+        if (data.Overrider != "") this->skillshots.DeleteAll([&](Skillshot* skillshot)
         {
             const auto& s_caster = skillshot->Get().Caster;
             const std::string& s_name = skillshot->Get().SkillshotName;
@@ -966,7 +1011,6 @@ namespace Evade
         bool irelia_mis = spell_name == "IreliaEMissile";
         int spell_slot = this->char_to_slot(data.SkillshotSlot);
         int danger = this->GetValue<int>("D|" + spell_name + "|Danger");
-        std::string caster_name = this->api->GetCharacterName(caster);
         DetectionType detect_type = DetectionType::ON_OBJECT_CREATED;
         Object obj_ptr = missile ? (Object)missile : (Object)particle;
 
@@ -1011,20 +1055,24 @@ namespace Evade
         });
 
         // Remove primary skillshot after processing related skillshots
-        if (data.SkipAncestor) this->skillshots.Remove(skillshot);
+        if (data.SkipAncestor) this->skillshots.Delete(skillshot);
     }
 
     void Program::OnDeleteObject(const Object& object, uint32_t object_id)
     {
-        // Remove all traps and/or explosions that are dead
+        bool collision = this->GetValue<bool>("DetectCol");
         const auto& skillshots = this->data->GetSkillshots();
-        this->skillshots.RemoveAll([&](Skillshot* skillshot)
-        {
-            auto& data = skillshots.at(skillshot->Get().SkillshotName);
-            if (!data.IsTrap && !data.TrackObject) return false;
 
-            const auto& particle = skillshot->Get().ObjectPtr;
-            return this->api->GetObjectId(particle) == object_id;
+        // Remove all tracked skillshots that are already dead
+        this->skillshots.DeleteAll([&](Skillshot* skillshot)
+        {
+            if (!skillshot->Get().ObjectPtr) return false;
+            const auto& object_ptr = skillshot->Get().ObjectPtr;
+            auto& data = skillshots.at(skillshot->Get().SkillshotName);
+
+            bool hooked = !this->api->IsMissile(object_ptr) || collision;
+            if (!(data.IsTrap || data.HookObject && hooked)) return false;
+            return this->api->GetObjectId(object_ptr) == object_id;
         });
     }
 

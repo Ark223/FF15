@@ -89,6 +89,11 @@ namespace Evade
 
             Linq<T> DefaultIfEmpty(const T& default_value = T()) const;
 
+            void Delete(const T& element);
+
+            template<typename TPredicate>
+            void DeleteAll(TPredicate predicate);
+
             Linq Distinct() const;
 
             template<typename TKey>

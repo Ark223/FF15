@@ -280,7 +280,7 @@ namespace Evade
         data.Radius = 60.0f;
         data.Range = 1000.0f;
         data.Speed = 1550.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -403,7 +403,7 @@ namespace Evade
         data.Windup = 0.225f;
         data.Radius = 40.0f;
         data.Range = 650.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -557,7 +557,7 @@ namespace Evade
         data.Radius = 225.0f;
         data.Range = 1100.0f;
         data.Speed = 950.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -590,7 +590,7 @@ namespace Evade
         data.FixedRange = true;
         data.HardCC = true;
         data.Radius = 225.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -787,7 +787,7 @@ namespace Evade
         data.Radius = 125.0f;
         data.Range = 1300.0f;
         data.Speed = 2050.0f;
-        data.DangerLevel = 5;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -998,7 +998,7 @@ namespace Evade
         data.Radius = 60.0f;
         data.Range = 1150.0f;
         data.Speed = 1500.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -1037,7 +1037,7 @@ namespace Evade
         data.Radius = 350.0f;
         data.Range = 3400.0f;
         data.Speed = 2100.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 4;
         data.Collisions = {};
         data.Detectors =
         {
@@ -1154,7 +1154,7 @@ namespace Evade
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Radius = 600.0f;
-        data.DangerLevel = 4;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -1195,7 +1195,7 @@ namespace Evade
         data.Radius = 60.0f;
         data.Range = 1100.0f;
         data.Speed = 1600.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -1234,7 +1234,7 @@ namespace Evade
         data.Windup = 0.25f;
         data.Radius = 260.0f;
         data.Range = 900.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -1601,7 +1601,7 @@ namespace Evade
         data.Windup = 0.25f;
         data.Radius = 200.0f;
         data.Range = 850.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -1742,7 +1742,7 @@ namespace Evade
         data.Radius = 275.0f;
         data.Range = 825.0f;
         data.Speed = 1100.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -2330,7 +2330,7 @@ namespace Evade
         data.Radius = 55.0f;
         data.Range = 1100.0f;
         data.Speed = 1600.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -2492,7 +2492,7 @@ namespace Evade
         data.Radius = 80.0f;
         data.Range = 1200.0f;
         data.Speed = 1700.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -3319,7 +3319,7 @@ namespace Evade
         data.Radius = 100.0f;
         data.Range = 1100.0f;
         data.Speed = 2100.0f;
-        data.DangerLevel = 5;
+        data.DangerLevel = 4;
         data.Exclusions =
         {
             "GravesRExplosion"
@@ -3357,7 +3357,7 @@ namespace Evade
         data.FixedRange = true;
         data.Radius = 100.0f;
         data.Range = 590.0f;
-        data.DangerLevel = 5;
+        data.DangerLevel = 4;
         data.Collisions = {};
         data.Exclusions =
         {
@@ -3400,7 +3400,7 @@ namespace Evade
         data.Radius = 60.0f;
         data.Range = 1350.0f;
         data.Speed = 1800.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -3547,7 +3547,7 @@ namespace Evade
         data.Radius = 250.0f;
         data.Range = 970.0f;
         data.Speed = 1200.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -3792,7 +3792,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 1100.0f;
         data.Speed = 1300.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -3904,7 +3904,7 @@ namespace Evade
         data.Radius = 90.0f;
         data.Range = 1300.0f;
         data.Speed = 1400.0f;
-        data.DangerLevel = 5;
+        data.DangerLevel = 4;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -3947,7 +3947,7 @@ namespace Evade
         data.Radius = 100.0f;
         data.Range = 800.0f;
         data.Offset = -50.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -3985,7 +3985,7 @@ namespace Evade
         data.Radius = 50.0f;
         data.Range = 950.0f;
         data.Speed = 1900.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 2;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -4021,7 +4021,7 @@ namespace Evade
         data.Delay = 0.25f;
         data.Radius = 120.0f;
         data.Range = 775.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -4057,7 +4057,7 @@ namespace Evade
         data.HardCC = true;
         data.Radius = 70.0f;
         data.Range = 12500.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -4134,7 +4134,7 @@ namespace Evade
         data.Radius = 80.0f;
         data.Range = 1150.0f;
         data.Speed = 1300.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -4179,7 +4179,7 @@ namespace Evade
         data.Radius = 120.0f;
         data.Range = 1760.0f;
         data.Speed = 1167.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -4281,7 +4281,7 @@ namespace Evade
         data.Radius = 180.0f;
         data.Range = 850.0f;
         data.Speed = 2000.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -4399,7 +4399,7 @@ namespace Evade
         data.Windup = 0.75f;
         data.Radius = 45.0f;
         data.Range = 2550.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -4477,7 +4477,7 @@ namespace Evade
         data.Radius = 80.0f;
         data.Range = 3500.0f;
         data.Speed = 5000.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -4570,7 +4570,7 @@ namespace Evade
         data.ExtraTime = 4.5f;
         data.Radius = 115.0f;
         data.Range = 925.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -4694,7 +4694,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 800.0f;
         data.Speed = 1600.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -5006,7 +5006,7 @@ namespace Evade
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Range = 600.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -5035,7 +5035,7 @@ namespace Evade
         data.Windup = 0.25f;
         data.Radius = 270.0f;
         data.Range = 500.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -5127,7 +5127,7 @@ namespace Evade
         data.Radius = 350.0f;
         data.Range = 350.0f;
         data.Speed = 1050.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -5163,7 +5163,7 @@ namespace Evade
         data.ParticleDelay = 0.55f;
         data.Radius = 80.0f;
         data.Range = 700.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -5356,7 +5356,7 @@ namespace Evade
         data.Radius = 300.0f;
         data.Range = 700.0f;
         data.Speed = 1500.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -5385,7 +5385,7 @@ namespace Evade
         data.Radius = 300.0f;
         data.Range = 900.0f;
         data.Speed = 1300.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -5656,7 +5656,7 @@ namespace Evade
         data.Radius = 55.0f;
         data.Range = 950.0f;
         data.Speed = 1750.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -5727,7 +5727,7 @@ namespace Evade
         data.Radius = 55.0f;
         data.Range = 950.0f;
         data.Speed = 1750.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -5815,7 +5815,7 @@ namespace Evade
         data.Radius = 160.0f;
         data.Range = 800.0f;
         data.Speed = 865.0f;
-        data.DangerLevel = 5;
+        data.DangerLevel = 3;
         data.Detectors =
         {
             DetectionType::ON_ACTIVE_SPELL,
@@ -5855,7 +5855,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 900.0f;
         data.Speed = 2000.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -5927,7 +5927,7 @@ namespace Evade
         data.Windup = 0.25f;
         data.Radius = 325.0f;
         data.Range = 1200.0f;
-        data.DangerLevel = 5;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Exclusions =
         {
@@ -6326,7 +6326,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 1400.0f;
         data.Speed = 1200.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -6365,7 +6365,7 @@ namespace Evade
         data.Radius = 310.0f;
         data.Range = 1100.0f;
         data.Speed = 1200.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -6401,7 +6401,7 @@ namespace Evade
         data.SoftCC = true;
         data.ExtraTime = 5.25f;
         data.Radius = 310.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -6470,7 +6470,7 @@ namespace Evade
         data.Delay = 0.2419f;
         data.Windup = 0.2419f;
         data.Radius = 400.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -6625,7 +6625,7 @@ namespace Evade
         data.Radius = 110.0f;
         data.Range = 600.0f;
         data.Speed = 1600.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -6671,7 +6671,7 @@ namespace Evade
         data.Radius = 250.0f;
         data.Range = 1000.0f;
         data.Speed = 5000.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -6755,7 +6755,7 @@ namespace Evade
         data.Range = 950.0f;
         data.Offset = 425.0f;
         data.Speed = 1000.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Exclusions =
         {
             "MelE",
@@ -6839,7 +6839,7 @@ namespace Evade
         data.Radius = 60.0f;
         data.Range = 1200.0f;
         data.Speed = 1200.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Exclusions =
         {
             "MilioQHit"
@@ -6883,7 +6883,7 @@ namespace Evade
         data.MissileDelay = 0.8f;
         data.Radius = 275.0f;
         data.Range = 12500.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Exclusions =
         {
@@ -7048,7 +7048,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 1300.0f;
         data.Speed = 1200.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -7146,7 +7146,7 @@ namespace Evade
         data.Radius = 50.0f;
         data.Range = 350.0f;
         data.Speed = 950.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -7176,7 +7176,7 @@ namespace Evade
         data.Radius = 225.0f;
         data.Range = 350.0f;
         data.Speed = 950.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -7214,7 +7214,7 @@ namespace Evade
         data.Windup = 0.25f;
         data.Radius = 200.0f;
         data.Range = 850.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -7384,10 +7384,10 @@ namespace Evade
         data.HardCC = true;
         data.Delay = 0.25f;
         data.Windup = 0.25f;
-        data.Radius = 70.0f;
+        data.Radius = 100.0f;
         data.Range = 1000.0f;
-        data.Speed = 1300.0f;
-        data.DangerLevel = 1;
+        data.Speed = 1500.0f;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -7504,7 +7504,7 @@ namespace Evade
         data.Delay = 0.25f;
         data.Windup = 0.25f;
         data.Range = 310.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -8134,7 +8134,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 1100.0f;
         data.Speed = 2000.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -8318,7 +8318,7 @@ namespace Evade
         data.Radius = 100.0f;
         data.Range = 500.0f;
         data.Speed = 1600.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -8693,7 +8693,7 @@ namespace Evade
         data.Radius = 75.0f;
         data.Range = 720.0f;
         data.Offset = -220.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -8724,7 +8724,7 @@ namespace Evade
         data.Delay = 0.625f;
         data.Radius = 180.0f;
         data.Range = 450.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -8756,7 +8756,7 @@ namespace Evade
         data.Radius = 200.0f;
         data.Range = 600.0f;
         data.Speed = 600.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -8828,7 +8828,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 900.0f;
         data.Speed = 1450.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -9070,7 +9070,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 1000.0f;
         data.Speed = 1500.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -9114,7 +9114,7 @@ namespace Evade
         data.Radius = 100.0f;
         data.Range = 1100.0f;
         data.Speed = 1600.0f;
-        data.DangerLevel = 5;
+        data.DangerLevel = 3;
         data.MultiAngle = 9;
         data.MultiCount = 3;
         data.Collisions =
@@ -9449,7 +9449,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 1300.0f;
         data.Speed = 1200.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -9580,7 +9580,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 1300.0f;
         data.Speed = 1200.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -9660,7 +9660,7 @@ namespace Evade
         data.Windup = 0.75f;
         data.Radius = 100.0f;
         data.Range = 790.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -9750,7 +9750,7 @@ namespace Evade
         data.Radius = 60.0f;
         data.Range = 600.0f;
         data.Speed = 1150.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -10484,7 +10484,7 @@ namespace Evade
         data.InitialSpeed = 1125.0f;
         data.MinSpeed = 1125.0f;
         data.MaxSpeed = 1800.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Exclusions =
         {
             "SwainEDetonation"
@@ -10532,7 +10532,7 @@ namespace Evade
         data.InitialSpeed = 2000.0f;
         data.MinSpeed = 2000.0f;
         data.MaxSpeed = 2800.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -10563,7 +10563,7 @@ namespace Evade
         data.FixedRange = true;
         data.HardCC = true;
         data.Radius = 100.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Exclusions =
         {
             "SwainE"
@@ -10676,7 +10676,7 @@ namespace Evade
         data.Radius = 60.0f;
         data.Range = 850.0f;
         data.Speed = 1600.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -11000,7 +11000,7 @@ namespace Evade
         data.Windup = 0.25f;
         data.Radius = 225.0f;
         data.Range = 900.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -11159,7 +11159,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 1100.0f;
         data.Speed = 1900.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -11233,7 +11233,7 @@ namespace Evade
         data.Radius = 350.0f;
         data.Range = 900.0f;
         data.Speed = 1100.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -11269,7 +11269,7 @@ namespace Evade
         data.Radius = 225.0f;
         data.Range = 660.0f;
         data.Speed = 910.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -11392,7 +11392,7 @@ namespace Evade
         data.Radius = 100.0f;
         data.Range = 450.0f;
         data.Speed = 1500.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION
@@ -11509,7 +11509,7 @@ namespace Evade
         data.Windup = 0.2419f;
         data.Radius = 300.0f;
         data.Range = 925.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -11919,7 +11919,7 @@ namespace Evade
         data.Windup = 0.25f;
         data.Radius = 225.0f;
         data.Range = 800.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -12117,7 +12117,7 @@ namespace Evade
         data.Radius = 55.0f;
         data.Range = 725.0f;
         data.Speed = 1400.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Detectors =
         {
@@ -12186,7 +12186,7 @@ namespace Evade
         data.Radius = 60.0f;
         data.Range = 900.0f;
         data.Speed = 1300.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -12670,7 +12670,7 @@ namespace Evade
         data.Windup = 0.25f;
         data.Radius = 275.0f;
         data.Range = 1000.0f;
-        data.DangerLevel = 3;
+        data.DangerLevel = 1;
         data.Collisions = {};
         data.Detectors =
         {
@@ -12709,7 +12709,7 @@ namespace Evade
         data.Radius = 60.0f;
         data.Range = 1125.0f;
         data.Speed = 1400.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -12887,7 +12887,7 @@ namespace Evade
         data.Radius = 90.0f;
         data.Range = 1150.0f;
         data.Speed = 1200.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL
@@ -13002,7 +13002,7 @@ namespace Evade
         data.Radius = 100.0f;
         data.Range = 450.0f;
         data.Speed = 1500.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions = {};
         data.Exclusions =
         {
@@ -13605,7 +13605,7 @@ namespace Evade
         data.Radius = 50.0f;
         data.Range = 12500.0f;
         data.Speed = 1850.0f;
-        data.DangerLevel = 2;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::CHAMPION,
@@ -13712,7 +13712,7 @@ namespace Evade
         data.Radius = 70.0f;
         data.Range = 1100.0f;
         data.Speed = 1150.0f;
-        data.DangerLevel = 1;
+        data.DangerLevel = 3;
         data.Collisions =
         {
             CollisionFlag::WIND_WALL

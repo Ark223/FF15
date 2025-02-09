@@ -909,7 +909,7 @@ namespace Evade
             });
 
             // Exit if spell name was not found
-            if (info.SpellName == "") return;
+            if (info.SpellName.empty()) return;
             spell_name = info.SpellName;
 
             // Get the valid owner of the missile
@@ -932,7 +932,7 @@ namespace Evade
             });
 
             // Exit if spell name was not found
-            if (info.SpellName == "") return;
+            if (info.SpellName.empty()) return;
             spell_name = info.SpellName;
 
             // Get the valid owner of the particle object
@@ -1070,15 +1070,15 @@ namespace Evade
             const auto& object_ptr = skillshot->Get().ObjectPtr;
             auto& data = skillshots.at(skillshot->Get().SkillshotName);
 
-            bool hooked = !this->api->IsMissile(object_ptr) || collision;
-            if (!(data.IsTrap || data.HookObject && hooked)) return false;
+            bool check = data.MissileName.empty() || collision == true;
+            if (!(data.IsTrap || data.HookObject && check)) return false;
             return this->api->GetObjectId(object_ptr) == object_id;
         });
     }
 
     void Program::OnDeleteObjectInternal(const Object& object)
     {
-        uint32_t object_id = API::Get()->GetObjectId(object);
+        uint32_t object_id = this->api->GetObjectId(object);
         this->OnDeleteObject(object, object_id);
     }
 

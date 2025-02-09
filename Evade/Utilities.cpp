@@ -559,7 +559,7 @@ namespace Evade
         std::string id = "S|" + name + "|";
 
         // Check if shielding spell can be used
-        if (slot == -1 || name == "") return;
+        if (slot == -1 || name.empty()) return;
         if (!this->program->GetValue<bool>(id + "UseSpell")
             || this->program->GetEvadePos().IsValid()
             || !this->api->CanUseSpell(slot)) return;

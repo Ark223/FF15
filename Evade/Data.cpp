@@ -12512,7 +12512,7 @@ namespace Evade
         data.HardCC = true;
         data.Delay = 0.1f;
         data.Windup = 0.1f;
-        data.Radius = 150.0f;
+        data.Radius = 205.0f;
         data.Range = 2000.0f;
         data.Speed = 1500.0f;
         data.DangerLevel = 5;

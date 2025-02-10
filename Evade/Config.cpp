@@ -53,6 +53,7 @@ namespace Evade
 
     MenuItem Config::AddLabel(MenuItem menu, const std::string& id, const std::string& text, bool center)
     {
+        menu->add_separator();
         return menu->add_label(id, text, center, true);
     }
 

@@ -763,7 +763,7 @@ namespace Evade
             {
                 force_update = true;
                 Vector dir = api->GetPosition(caster) - start;
-                float speed = api->GetMovementSpeed(this->hero);
+                float speed = api->GetMovementSpeed(caster);
                 float left = MAX(0.0f, 1.0f - elapsed);
                 if (name == "TaricE")
                 {

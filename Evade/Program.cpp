@@ -864,7 +864,7 @@ namespace Evade
         auto skillshot = this->process->CreateSkillshot(params, false);
 
         // Skip skillshot which is way too far from our hero
-        if (data.Range < 25000 && !data.IsTrap)
+        if (data.Range < 25000.0f && !data.IsTrap)
         {
             float range = skillshot->Get().Range;
             const Vector& ending = skillshot->Get().EndPos;
@@ -1069,6 +1069,16 @@ namespace Evade
 
         // Create a new skillshot instance based on the collected data
         auto skillshot = this->process->CreateSkillshot(params, false);
+
+        // Skip skillshot which is way too far from our hero
+        if (missile != nullptr && data.Range < 25000.0f)
+        {
+            float range = skillshot->Get().Range;
+            const Vector& ending = skillshot->Get().EndPos;
+            float dist = this->hero_pos.DistanceSquared(ending);
+            bool too_far = dist > (range + 2500) * (range + 2500);
+            if (too_far) { delete skillshot; return; }
+        }
 
         // Update and register skillshot for further processing
         if (!this->process->UpdateData(skillshot, 0)) return;

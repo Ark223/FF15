@@ -14,7 +14,7 @@ namespace Evade
     class Process;
     class Utilities;
 
-    const std::string EVADE_VERSION = "1.07";
+    const std::string EVADE_VERSION = "1.08";
     constexpr float SAFETY_BUFFER = 30.0f;
 
     enum class CollectionType { ACTIVE, CONSIDERED, DANGEROUS };

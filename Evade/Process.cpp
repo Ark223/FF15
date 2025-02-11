@@ -701,18 +701,20 @@ namespace Evade
         float hp_percent = api->GetHealthRatio(this->hero) * 100.0f;
 
         // Filter skillshots to find those to evade
+        auto& supported = this->data->GetSkillshots();
         auto& skillshots = this->program->GetSkillshots();
         return skillshots.Where([&](Skillshot* skillshot)
         {
-            bool fog_on = skillshot->Get().FogOfWar;
+            auto& name = skillshot->Get().SkillshotName;
             bool processed = skillshot->Get().Processed;
-            const auto& name = skillshot->Get().SkillshotName;
-            bool s_fog = fog_on && this->program->GetValue<bool>("D|" + name + "|Fog");
+            bool fog_of_war = skillshot->Get().FogOfWar;
+            bool fog_supp = supported.at(name).FogSupport;
+            bool s_fog = fog_supp && this->program->GetValue<bool>("D|" + name + "|Fog");
             bool s_dangerous = this->program->GetValue<bool>("D|" + name + "|Dangerous");
             bool s_dodge_on = this->program->GetValue<bool>("D|" + name + "|Dodge");
             int s_hp_percent = this->program->GetValue<int>("D|" + name + "|Health");
 
-            return s_dodge_on && !processed && (!fog_on || (s_fog && dodge_fog))
+            return s_dodge_on && !processed && (!fog_of_war || (s_fog && dodge_fog))
                 && hp_percent <= s_hp_percent && (!only_danger || s_dangerous);
         });
     }

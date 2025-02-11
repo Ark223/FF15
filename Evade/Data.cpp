@@ -3826,7 +3826,6 @@ namespace Evade
         data.SkillshotSlot = 'E';
         data.Dangerous = true;
         data.FogSupport = true;
-        data.HookObject = true;
         data.HardCC = true;
         data.Delay = 0.25f;
         data.ExtraTime = 2.5f;

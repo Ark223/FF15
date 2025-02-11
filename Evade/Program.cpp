@@ -744,7 +744,7 @@ namespace Evade
             uint32_t c2 = ((c1 >> 24) / 15 << 24) | (c1 & 0x00FFFFFF);
 
             // Draw skillshot's total hitbox with the assigned colors
-            uint32_t colors[2] = { c1, c2 }; skillshot->Draw(colors);
+            skillshot->Draw(std::vector<uint32_t>{c1, c2}.data());
         });
     }
 
@@ -779,7 +779,6 @@ namespace Evade
         {
             if (caster_name == "Sylas") this->sylas_timer = timer;
             if (caster_name == "Viego") this->viego_timer = timer;
-            return;
         }
 
         const auto& patterns = this->data->GetPatterns();

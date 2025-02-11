@@ -531,14 +531,20 @@ namespace Evade
         enemies = enemies.Where([&](const auto& enemy)
         {
             std::string enemy_name = this->api->GetCharacterName(enemy);
-            bool special = enemy_name == "Sylas" || enemy_name == "Viego";
-            return name.find(enemy_name) == 0 || special == true;
-        });
-        enemies = enemies.OrderBy<float>([&](const auto& enemy)
+            bool stealer = enemy_name == "Sylas" || enemy_name == "Viego";
+            return name.find(enemy_name) == 0 || stealer == true;
+        })
+        .OrderByDescending<bool>([&](const auto& enemy)
+        {
+            std::string enemy_name = this->api->GetCharacterName(enemy);
+            return enemy_name != "Sylas" && enemy_name != "Viego";
+        })
+        .ThenBy<float>([&](const auto& enemy)
         {
             Vector enemy_pos = this->api->GetPosition(enemy);
             return hero_pos.DistanceSquared(enemy_pos);
         });
+
         return enemies.FirstOrDefault();
     }
 

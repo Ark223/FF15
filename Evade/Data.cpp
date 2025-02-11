@@ -10274,7 +10274,7 @@ namespace Evade
         data.HookObject = true;
         data.HardCC = true;
         data.Delay = 1.0f;
-        data.Windup = 0.75f;
+        data.Windup = 0.25f;
         data.Radius = 240.0f;
         data.Range = 3650.0f;
         data.Offset = -600.0f;

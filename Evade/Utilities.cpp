@@ -532,7 +532,7 @@ namespace Evade
         {
             std::string enemy_name = this->api->GetCharacterName(enemy);
             bool special = enemy_name == "Sylas" || enemy_name == "Viego";
-            return name.rfind(enemy_name, 0) == 0 || special == true;
+            return name.find(enemy_name) == 0 || special == true;
         });
         enemies = enemies.OrderBy<float>([&](const auto& enemy)
         {

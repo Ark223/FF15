@@ -106,9 +106,9 @@ namespace Evade
         Program::Get()->OnWndProc(msg, wparam);
     }
 
-    void Program::OnIssueOrderWrapper(VecInt3 pos, int order, int target_id)
+    void Program::OnIssueOrderWrapper(VecInt3 pos, int order, int id, const char* plugin)
     {
-        Program::Get()->OnIssueOrder(pos, order);
+        Program::Get()->OnIssueOrderInternal(pos, order, plugin);
     }
 
     // Component initialization
@@ -753,6 +753,7 @@ namespace Evade
         uint32_t target_id, float cast_delay, float extra_delay, bool proc_next)
     {
         if (!this->api->IsValid(unit)) return;
+        float timer = this->api->GetTime();
         size_t npos = std::string::npos;
 
         // Process any actions if they were done by our hero
@@ -760,7 +761,6 @@ namespace Evade
         {
             if (spell_name.find("Attack") != npos)
             {
-                float timer = this->api->GetTime();
                 this->attack_timer = timer; return;
             }
         }
@@ -771,6 +771,16 @@ namespace Evade
         // Skip processing if the hero is an ally
         auto caster = this->api->AsHero(unit);
         if (!this->api->IsEnemy(caster)) return;
+
+        // Track cast time of a skillshot stolen by either Sylas or Viego
+        std::string caster_name = this->api->GetCharacterName(caster);
+        bool stealer = caster_name == "Sylas" || caster_name == "Viego";
+        if (stealer && spell_name.find(caster_name) != 0)
+        {
+            if (caster_name == "Sylas") this->sylas_timer = timer;
+            if (caster_name == "Viego") this->viego_timer = timer;
+            return;
+        }
 
         const auto& patterns = this->data->GetPatterns();
         const auto& skillshots = this->data->GetSkillshots();
@@ -823,7 +833,6 @@ namespace Evade
         int slot = this->char_to_slot(data.SkillshotSlot);
         int danger = this->GetValue<int>("D|" + spell_name + "|Danger");
         Vector dest_pos = data.UseDirection ? start_pos + dir : end_pos;
-        std::string caster_name = this->api->GetCharacterName(caster);
         DetectionType detect_type = DetectionType::ON_PROCESS_SPELL;
 
         float cone_angle = M_RAD(data.ConeAngle);
@@ -889,6 +898,8 @@ namespace Evade
     void Program::OnCreateObject(const Object& object, uint32_t object_id)
     {
         if (!this->api->IsValid(object)) return;
+        float timer = this->api->GetTime();
+
         ParticleEmitter particle = nullptr;
         MissileClient missile = nullptr;
         Object unit = nullptr;
@@ -963,6 +974,16 @@ namespace Evade
         // Mel should never be able to replicate particles, return
         std::string caster_name = this->api->GetCharacterName(caster);
         if (particle != nullptr && caster_name == "Mel") return;
+
+        // Check if Sylas or Viego recently casted a stolen skillshot
+        bool stealer = caster_name == "Sylas" || caster_name == "Viego";
+        if (particle && stealer && spell_name.find(caster_name) != 0)
+        {
+            bool sylas_cast = timer - this->sylas_timer < 0.1f;
+            bool viego_cast = timer - this->viego_timer < 0.1f;
+            if (caster_name == "Sylas" && !sylas_cast) return;
+            if (caster_name == "Viego" && !viego_cast) return;
+        }
 
         // Store duplicates and similar skillshots for further processing
         auto duplicates = this->skillshots.Where([&](Skillshot* skillshot)
@@ -1111,7 +1132,7 @@ namespace Evade
             ending, (uint32_t)0, 0.0f, 0.0f, false);
     }
 
-    void Program::OnWndProc(UINT msg, WPARAM wparam)
+    void Program::OnWndProc(const uint64_t msg, const uint64_t wparam)
     {
         float timer = this->api->GetTime();
         if (msg == 0x100) this->key_pushed = true;
@@ -1177,10 +1198,9 @@ namespace Evade
         this->summon_timer = timer;
     }
 
-    void Program::OnIssueOrder(const VecInt3& pos, int order)
+    void Program::OnIssueOrder(const Vector& pos, int order, const std::string& plugin)
     {
         using Intersection = std::pair<Skillshot*, Vector>;
-        Vector order_pos = this->api->ToVector(pos);
         const Vector& evade_pos = this->evade_pos;
         const Vector& hero_pos = this->hero_pos;
 
@@ -1197,17 +1217,15 @@ namespace Evade
         // Block any interference while evading
         if (evade_pos.IsValid())
         {
-            float distance = order_pos.DistanceSquared(evade_pos);
-            bool should_block = distance > 400 && order == 2
-                || (order == 1 || order == 3 || order == 10);
-            if (should_block) this->api->BlockOrder(); return;
+            if (plugin == "Evade") return;
+            return this->api->BlockOrder();
         }
 
         // Exit if its not a move order or theres no skillshots
         if (order != 2 || !this->skillshots.Any()) return;
 
-        // Stop execution if the generated path is invalid
-        Linq<Vector> path = this->api->GetPath(order_pos);
+        // Stop execution if generated path is invalid
+        Linq<Vector> path = this->api->GetPath(pos);
         if (path.Count() < 2) return;
 
         // Retrieve all skillshots that hero might be about to cross
@@ -1302,5 +1320,11 @@ namespace Evade
         // Override the order to move to safe position
         float height = this->api->GetHeight(this->my_hero);
         this->api->SetOverrideOrder(move_pos, height);
+    }
+
+    void Program::OnIssueOrderInternal(const VecInt3& pos, int order, const char* plugin)
+    {
+        std::string plugin_name = plugin;
+        this->OnIssueOrder(this->api->ToVector(pos), order, plugin_name);
     }
 }

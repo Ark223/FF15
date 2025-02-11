@@ -14,7 +14,7 @@ namespace Evade
     class Process;
     class Utilities;
 
-    const std::string EVADE_VERSION = "1.06";
+    const std::string EVADE_VERSION = "1.07";
     constexpr float SAFETY_BUFFER = 30.0f;
 
     enum class CollectionType { ACTIVE, CONSIDERED, DANGEROUS };
@@ -90,7 +90,7 @@ namespace Evade
             static void OnDeleteObjectWrapper(Object object);
             static void OnBuffGainWrapper(Obj_AI_Base unit, Buff buff);
             static void OnWndProcWrapper(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam);
-            static void OnIssueOrderWrapper(VecInt3 pos, int order, int target_id);
+            static void OnIssueOrderWrapper(VecInt3 pos, int order, int id, const char* plugin);
 
             // Main components
 
@@ -104,7 +104,8 @@ namespace Evade
             float attack_timer = 0.0f, block_timer = 0.0f,
                 click_timer = 0.0f, order_timer = 0.0f,
                 recalc_timer = 0.0f, safety_timer = 0.0f,
-                summon_timer = 0.0f, move_speed = 0.0f;
+                summon_timer = 0.0f, move_speed = 0.0f,
+                sylas_timer = 0.0f, viego_timer = 0.0f;
             Vector evade_pos, hero_pos, prev_pos, safe_pos;
             Linq<Skillshot*> considered, dangerous, skillshots;
             std::unordered_map<std::string, Objects> objects;
@@ -131,8 +132,9 @@ namespace Evade
             void OnDeleteObject(const Object& object, uint32_t object_id);
             void OnDeleteObjectInternal(const Object& object);
             void OnBuffGain(const Obj_AI_Base& unit, const Buff& buff);
-            void OnWndProc(UINT msg, WPARAM wparam);
-            void OnIssueOrder(const VecInt3& pos, int order);
+            void OnWndProc(const uint64_t msg, const uint64_t wparam);
+            void OnIssueOrder(const Vector& pos, int order, const std::string& plugin);
+            void OnIssueOrderInternal(const VecInt3& pos, int order, const char* plugin);
     };
 }
 

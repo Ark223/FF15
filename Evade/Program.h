@@ -60,6 +60,8 @@ namespace Evade
             bool IsSafe(float x, float y) const;
             bool IsDangerous(float x, float y) const;
             float TimeToHit(float x, float y) const;
+
+            float TimeToHit() const;
             float CalculateDamage() const;
             int GetDangerLevel() const;
 

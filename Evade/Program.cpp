@@ -404,7 +404,7 @@ namespace Evade
 
     bool Program::IsSafe(float x, float y) const
     {
-        return this->IsDangerous(x, y);
+        return !this->IsDangerous(x, y);
     }
 
     bool Program::IsDangerous(float x, float y) const
@@ -417,10 +417,19 @@ namespace Evade
 
     float Program::TimeToHit(float x, float y) const
     {
+        return this->skillshots.Aggregate<float>(-1.0f, [&](float result, auto skillshot)
+        {
+            float time = skillshot->TimeToHit(Vector(x, y));
+            return result < 0 ? time : (time < 0 ? result : MIN(result, time));
+        });
+    }
+
+    float Program::TimeToHit() const
+    {
         return this->dangerous.Aggregate<float>(-1.0f, [&](float result, auto skillshot)
         {
-            float time = skillshot->TimeToHit(Vector(x, y), true);
-            return MAX(0.0f, result < 0 ? time : MIN(result, time));
+            float time = MAX(0.0f, skillshot->TimeToHit(this->hero_pos, true));
+            return result < 0 ? time : MIN(result, time);
         });
     }
 
@@ -1207,17 +1216,17 @@ namespace Evade
         bool dodge_on = this->GetValue<bool>("Dodge");
         if (!this->can_evade || !dodge_on) return;
 
-        // Update timer if significant order is detected
-        if (order == 1 || order == 3 || order == 10)
-        {
-            this->order_timer = this->api->GetTime();
-        }
-
         // Block any interference while evading
         if (evade_pos.IsValid())
         {
             if (plugin == "Evade") return;
             return this->api->BlockOrder();
+        }
+
+        // Update timer if significant order is detected
+        else if (order >= 1 && order <= 3 || order == 10)
+        {
+            this->order_timer = this->api->GetTime();
         }
 
         // Exit if its not a move order or theres no skillshots

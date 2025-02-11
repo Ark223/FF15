@@ -445,7 +445,6 @@ namespace Evade
 
     float API::GetMovementSpeed(const Obj_AI_Base& unit) const
     {
-        if (this->IsDashing(unit)) return this->GetDashSpeed(unit);
         return unit->get_character_intermediate()->get_movement_speed();
     }
 

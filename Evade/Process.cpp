@@ -808,7 +808,7 @@ namespace Evade
             {
                 force_update = true;
                 float left = MAX(0.0f, 1.0f - elapsed);
-                float speed = api->GetMovementSpeed(this->hero);
+                float speed = api->GetMovementSpeed(caster);
 
                 skillshot->Set().DestPos = api->GetPosition(caster);
                 float dist = skillshot->Get().DestPos.Distance(pos);

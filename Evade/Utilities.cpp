@@ -544,7 +544,6 @@ namespace Evade
             Vector enemy_pos = this->api->GetPosition(enemy);
             return hero_pos.DistanceSquared(enemy_pos);
         });
-
         return enemies.FirstOrDefault();
     }
 

@@ -104,6 +104,7 @@ namespace Evade
     bool Utilities::EvadeToSpot(const Vector& spot) const
     {
         if (!spot.IsValid()) return false;
+        const Vector& hero_pos = this->program->GetHeroPos();
 
         // No need to repeat an action if we already follow the path
         Vector dest = this->api->GetPathEndPos(this->hero), offset;
@@ -119,7 +120,12 @@ namespace Evade
             case 3: offset.y = -5.0f; break;
         }
 
+        // Cancel any auto attack and walk to destination
         float height = this->api->GetHeight(this->hero);
+        if (this->api->IsAttacking(this->hero))
+        {
+            this->api->SendMoveCommand(hero_pos, height);
+        }
         this->api->SendMoveCommand(spot + offset, height);
         return true;
     }
@@ -321,6 +327,7 @@ namespace Evade
         float latency = api->GetLatency() / 2.0f + 0.034f;
         float range = (float)this->program->GetValue<int>("Search");
         auto enemies = api->GetEnemyHeroes(range, hero_pos, true);
+        if (this->api->IsAttacking(this->hero)) latency += 0.034f;
 
         // Find the maximum danger level among unsafe skillshots
         int level = skillshots.Max([](Skillshot* skillshot)

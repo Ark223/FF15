@@ -560,8 +560,6 @@ namespace Evade
         {
             skillshot->FixOrigin();
             range = skillshot->Get().Range;
-            Config::Get()->PrintText(std::to_string(range));
-            Config::Get()->PrintText(std::to_string(skillshot->Get().Position.Distance(skillshot->Get().StartPos)));
         }
 
         // Adjust various numeric properties

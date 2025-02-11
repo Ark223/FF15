@@ -152,6 +152,7 @@ namespace Evade
         if (this->libs_loaded == false) return;
 
         auto menu = this->config->CreateMenu("Evade", "Evade");
+        this->config->AddLabel(menu, "Settings", "Settings", true);
         std::string char_name = this->api->GetCharacterName(this->my_hero);
 
         // Core settings

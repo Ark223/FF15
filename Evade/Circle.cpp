@@ -21,7 +21,11 @@ namespace Evade
 
     void Circle::Update(bool force)
     {
-        // No displacement
+        if (force || data.Position != data.PrevPos)
+        {
+            data.Position = data.EndPos.Clone();
+        }
+        data.PrevPos = data.Position.Clone();
     }
 
     Vector Circle::Position(float delta)

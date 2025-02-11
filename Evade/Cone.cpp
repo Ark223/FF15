@@ -128,7 +128,7 @@ namespace Evade
         // If pos is verified to be unsafe, skip the check
         if (!skip && this->IsSafe(pos)) return -1.0f;
 
-        // No displacement = return time to expiration
+        // No displacement, return expiration time
         bool huge = IsInfinite(data.Speed);
         if (huge) return this->TimeToHitInternal();
 

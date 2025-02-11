@@ -449,7 +449,6 @@ namespace Evade
             skillshot->Set().Range =  distance;
             skillshot->Set().DestPos = new_dest;
             skillshot->Set().StartPos = new_start;
-            skillshot->Set().FixedRange = false;
         }
         else if (name == "LuxR" && !proc_type)
         {
@@ -484,6 +483,7 @@ namespace Evade
         }
         else if (name == "ShenE")
         {
+            skillshot->Set().DestPos = start + dir * 750.0f;
             skillshot->Set().Range = MAX(300.0f, range) + 150.0f;
         }
         else if (name == "SionQ")
@@ -512,12 +512,15 @@ namespace Evade
         }
         else if (name == "SylasQ")
         {
-            skillshot->Set().Range = MAX(160.0f, range);
+            float distance = MAX(175.0f, range);
+            Vector pos = start + dir * distance;
+            skillshot->Set().DestPos = pos;
+            skillshot->Set().Range = distance;
         }
         else if (name == "TahmKenchQ" && level > 0)
         {
-            float length = 11.25f * api->GetHitbox(caster);
-            skillshot->Set().Range = MAX(range, length);
+            float distance = 11.25f * api->GetHitbox(caster);
+            skillshot->Set().Range = MAX(range, distance);
         }
         else if (name == "TaricE" || name == "SejuaniW")
         {
@@ -544,6 +547,7 @@ namespace Evade
         }
         else if (name == "ZoeQMis2")
         {
+            skillshot->Set().DestPos = ending + dir * 350.0f;
             skillshot->Set().Range = range + 350.0f;
         }
         else if (name == "ZoeE" && proc_type)
@@ -554,10 +558,10 @@ namespace Evade
         // Adjust skillshot's origin points
         if (range != skillshot->Get().Range)
         {
-            Vector pos = start + dir * 12500.0f;
-            skillshot->Set().DestPos = pos;
             skillshot->FixOrigin();
             range = skillshot->Get().Range;
+            Config::Get()->PrintText(std::to_string(range));
+            Config::Get()->PrintText(std::to_string(skillshot->Get().Position.Distance(skillshot->Get().StartPos)));
         }
 
         // Adjust various numeric properties

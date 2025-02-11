@@ -10604,7 +10604,7 @@ namespace Evade
         data.Windup = 0.4f;
         data.ExtraTime = 0.6f;
         data.Radius = 180.0f;
-        data.Range = 775.0f;
+        data.Range = 725.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
         data.Detectors =
@@ -10637,7 +10637,7 @@ namespace Evade
         data.Delay = 0.4f;
         data.Windup = 0.4f;
         data.Radius = 70.0f;
-        data.Range = 775.0f;
+        data.Range = 725.0f;
         data.DangerLevel = 2;
         data.Collisions = {};
         data.Detectors =

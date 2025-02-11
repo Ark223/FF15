@@ -9745,7 +9745,6 @@ namespace Evade
         data.SkillshotSlot = 'E';
         data.AddHitbox = true;
         data.Dangerous = true;
-        data.FixedRange = true;
         data.HardCC = true;
         data.Radius = 60.0f;
         data.Range = 600.0f;

@@ -482,6 +482,10 @@ namespace Evade
             skillshot->Set().StartPos = ending;
             skillshot->Set().EndPos = ending + dir * range;
         }
+        else if (name == "ShenE")
+        {
+            skillshot->Set().Range = MAX(300.0f, range) + 150.0f;
+        }
         else if (name == "SionQ")
         {
             poly.Add(ending - perp * (radius + 110.0f));
@@ -540,7 +544,6 @@ namespace Evade
         }
         else if (name == "ZoeQMis2")
         {
-            skillshot->Set().DestPos = ending + dir * 350.0f;
             skillshot->Set().Range = range + 350.0f;
         }
         else if (name == "ZoeE" && proc_type)
@@ -551,6 +554,8 @@ namespace Evade
         // Adjust skillshot's origin points
         if (range != skillshot->Get().Range)
         {
+            Vector pos = start + dir * 12500.0f;
+            skillshot->Set().DestPos = pos;
             skillshot->FixOrigin();
             range = skillshot->Get().Range;
         }

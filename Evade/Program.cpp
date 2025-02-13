@@ -1075,7 +1075,7 @@ namespace Evade
         auto skillshot = this->process->CreateSkillshot(params, false);
 
         // Skip skillshot which is way too far from our hero
-        if (missile != nullptr && data.Range < 25000.0f)
+        if (data.Range < 25000.0f && !data.IsTrap)
         {
             float range = skillshot->Get().Range;
             const Vector& ending = skillshot->Get().EndPos;

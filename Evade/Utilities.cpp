@@ -53,7 +53,7 @@ namespace Evade
             if (api->HasBuff(hero, buff)) return false;
         }
 
-        // Final checks
+        // Final checks to confirm evasion ability
         if (api->IsDead(hero)) return false;
         if (api->IsImmortal(hero)) return false;
         if (api->HasBuffType(hero, stun)) return false;
@@ -120,10 +120,11 @@ namespace Evade
             case 3: offset.y = -5.0f; break;
         }
 
-        // Cancel any auto attack and walk to destination
+        // Move towards the target location
         float height = this->api->GetHeight(this->hero);
         if (this->api->IsAttacking(this->hero))
         {
+            // Cancel any auto attack during evasion
             this->api->SendMoveCommand(hero_pos, height);
         }
         this->api->SendMoveCommand(spot + offset, height);
@@ -182,18 +183,8 @@ namespace Evade
 
         // Verify if the extended path can be traversed
         Vector extended = destination + direction * buffer;
-        Linq<Vector> path = this->api->GetPath(extended);
-        if (path.Count() < 2) return safe_pos;
-
-        // Find the best spot along the path to continue
-        for (size_t i = 0; i < path.Count() - 1; i++)
-        {
-            const Vector& p1 = path.ElementAt(i);
-            const Vector& p2 = path.ElementAt(i + 1);
-            float dist = safe_pos.DistSqrToSegment(p1, p2);
-            if (dist < result.first) result = { dist, i };
-        }
-        return path.ElementAt(result.second + 1);
+        bool reachable = this->api->IsReachable(extended);
+        return reachable ? extended : safe_pos;
     }
 
     Linq<Vector> Utilities::FindSafeSpots(Linq<Skillshot*> skillshots,

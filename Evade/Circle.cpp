@@ -22,9 +22,7 @@ namespace Evade
     void Circle::Update(bool force)
     {
         if (force || data.Position != data.PrevPos)
-        {
             data.Position = data.EndPos.Clone();
-        }
         data.PrevPos = data.Position.Clone();
     }
 

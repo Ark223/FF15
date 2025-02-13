@@ -19,29 +19,28 @@ namespace Evade
 
     void Line::Update(bool force)
     {
-        // Update skillshot position
+        // Update the skillshot position
         data.Position = this->Position();
         if (data.Position == data.EndPos)
         {
             data.OffsetPoly.Clear();
-            data.Polygon.Clear(); return;
+            return data.Polygon.Clear();
         }
         if (!force && data.Position == data.PrevPos)
         {
             return;
         }
 
-        // Build a rectangle (apply offset later)
+        // Compute a rectangular hitbox first
         Vector dir = data.Perpendicular * data.Radius;
         data.Polygon.Set(0, data.Position + dir);
         data.Polygon.Set(1, data.Position - dir);
         data.Polygon.Set(2, data.EndPos - dir);
         data.Polygon.Set(3, data.EndPos + dir);
 
-        // Build offset area (hitbox included)
-        Poly offset = data.Polygon.Offset(
-            data.Hitbox, data.ArcStep);
-        data.OffsetPoly = offset;
+        // Create offset polygon based on hitbox
+        data.OffsetPoly = data.Polygon.Offset(
+            data.Hitbox, MAX(1.0f, data.ArcStep));
 
         // Cache position to avoid unnecessary updates
         data.PrevPos = data.Position.Clone();
@@ -84,7 +83,7 @@ namespace Evade
         // Skip initial safety check if indicated
         if (!skip && !this->IsSafe(path.EndPos)) return true;
 
-        // Check static collision if there is no displacement
+        // Check static collision if no displacement
         if (IsInfinite(data.Speed) == true) return
             this->IsPathDangerousInternal(path, true);
 
@@ -101,7 +100,7 @@ namespace Evade
         Vector str_pos = path.StartPos + vel * delay;
         Vector end_pos = path.EndPos + vel * delay;
 
-        // Dynamic collision test
+        // Determine interception time
         float extra_len = path.Speed * path.Delta;
         float col_time = Geometry::DynamicCollision(
             pos, str_pos, data.Direction * data.Speed,
@@ -118,10 +117,10 @@ namespace Evade
 
     float Line::TimeToHit(const Vector& pos, bool skip)
     {
-        // If pos is verified to be unsafe, skip the check
+        // Skip a check if position is unsafe for sure
         if (!skip && this->IsSafe(pos)) return -1.0f;
 
-        // No displacement, return expiration time
+        // Return expiration time if no displacement
         bool huge = IsInfinite(data.Speed);
         if (huge) return this->TimeToHitInternal();
 
@@ -131,17 +130,17 @@ namespace Evade
             data.Position, pos, vel, Vector(0.0f,
             0.0f), data.Radius, data.Hitbox);
 
-        // Include delay and ensure non-negative time
+        // Valid time must be a positive number
         return time + MAX(0.0f, data.StartTime -
             API::Get()->GetTime() + data.Delay);
     }
 
     Linq<Vector> Line::PathIntersection(const Vector& p1, const Vector& p2)
     {
-        // Verify the hitbox is valid - four vertices expected
+        // Ensure polygon is valid including four vertices
         if (data.Polygon.Size() != 4) return Linq<Vector>();
 
-        // No offset = directly return intersections
+        // Return points directly if no offset
         if (data.Hitbox == 0.0f) return
             data.Polygon.PathIntersection(p1, p2);
 

@@ -19,35 +19,34 @@ namespace Evade
 
     void Cone::Update(bool force)
     {
-        // Update skillshot position
+        // Update the skillshot position
         data.Position = this->Position();
         if (data.Position == data.EndPos)
         {
             data.OffsetPoly.Clear();
-            data.Polygon.Clear(); return;
+            return data.Polygon.Clear();
         }
         if (!force && data.Position == data.PrevPos)
         {
             return;
         }
 
-        // Build an updated arc / sector structure
+        // Calculate arcs to define the cone shape
         data.StartArc = Geometry::Arc(data.StartPos,
             data.Position, data.ConeAngle, data.ArcStep);
 
         data.EndArc = Geometry::Arc(data.StartPos,
             data.EndPos, data.ConeAngle, data.ArcStep);
 
-        // Build approximated area for drawings
+        // Build polygon for drawings
         data.Polygon.Clear();
         data.Polygon.Append(data.StartArc);
         data.Polygon.Reverse();
         data.Polygon.Append(data.EndArc);
 
-        // Build offset area (hitbox included)
-        Poly offset = data.Polygon.Offset(
-            data.Hitbox, data.ArcStep);
-        data.OffsetPoly = offset;
+        // Create offset polygon based on hitbox
+        data.OffsetPoly = data.Polygon.Offset(
+            data.Hitbox, MAX(1.0f, data.ArcStep));
 
         // Cache position to avoid unnecessary updates
         data.PrevPos = data.Position.Clone();
@@ -75,15 +74,16 @@ namespace Evade
         const Vector& start = data.StartPos;
         const Vector& ending = data.EndPos;
 
-        // Initial check without considering full offset
+        // Initial quick check without considering offset
         if (Geometry::IsInsideCone(start, ending, pos,
             data.Range + hitbox, angle)) return true;
 
-        // Position might be within the offset area
+        // Check if position is within offset area
         if (hitbox == 0.0f) return false;
         float sqr_hitbox = hitbox * hitbox;
         const Vector& front = data.EndArc.front();
         const Vector& back = data.EndArc.back();
+
         float d1 = pos.DistSqrToSegment(start, front);
         float d2 = pos.DistSqrToSegment(start, back);
         return d1 <= sqr_hitbox || d2 <= sqr_hitbox;
@@ -94,7 +94,7 @@ namespace Evade
         // Skip initial safety check if indicated
         if (!skip && !this->IsSafe(path.EndPos)) return true;
 
-        // Check static collision if there is no displacement
+        // Check static collision if no displacement
         if (IsInfinite(data.Speed) == true) return
             this->IsPathDangerousInternal(path, true);
 
@@ -109,7 +109,7 @@ namespace Evade
         Vector vel = this->UpdateVelocity(path);
         Vector pos = path.StartPos + vel * delay;
 
-        // Interception test
+        // Determine interception time
         float offset = path.Speed * path.Delta +
             (API::Get()->GetTime() - data.StartTime
             + path.Delay) * data.Speed + data.Hitbox;
@@ -125,18 +125,18 @@ namespace Evade
 
     float Cone::TimeToHit(const Vector& pos, bool skip)
     {
-        // If pos is verified to be unsafe, skip the check
+        // Skip a check if position is unsafe for sure
         if (!skip && this->IsSafe(pos)) return -1.0f;
 
-        // No displacement, return expiration time
+        // Return expiration time if no displacement
         bool huge = IsInfinite(data.Speed);
         if (huge) return this->TimeToHitInternal();
 
-        // Treat cone as a moving circle, easy calcs
+        // Calculate time with a stationary position
         float dist = data.StartPos.Distance(pos);
         float time = (dist - data.Hitbox) / data.Speed;
 
-        // Include delay and ensure non-negative time
+        // Valid time must be a positive number
         return MAX(0.0f, time + data.StartTime -
             API::Get()->GetTime() + data.Delay);
     }
@@ -145,11 +145,12 @@ namespace Evade
     {
         Linq<Vector> result;
         float range = data.Range;
+        float hitbox = data.Hitbox;
         float angle = data.ConeAngle;
         const Vector& start = data.StartPos;
         const Vector& ending = data.EndPos;
 
-        // Store directions and edges
+        // Define boundary edges
         std::pair<Vector, Vector> dir,
             edge_a, edge_b, left, right;
         left.first = data.StartArc.back();
@@ -158,8 +159,6 @@ namespace Evade
         right.second = data.EndArc.front();
         edge_a = left; edge_b = right;
 
-        // Edge adjustment for hitbox > 0
-        float hitbox = data.Hitbox;
         if (hitbox > 0)
         {
             dir.first = (left.second - left.first);
@@ -180,7 +179,7 @@ namespace Evade
         if (seg_a.IsValid()) result.Append(seg_a);
         if (seg_b.IsValid()) result.Append(seg_b);
 
-        // Calculate intersections at the cone's points
+        // Find intersections with cone sectors
         float dist = data.Position.Distance(start);
         result.AddRange(Geometry::ArcSegmentIntersection(
             p1, p2, start, ending, range + hitbox, angle));
@@ -197,7 +196,7 @@ namespace Evade
             { right.second, ebs, right.second + dir.second }
         };
 
-        // For each corner, add relevant intersection points
+        // Add remaining relevant points
         for (const auto& corner : corners)
         {
             Vector middle = (corner[1] + corner[2]) * 0.5f;

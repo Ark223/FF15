@@ -709,6 +709,7 @@ namespace Evade
             bool processed = skillshot->Get().Processed;
             bool fog_of_war = skillshot->Get().FogOfWar;
             bool fog_supp = supported.at(name).FogSupport;
+
             bool s_fog = fog_supp && this->program->GetValue<bool>("D|" + name + "|Fog");
             bool s_dangerous = this->program->GetValue<bool>("D|" + name + "|Dangerous");
             bool s_dodge_on = this->program->GetValue<bool>("D|" + name + "|Dodge");

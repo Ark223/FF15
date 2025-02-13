@@ -659,7 +659,11 @@ namespace Evade
             skillshots.RemoveAt(0);
         }
 
-        // No solution found
+        // No solutions found, mark skillshots as undodgeable
+        this->considered.ForEach([](Skillshot* skillshot)
+        {
+            skillshot->Set().Undodgeable = true;
+        });
         this->undodgeable = true;
     }
 

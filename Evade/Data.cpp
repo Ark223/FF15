@@ -4841,7 +4841,7 @@ namespace Evade
         data = SkillshotData();
         data.ChampionName = "Karma";
         data.DisplayName = "Inner Flame [Standard]";
-        data.MissileName = "KarmaQMissile";
+        data.MissileName = "KarmaQMissile(?!Mantra)";
         data.SkillshotName = "KarmaQ";
         data.IconName = "KarmaQ.png";
         data.SkillshotSlot = 'Q';

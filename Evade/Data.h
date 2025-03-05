@@ -78,13 +78,11 @@ namespace Evade
     struct Connector
     {
         uint32_t BuffHash = 0;
-        std::string PrimaryName, SecondaryName = "";
-        ConnectionType ConnectType = ConnectionType::FOLLOW_ORIGIN;
+        std::string PrimaryName = "";
+        ConnectionType ConnectType{};
 
         Connector(uint32_t hash) : BuffHash(hash) {}
         Connector(std::string name) : PrimaryName(name) {}
-        Connector(std::string first, std::string second)
-            : PrimaryName(first), SecondaryName(second) {}
         Connector(std::string name, ConnectionType type)
             : PrimaryName(name), ConnectType(type) {}
     };
@@ -112,8 +110,8 @@ namespace Evade
         Obj_AI_Hero Caster = nullptr;
         Object ObjectPtr = nullptr;
         Poly OffsetPoly, Polygon;
-        DamageFunc DamageFunc;
-        DamageType DamageType;
+        DamageFunc DamageFunc{};
+        DamageType DamageType{};
         int DangerLevel = 0;
         int SkillshotSlot = 0;
         float ArcStep = 0.0f;
@@ -152,7 +150,7 @@ namespace Evade
             float outer_radius, float cone_angle, float delay, float extra_time,
             float speed, const std::vector<CollisionFlag>& collision_table,
             Evade::DetectionType detect_type, Evade::SkillshotType skill_type,
-            Evade::DamageFunc damage_func, Evade::DamageType damage_type
+            const Evade::DamageFunc& damage_func, Evade::DamageType damage_type
         ) :
             DestPos(dest_pos), OriginPos(origin_pos), StartPos(start_pos),
             SkillshotName(skill_name), CasterName(caster_name), Caster(caster),
@@ -169,9 +167,9 @@ namespace Evade
 
     struct SkillshotData
     {
-        std::string ChampionName;
-        std::string DisplayName;
-        std::string SkillshotName;
+        std::string ChampionName = "";
+        std::string DisplayName = "";
+        std::string SkillshotName = "";
         std::string IconName = "";
         std::string MissileName = "";
         std::string ParticleName = "";
@@ -179,9 +177,9 @@ namespace Evade
         std::vector<std::string> Exclusions;
         std::vector<CollisionFlag> Collisions;
         std::vector<DetectionType> Detectors;
-        SkillshotType SkillshotType;
-        DamageType DamageType;
-        DamageFunc Damage;
+        SkillshotType SkillshotType{};
+        DamageType DamageType{};
+        DamageFunc Damage{};
         char SkillshotSlot = 0;
         int DangerLevel = 1;
         int MultiAngle = 0;
@@ -229,10 +227,10 @@ namespace Evade
 
     struct EvadingSpellData
     {
-        std::string ChampionName;
-        std::string DisplayName;
-        std::string IconName;
-        std::string SpellName;
+        std::string ChampionName = "";
+        std::string DisplayName = "";
+        std::string IconName = "";
+        std::string SpellName = "";
         EvadingType EvadingType;
         char SpellSlot = ' ';
         int DangerLevel = 1;
@@ -245,10 +243,10 @@ namespace Evade
 
     struct ShieldSpellData
     {
-        std::string ChampionName;
-        std::string DisplayName;
-        std::string IconName;
-        std::string SpellName;
+        std::string ChampionName = "";
+        std::string DisplayName = "";
+        std::string IconName = "";
+        std::string SpellName = "";
         EvadingType ShieldType;
         char SpellSlot = ' ';
         float Delay = 0.0f;

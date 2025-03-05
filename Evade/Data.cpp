@@ -891,7 +891,7 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 250, 450, 650 };
+            float base_scale[] = { 200, 400, 600 };
             float base_damage = base_scale[info.SpellLevel];
             return base_damage + 1.2f * info.TotalAbilityDamage;
         };
@@ -968,7 +968,7 @@ namespace Evade
         {
             float base_scale[] = { 70, 110, 150, 190, 230 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.8f * info.TotalAbilityDamage;
+            return base_damage + 0.7f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -1682,7 +1682,7 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 80, 145, 210, 275, 340 };
+            float base_scale[] = { 80, 140, 200, 260, 320 };
             float base_damage = base_scale[info.SpellLevel];
             return base_damage + 1.0f * info.TotalAbilityDamage;
         };
@@ -1714,7 +1714,7 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 80, 135, 190, 245, 300 };
+            float base_scale[] = { 80, 130, 180, 230, 280 };
             float base_damage = base_scale[info.SpellLevel];
             return base_damage + 0.7f * info.TotalAbilityDamage;
         };
@@ -2138,7 +2138,6 @@ namespace Evade
         data.FogSupport = true;
         data.SoftCC = true;
         data.Delay = 0.25f;
-        data.Windup = 0.25f;
         data.Radius = 60.0f;
         data.Range = 700.0f;
         data.Speed = 1650.0f;
@@ -9580,7 +9579,7 @@ namespace Evade
             float bonus_damage = 0.5f * info.TotalAbilityDamage;
             float missing_hp = info.TargetMaxHealth - info.TargetHealth;
             float missing_hp_ratio = missing_hp / info.TargetMaxHealth;
-            float damage_mod = MIN(0.8f * missing_hp_ratio, 0.6f);
+            float damage_mod = MIN(0.75f * missing_hp_ratio, 0.75f);
             return (base_damage + bonus_damage) * (1.0f + damage_mod);
         };
         data.DamageType = DamageType::MAGICAL;
@@ -10171,7 +10170,7 @@ namespace Evade
             float base_scale[] = { 10, 20, 30, 40, 50 };
             float base_damage = base_scale[info.SpellLevel];
             float bonus_damage = 0.03f * info.BonusHealth;
-            bonus_damage += 0.1f * info.TargetMaxHealth;
+            bonus_damage += 0.08f * info.TargetMaxHealth;
             bonus_damage += 0.8f * info.BonusAttackDamage;
             return base_damage + bonus_damage;
         };

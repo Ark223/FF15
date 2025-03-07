@@ -55,6 +55,7 @@ namespace Evade
 
             Obj_AI_Hero GetHero();
             Vector GetCursorPos() const;
+            uint32_t GetMapId() const;
             float GetLatency() const;
             float GetTime() const;
 

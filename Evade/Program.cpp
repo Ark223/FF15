@@ -194,7 +194,8 @@ namespace Evade
         bool mel = enemies.Any([](const auto& n) { return n == "Mel"; });
         bool sylas = enemies.Any([](const auto& n) { return n == "Sylas"; });
         bool viego = enemies.Any([](const auto& n) { return n == "Viego"; });
-        auto units = ((mel || sylas || viego) ? allies.Concat(enemies) : enemies);
+        bool connect = mel || sylas || viego || this->api->GetMapId() == 30;
+        auto units = ((connect == true) ? allies.Concat(enemies) : enemies);
         units = units.OrderBy<std::string>([](const auto& n) { return n; });
 
         // Spell settings

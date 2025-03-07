@@ -102,6 +102,11 @@ namespace Evade
         return this->ToVector(*(logic->get_cursor_position()));
     }
 
+    uint32_t API::GetMapId() const
+    {
+        return this->m_api->get_game_session_info()->get_map_id();
+    }
+
     float API::GetLatency() const
     {
         return this->m_api->get_network_client()->get_ping() * 0.001f;

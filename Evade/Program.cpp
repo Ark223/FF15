@@ -474,7 +474,7 @@ namespace Evade
         // Remove invalid or dead objects from collections
         for (auto& [key, collection] : this->objects)
         {
-            collection.DeleteAll([&](auto object)
+            collection.DeleteAll([&](auto& object)
             {
                 return !this->api->IsValid(object)
                     || !this->api->IsAlive(object);
@@ -1333,7 +1333,7 @@ namespace Evade
         bool valid = move_pos.IsValid();
 
         // Adjust move position if current one is unsafe or invalid
-        bool unsafe = valid && skillshots.Any([&](auto skillshot)
+        bool unsafe = valid && skillshots.Any([&](auto& skillshot)
         {
             return skillshot->IsDangerous(move_pos);
         });

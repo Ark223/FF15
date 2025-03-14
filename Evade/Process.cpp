@@ -170,7 +170,7 @@ namespace Evade
             {
                 return skillshot->Get().Position;
             })
-            .Concat(seeds.Select<Vector>([&](auto object)
+            .Concat(seeds.Select<Vector>([&](auto& object)
             {
                 return api->GetPosition(object);
             }));
@@ -229,7 +229,7 @@ namespace Evade
         else if (name == "XayahE")
         {
             auto& objects = this->program->GetObjects();
-            objects.at("Feather").ForEach([&](auto object)
+            objects.at("Feather").ForEach([&](auto& object)
             {
                 Vector feather = api->GetPosition(object);
                 result.Append({ caster, name, feather, start });
@@ -251,7 +251,7 @@ namespace Evade
         else if (name == "ZedQ" && proc_type)
         {
             auto& objects = this->program->GetObjects();
-            objects.at("Shadow").ForEach([&](auto object)
+            objects.at("Shadow").ForEach([&](auto& object)
             {
                 Vector shadow = api->GetPosition(object);
                 result.Append({ caster, name, shadow, dest });

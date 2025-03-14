@@ -418,7 +418,7 @@ namespace Evade
 
             // An extra feature to check for potential threats to the spots
             // Find the threat closest to the direction indicated by mouse
-            auto threats = enemies.Select<Threat>([&](auto enemy)
+            auto threats = enemies.Select<Threat>([&](auto& enemy)
             {
                 Vector position = api->GetPosition(enemy);
                 float distance = position.DistanceSquared(mouse);
@@ -528,8 +528,8 @@ namespace Evade
                 return { cast_position, info, nullptr, delay, true };
             }
             return { Vector(), info, this->hero, delay, true };
-
         }
+
         return solution; // Return the best available solution (suboptimal)
     }
 
@@ -646,7 +646,7 @@ namespace Evade
             return skillshot->TimeToHit(position, true);
         });
 
-        // Delay pathfinding as evasion is not needed yet
+        // Delay pathfinding if evasion is not needed yet
         float cooldown = MAX(0.0f, windup - elapsed);
         float left = elapsed < windup ? cooldown : windup;
         return (time - solution.TimeToReach <= left + 0.25f) ||
@@ -669,7 +669,6 @@ namespace Evade
         {
             int slot = spell.SpellSlot;
             if (slot >= 0 && slot <= 3) continue;
-
             if (spell.SpellName == "Flash") continue;
             if (spell.SpellName == "Ghost") continue;
 

@@ -55,22 +55,21 @@ namespace Prediction
 
     // Core functions
 
-    void Network::InitWeights(const double* weights_array)
+    void Network::InitWeights(const std::vector<double>& weights)
     {
-        // Assign weights for each layer
-        const double* pointer = weights_array;
+        size_t index = 0;
         for (Layer& layer : this->network)
         {
-            // First initialize flattened weight matrix
+            // First initialize the flattened weight matrix
             for (size_t i = 0; i < layer.NodesCount; ++i)
             {
-                layer.Weights[i] = *pointer++;
+                layer.Weights[i] = weights[index++];
             }
 
             // Then initialize biases for the current layer
             for (size_t i = 0; i < layer.OutputCount; ++i)
             {
-                layer.Biases[i] = *pointer++;
+                layer.Biases[i] = weights[index++];
             }
         }
     }
@@ -98,7 +97,7 @@ namespace Prediction
         }
     }
 
-    std::vector<double> Network::Predict(std::vector<double>& input)
+    std::vector<double> Network::Predict(std::vector<double> input)
     {
         // Propagate the input through each layer
         std::vector<double> current = input;

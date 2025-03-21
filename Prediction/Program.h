@@ -25,14 +25,17 @@ namespace Prediction
             const auto& GetActiveDashes() const { return this->dashes; }
             const auto& GetPathData() const { return this->paths; }
 
-            Path GetWaypoints(const Obj_AI_Base& unit) const;
-            float GetBlinkDuration(const Obj_AI_Base& unit) const;
-            float GetInvisibilityTime(const Obj_AI_Base& unit) const;
-            float GetMeanAngleDiff(const Obj_AI_Base& unit) const;
+            float GetCollisionBuffer() const;
+            float GetMiaDuration(const Obj_AI_Base& unit) const;
             float GetPathChangeTime(const Obj_AI_Base& unit) const;
             float GetWindupTime(const Obj_AI_Base& unit) const;
-            bool IsBlinking(const Obj_AI_Base& unit) const;
+            Path GetWaypoints(const Obj_AI_Base& unit) const;
+
+            float GetBlinkDuration(const Obj_AI_Base& unit) const;
+            float GetMeanAngleDiff(const Obj_AI_Base& unit) const;
             bool IsCastingDash(const Obj_AI_Base& unit) const;
+            bool IsBlinking(const Obj_AI_Base& unit) const;
+            bool IsDashing(const Obj_AI_Base& unit) const;
 
             template<typename T>
             T GetValue(const std::string& id) const;
@@ -69,8 +72,8 @@ namespace Prediction
             void UpdatePaths(const Obj_AI_Base& unit, const Path& path, bool changed);
 
             void OnDraw();
-            void OnNewPath(const Obj_AI_Base& unit, Linq<Vector> path);
-            void OnProcessSpell(const Obj_AI_Base& unit, std::string& spell_name,
+            void OnNewPath(const Obj_AI_Base& unit, Linq<Vector> path, float speed);
+            void OnProcessSpell(const Obj_AI_Base& unit, const std::string& spell_name,
                 const Vector& start_pos, const Vector& end_pos, const float cast_delay);
             void OnNewPathInternal(const Obj_AI_Base& unit, std::vector<Vector3>& paths);
             void OnProcessSpellInternal(const Obj_AI_Base& unit, const CastInfo& info);

@@ -71,6 +71,7 @@ namespace Prediction
     {
         Linq<CollisionData> results = Linq<CollisionData>();
         if (!destination.IsValid()) return results.ToArray();
+        if (!input.CollisionFlags) return results.ToArray();
 
         Vector source = input.SourcePosition;
         const float range = input.Range + 500.0f;
@@ -136,12 +137,121 @@ namespace Prediction
 
     void Utilities::GetHitChance(const PredictionInput& input, PredictionOutput& output) const
     {
-        // 
+        // Return if we are unable to hit the target
+        const Obj_AI_Base& target = input.TargetObject;
         if (!output.TargetPosition.IsValid()) return;
+        if (!this->ShouldCast(target)) return;
 
-        // 
-        if (!this->ShouldCast(input.TargetObject)) return;
+        Vector source = input.SourcePosition;
+        const Vector& cast_pos = output.CastPosition;
+        const Vector& pred_pos = output.TargetPosition;
+        const Segment& last_path = output.Waypoints.back();
 
+        uint32_t target_id = this->api->GetObjectId(target);
+        uint32_t hero_flag = (uint32_t)CollisionFlag::Heroes;
+        uint32_t minion_flag = (uint32_t)CollisionFlag::Minions;
+        bool circle = input.SpellType == SpellType::Circular;
+        bool dashing = this->program->IsDashing(target);
+        const auto& data = this->program->GetPathData();
+
+        float timer = this->api->GetTime();
+        float hitbox = this->api->GetHitbox(target);
+        float speed = this->api->GetMoveSpeed(target);
+        float change = this->program->GetPathChangeTime(target);
+        float mia_time = this->program->GetMiaDuration(target);
+        float radius = MAX(input.Radius, input.Width / 2.0f);
+        radius += (input.AddHitbox ? hitbox : 0.0f);
+
+        // Use object position if object is valid
+        if (this->api->IsValid(input.SourceObject))
+        {
+            source = this->api->GetPosition(input.SourceObject);
+        }
+
+        // Abort if target immunity exceeds the hit time
+        if (this->GetImmunityTime(target) > output.TimeToHit)
+        {
+            output.HitChance = HitChance::Impossible;
+            return;
+        }
+
+        // Check if target is out of range: perform edge-range check
+        if (output.Distance > input.Range + (circle ? radius : 0.0f))
+        {
+            output.HitChance = HitChance::OutOfRange;
+            return;
+        }
+
+        // Special case for linear missiles: perform center-range check
+        else if ((input.CollisionFlags & (hero_flag | minion_flag)) != 0 &&
+            source.DistanceSquared(pred_pos) > input.Range * input.Range)
+        {
+            output.HitChance = HitChance::OutOfRange;
+            return;
+        }
+
+        // Check for possible collisions along the missile path
+        output.Collisions = this->GetCollision(input, cast_pos,
+            this->program->GetCollisionBuffer(), target_id);
+
+        // Return if exceeds max amount of allowed collisions
+        if (output.Collisions.size() > input.MaxCollisions)
+        {
+            output.HitChance = HitChance::Collision;
+            return;
+        }
+
+        // Mid-dash collision before final landing ensures a hit
+        if (dashing && output.TargetPosition != last_path.EndPos)
+        {
+            output.CastRate = CastRate::Precise;
+            output.HitChance = HitChance::Dashing;
+            output.Confidence = 1.0f; return;
+        }
+
+        // Return if the target remains immobile until impact
+        float immobility = this->GetImmobilityTime(target);
+        if (output.TimeToHit - immobility <= 0.0f)
+        {
+            output.CastRate = CastRate::Precise;
+            output.HitChance = HitChance::Immobile;
+            output.Confidence = 1.0f; return;
+        }
+
+        // Hit is guaranteed if interception covers the escape window
+        float intercept = output.Intercept - immobility + mia_time;
+        if (intercept <= radius / speed)
+        {
+            output.CastRate = CastRate::Precise;
+            output.HitChance = HitChance::Certain;
+            output.Confidence = 1.0f; return;
+        }
+
+        // Always return high confidence for non-hero or ally targets
+        if (!this->api->IsHero(target) || this->api->IsAlly(target))
+        {
+            output.CastRate = CastRate::Moderate;
+            output.HitChance = HitChance::VeryHigh;
+            output.Confidence = 0.99f; return;
+        }
+
+        // Compute metrics and pass to the neural network
+        float hit_ratio = (radius / speed) / intercept;
+        float mean_angle = this->program->GetMeanAngleDiff(target);
+        float path_length = data.at(target_id).Last().PathLength;
+        float path_count = (float)(data.at(target_id).Count() - 1);
+        float react_time = data.at(target_id).Last().UpdateTime;
+        react_time = MAX(0.0f, 0.25f - (timer - react_time));
+
+        // The model estimates probability of spell hitting target
+        output.Confidence = this->network->Predict({ hit_ratio,
+            mean_angle / M_PI_F, MIN(1.0f, path_length / 1000.0f),
+            MIN(1.0f, path_count / 5.0f), react_time / 0.25f })[0];
+        output.HitChance = output.GetHitChance(output.Confidence);
+
+        // Set cast frequency based on path change time or high confidence
+        bool freq = change < 0.05f || output.HitChance > HitChance::High;
+        output.CastRate = freq ? CastRate::Moderate : CastRate::Instant;
     }
 
     PredictionOutput Utilities::PredictOnPath(const PredictionInput& input) const
@@ -151,18 +261,19 @@ namespace Prediction
         Path path = this->program->GetWaypoints(target);
         if (!path.back().EndPos.IsValid()) return output;
 
+        output.Waypoints = path;
         Vector source = input.SourcePosition;
         uint32_t hero_flag = (uint32_t)CollisionFlag::Heroes;
         uint32_t minion_flag = (uint32_t)CollisionFlag::Minions;
         bool casting_dash = this->program->IsCastingDash(target);
-        bool dashing = casting_dash || this->api->IsDashing(target);
         bool blinking = this->program->IsBlinking(target);
+        bool dashing = this->program->IsDashing(target);
         bool apply_offset = input.EdgeCast && !dashing;
 
         float epsilon = EPSILON * 2.0f; // 0.02
         float hitbox = this->api->GetHitbox(target);
         float delay = input.Delay + this->GetTotalLatency();
-        float mia = this->program->GetInvisibilityTime(target);
+        float mia_time = this->program->GetMiaDuration(target);
         float radius = MAX(input.Radius, input.Width / 2.0f);
         float speed = path.back().Speed, boundary = 0.0f;
         radius += (input.AddHitbox ? hitbox : 0.0f);
@@ -191,23 +302,24 @@ namespace Prediction
         }
 
         // Enable fog-of-war support
-        if (!casting_dash && mia > 0)
+        if (!casting_dash && mia_time > 0)
         {
-            path = Geometry::CutPath(path, speed * mia);
+            path = Geometry::CutPath(path, speed * mia_time);
         }
 
         // Target is either stationary or blinking
-        if (blinking || path.size() == 1)
+        if (blinking || path.size() == 1 && IsZero(path[0].Length))
         {
             const Vector& start = path.front().StartPos;
             const Vector& ending = path.front().EndPos;
-            for (const Vector& position : { start, ending })
+            for (const Vector& position : {start, ending})
             {
                 Vector direction = (position - source);
                 float distance = direction.Length();
                 direction = direction / distance;
-    
+
                 output.Distance = MAX(0.0f, distance - boundary);
+                output.Intercept = distance / input.Speed + delay;
                 output.TimeToHit = output.Distance / input.Speed + delay;
                 output.CastPosition = source + direction * output.Distance;
                 output.TargetPosition = position.Clone();
@@ -225,7 +337,7 @@ namespace Prediction
             output.CastPosition = Geometry::PositionAfter(path, shift);
             output.TargetPosition = Geometry::PositionAfter(path, delay);
 
-            output.TimeToHit = delay; // No edge collision here
+            output.Intercept = output.TimeToHit = delay;
             output.Distance = output.CastPosition.Distance(source);
             output.CastPosition = fix_position(output.CastPosition);
             output.TargetPosition = fix_position(output.TargetPosition);
@@ -249,7 +361,7 @@ namespace Prediction
             radius -= (input.AddHitbox ? hitbox : 0.0f) - epsilon;
             auto segment = Segment(source, intercept, input.Speed);
             auto collision = Geometry::DynamicCollision(segment,
-                {Obstacle(std::make_pair(hitbox, path))}, radius);
+                { Obstacle(std::make_pair(hitbox, path)) }, radius);
 
             // This condition should theoretically never be met
             // It may occur due to floating-point precision errors
@@ -257,10 +369,12 @@ namespace Prediction
 
             // Extract collision data: impact position and time
             const Solution& result = collision.front().second;
+            float intercept_time = segment.Length / segment.Speed;
             Vector pos = Geometry::PositionAfter(path, result.first);
 
             // Set the output based on collision results
             output.Distance = segment.Speed * result.first;
+            output.Intercept = intercept_time + delay;
             output.TimeToHit = result.first + delay;
             output.CastPosition = result.second;
             output.TargetPosition = pos;
@@ -273,6 +387,7 @@ namespace Prediction
         output.TargetPosition = fix_position(output.TargetPosition);
         output.Distance = output.CastPosition.Distance(source);
         output.TimeToHit = output.Distance / input.Speed + delay;
+        output.Intercept = output.TimeToHit;
         return output;
     }
 
@@ -309,7 +424,7 @@ namespace Prediction
         if (!this->api->IsVisible(unit)) return empty;
 
         Path result = Path();
-        float speed = this->api->GetMoveSpeed(unit);
+        float speed = this->api->GetPathSpeed(unit);
         Linq<Vector> path = this->api->GetPath(unit);
         Vector position = this->api->GetPosition(unit);
         Segment static_pos = Segment(position, speed);

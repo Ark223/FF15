@@ -74,10 +74,10 @@ namespace Prediction
             static void Destroy();
             static Network* Get();
 
-            void InitWeights(const double* weights_array);
+            void InitWeights(const std::vector<double>& weights);
             void DefineLayout(const std::vector<size_t>& layout,
                 const std::vector<IActivation*>& activations);
-            std::vector<double> Predict(std::vector<double>& input);
+            std::vector<double> Predict(std::vector<double> input);
     };
 }
 

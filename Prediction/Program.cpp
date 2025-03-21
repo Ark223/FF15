@@ -84,6 +84,33 @@ namespace Prediction
 
     void Program::InitComponents()
     {
+        // The neural network estimates the probability of a successful spell hit
+        // Features: hit ratio, mean angle, path length and count, reaction time
+        this->network->DefineLayout({5, 12, 1}, {new Mish(), new Sigmoid()});
+
+        // Initialize pretrained weights
+        this->network->InitWeights(
+        {
+           -1.5316844,  -1.71065,    -0.437382,   -2.0465446,  -0.8413319,
+            1.8386623,   2.0452807,   0.00204372,  0.37771302,  1.7089669,
+            1.5989374,  -6.924992,    1.0819958,   0.14347865, -3.259547,
+           -1.2896303,  -1.7596085,   0.75078315,  0.7985319,   0.0083707,
+            0.90909845, -2.0539536,   1.1982433,   0.6704966,  -0.8932713,
+           -0.5481159,  -1.4807124,   2.078577,   -5.377486,   -0.3128848,
+           -0.6607381,   0.021364,   -2.8196864,   0.29695556, -0.31326964,
+           -0.7418757,   1.4304196,  -0.507849,    0.623478,   -0.68479514,
+           -0.79684275, -0.67258763,  0.17905003,  0.00089716, -0.87963396,
+            0.42509755, -3.4426699,   1.0750163,   1.7820777,   1.1495491,
+            0.17524263,  0.32351404, -1.1114081,   0.74665314,  1.1425725,
+            0.0106201,  -0.5294857,   0.88444936,  0.6734694,  -0.31335336,
+            0.46347517,  0.17226617,  1.1833903,   1.2675507,   0.53423476,
+           -0.7106298,  -0.38013995,  0.01372068,  0.6730857,  -0.31730786,
+           -1.1679577,   0.47920567, -1.4393647,  -0.50676185, -1.5521555,
+           -1.0837605,   2.9035027,   0.99544626,  1.1460985,  -0.00762801,
+           -1.110289,    2.3377445,   2.079283,   -3.154874,   -0.2554172
+        });
+
+        // Initialize a path history for each enemy (used in hit chance calcs)
         this->api->GetEnemyHeroes(0, Vector(), false).ForEach([&](auto& unit)
         {
             this->UpdatePaths(unit, this->utils->GetWaypoints(unit), false);
@@ -135,8 +162,10 @@ namespace Prediction
     {
         // Remove outdated entries that exceed the duration threshold
         for (int index = (int)paths.Count() - 2; index >= 0; --index)
+        {
             if (timer - paths.ElementAt(index).UpdateTime > duration)
                 paths.RemoveAt(index);
+        }
     }
 
     void Program::UpdatePaths(const Obj_AI_Base& unit, const Path& path, bool changed)
@@ -157,48 +186,18 @@ namespace Prediction
 
     // Public API methods
 
-    Path Program::GetWaypoints(const Obj_AI_Base& unit) const
+    float Program::GetCollisionBuffer() const
     {
-        uint32_t id = this->api->GetObjectId(unit);
-
-        if (this->dashes.find(id) != this->dashes.end())
-            return this->dashes[id].Waypoints;
-
-        if (this->paths.find(id) != this->paths.end())
-            return this->paths[id].Last().Waypoints;
-
-        return this->utils->GetWaypoints(unit);
+        return (float)this->GetValue<int>("Buffer");
     }
 
-    float Program::GetBlinkDuration(const Obj_AI_Base& unit) const
-    {
-        float timer = this->api->GetTime();
-        uint32_t id = this->api->GetObjectId(unit);
-        const DashData& data = this->dashes[id];
-        return data.StartTime + data.Delay - timer;
-    }
-
-    float Program::GetInvisibilityTime(const Obj_AI_Base& unit) const
+    float Program::GetMiaDuration(const Obj_AI_Base& unit) const
     {
         float timer = this->api->GetTime();
         uint32_t id = this->api->GetObjectId(unit);
         if (this->paths.count(id) == 0) return 0.0f;
         float mia_time = this->paths[id].Last().MiaTime;
         return mia_time < 0 ? 0.0f : timer - mia_time;
-    }
-
-    float Program::GetMeanAngleDiff(const Obj_AI_Base& unit) const
-    {
-        float angle = 0.0f;
-        uint32_t id = this->api->GetObjectId(unit);
-        size_t size = this->paths[id].Count();
-        for (size_t i = 0; i < size - 1; ++i)
-        {
-            const PathData& pa = this->paths[id].ElementAt(i);
-            const PathData& pb = this->paths[id].ElementAt(i + 1);
-            angle += Geometry::Angle(pa.Direction, pb.Direction);
-        }
-        return (size > 1) ? angle / (float)(size - 1) : 0.0f;
     }
 
     float Program::GetPathChangeTime(const Obj_AI_Base& unit) const
@@ -217,11 +216,55 @@ namespace Prediction
         return MAX(0.0f, this->windups[id] - timer);
     }
 
+    Path Program::GetWaypoints(const Obj_AI_Base& unit) const
+    {
+        uint32_t id = this->api->GetObjectId(unit);
+
+        if (this->dashes.find(id) != this->dashes.end())
+            return this->dashes[id].Waypoints;
+
+        if (this->paths.find(id) != this->paths.end())
+            return this->paths[id].Last().Waypoints;
+
+        return this->utils->GetWaypoints(unit);
+    }
+
+    // Internal methods
+
+    float Program::GetBlinkDuration(const Obj_AI_Base& unit) const
+    {
+        float timer = this->api->GetTime();
+        uint32_t id = this->api->GetObjectId(unit);
+        const DashData& data = this->dashes[id];
+        return data.StartTime + data.Delay - timer;
+    }
+
+    float Program::GetMeanAngleDiff(const Obj_AI_Base& unit) const
+    {
+        float angle = 0.0f;
+        uint32_t id = this->api->GetObjectId(unit);
+        size_t size = this->paths[id].Count();
+        for (size_t i = 0; i < size - 1; ++i)
+        {
+            const PathData& pa = this->paths[id].ElementAt(i);
+            const PathData& pb = this->paths[id].ElementAt(i + 1);
+            angle += Geometry::Angle(pa.Direction, pb.Direction);
+        }
+        return (size > 1) ? angle / (float)(size - 1) : 0.0f;
+    }
+
     bool Program::IsBlinking(const Obj_AI_Base& unit) const
     {
         uint32_t id = this->api->GetObjectId(unit);
         if (this->dashes.count(id) == 0) return false;
         return this->dashes[id].IsBlink;
+    }
+
+    bool Program::IsDashing(const Obj_AI_Base& unit) const
+    {
+        uint32_t id = this->api->GetObjectId(unit);
+        if (this->dashes.count(id) > 0) return true;
+        return this->api->IsDashing(unit);
     }
 
     bool Program::IsCastingDash(const Obj_AI_Base& unit) const
@@ -302,11 +345,9 @@ namespace Prediction
         }
     }
 
-    void Program::OnNewPath(const Obj_AI_Base& unit, Linq<Vector> path)
+    void Program::OnNewPath(const Obj_AI_Base& unit, Linq<Vector> path, float speed)
     {
         Path waypoints = Path();
-        float speed = this->api->GetMoveSpeed(unit);
-
         if (path.Count() <= 1)
         {
             Vector position = this->api->GetPosition(unit);
@@ -321,7 +362,7 @@ namespace Prediction
         this->UpdatePaths(unit, waypoints, true);
     }
 
-    void Program::OnProcessSpell(const Obj_AI_Base& unit, std::string& spell_name,
+    void Program::OnProcessSpell(const Obj_AI_Base& unit, const std::string& spell_name,
         const Vector& start_pos, const Vector& end_pos, const float cast_delay)
     {
         if (!this->api->IsHero(unit)) return;
@@ -330,7 +371,7 @@ namespace Prediction
         float timer = this->api->GetTime();
 
         // Store the windup time for immobile target
-        this->windups[id] = timer + MAX(0.0f, cast_delay);
+        this->windups[id] = timer + cast_delay;
 
         // Process and register the custom dash spell
         const auto& spells = this->data->GetDashSpells();
@@ -360,10 +401,9 @@ namespace Prediction
 
     void Program::OnNewPathInternal(const Obj_AI_Base& unit, std::vector<Vector3>& paths)
     {
-        this->OnNewPath(unit, Linq(paths).Select<Vector>([&](const auto& point)
-        {
-            return this->api->ToVector(point);
-        }));
+        float speed = this->api->GetPathSpeed(unit);
+        auto converter = [&](const auto& p) { return this->api->ToVector(p); };
+        this->OnNewPath(unit, Linq(paths).Select<Vector>(converter), speed);
     }
 
     void Program::OnProcessSpellInternal(const Obj_AI_Base& unit, const CastInfo& info)

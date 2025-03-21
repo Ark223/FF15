@@ -416,8 +416,7 @@ namespace Prediction
 
     float API::GetMoveSpeed(const Obj_AI_Base& unit) const
     {
-        float speed = unit->get_character_intermediate()->get_movement_speed();
-        return this->IsDashing(unit) ? this->GetDashSpeed(unit) : speed;
+        return unit->get_character_intermediate()->get_movement_speed();
     }
 
     Linq<Vector> API::GetPath(const Obj_AI_Base& unit) const
@@ -439,6 +438,12 @@ namespace Prediction
             length += p1.Distance(p2);
         }
         return length;
+    }
+
+    float API::GetPathSpeed(const Obj_AI_Base& unit) const
+    {
+        if (this->IsDashing(unit)) return this->GetDashSpeed(unit);
+        return unit->get_character_intermediate()->get_movement_speed();
     }
 
     Vector API::GetPosition(const Obj_AI_Base& unit) const

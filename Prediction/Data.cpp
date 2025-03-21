@@ -30,18 +30,6 @@ namespace Prediction
         return m_instance;
     }
 
-    // Path data functions
-
-    float PathData::GetLength(const Path& path)
-    {
-        float length = 0.0f;
-        for (const auto& segment : path)
-        {
-            length += segment.Length;
-        }
-        return length;
-    }
-
     // Global data functions
 
     const DashTable& Data::GetDashSpells()

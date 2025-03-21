@@ -109,6 +109,7 @@ namespace Prediction
             float GetMoveSpeed(const Obj_AI_Base& unit) const;
             Linq<Vector> GetPath(const Obj_AI_Base& unit) const;
             float GetPathLength(const Linq<Vector>& path) const;
+            float GetPathSpeed(const Obj_AI_Base& unit) const;
             Vector GetPosition(const Obj_AI_Base& unit) const;
             bool IsDashing(const Obj_AI_Base& unit) const;
 

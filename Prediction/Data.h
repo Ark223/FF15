@@ -26,16 +26,26 @@ namespace Prediction
         WindWall = 1 << 3
     };
 
+    enum class CastRate
+    {
+        Unknown = 0,
+        Instant,
+        Moderate,
+        Precise
+    };
+
     enum class HitChance
     {
         Impossible = 0,
-        Collision,
         OutOfRange,
+        Collision,
         Low,
         Medium,
         High,
         VeryHigh,
-        Guaranteed
+        Certain,
+        Dashing,
+        Immobile,
     };
 
     enum class SpellType
@@ -90,7 +100,15 @@ namespace Prediction
             this->Waypoints = waypoints;
         }
 
-        float GetLength(const Path& path);
+        static float GetLength(const Path& path)
+        {
+            float length = 0.0f;
+            for (const auto& segment : path)
+            {
+                length += segment.Length;
+            }
+            return length;
+        }
     };
 
     struct PredictionInput
@@ -109,19 +127,30 @@ namespace Prediction
         float Speed = FLT_MAX;
         bool AddHitbox = false;
         bool AoeSupport = false;
-        bool EdgeCast = false;
+        bool EdgeCast = true;
     };
 
     struct PredictionOutput
     {
         Vector CastPosition = Vector();
         Vector TargetPosition = Vector();
+        CastRate CastRate = CastRate::Unknown;
         HitChance HitChance = HitChance::Impossible;
         std::vector<CollisionData> Collisions{};
+        Path Waypoints = Path({ Segment() });
         uint32_t AoeHitCount = 0U;
-        float Confidence = 0.0f;
+        double Confidence = 0.0f;
         float Distance = 0.0f;
+        float Intercept = 0.0f;
         float TimeToHit = 0.0f;
+
+        static Prediction::HitChance GetHitChance(double cf)
+        {
+            if (cf >= 0.9) return HitChance::VeryHigh;
+            if (cf >= 0.75) return HitChance::High;
+            if (cf >= 0.5) return HitChance::Medium;
+            return HitChance::Low;
+        }
     };
 
     // Classes

@@ -154,6 +154,7 @@ namespace Prediction
         bool dashing = this->program->IsDashing(target);
         const auto& data = this->program->GetPathData();
 
+        float intercept = output.Intercept;
         float timer = this->api->GetTime();
         float hitbox = this->api->GetHitbox(target);
         float speed = this->api->GetMoveSpeed(target);
@@ -219,8 +220,7 @@ namespace Prediction
         }
 
         // Hit is guaranteed if interception covers the escape window
-        float intercept = output.Intercept - immobility + mia_time;
-        if (intercept <= radius / speed)
+        if ((intercept -= immobility - mia_time) <= radius / speed)
         {
             output.CastRate = CastRate::Precise;
             output.HitChance = HitChance::Certain;

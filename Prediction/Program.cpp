@@ -208,7 +208,7 @@ namespace Prediction
         return timer - this->paths[id].Last().UpdateTime;
     }
 
-    float Program::GetWindupTime(const Obj_AI_Base& unit) const
+    float Program::GetWindupDuration(const Obj_AI_Base& unit) const
     {
         float timer = this->api->GetTime();
         uint32_t id = this->api->GetObjectId(unit);
@@ -239,6 +239,22 @@ namespace Prediction
         return data.StartTime + data.Delay - timer;
     }
 
+    float Program::GetDashDuration(const Obj_AI_Base& unit) const
+    {
+        uint32_t id = this->api->GetObjectId(unit);
+        if (this->paths.count(id) == 0) return 0.0f;
+        const PathData& data = this->paths[id].Last();
+        if (this->dashes.find(id) != this->dashes.end())
+        {
+            const DashData& data = this->dashes[id];
+            float end_time = data.StartTime + data.Delay;
+            if (data.IsBlink) end_time += data.Range / data.Speed;
+            return MAX(0.0f, end_time - this->api->GetTime());
+        }
+        return this->api->IsDashing(unit) && data.PathLength > 0 ?
+            data.PathLength / data.Waypoints.back().Speed : 0.0f;
+    }
+
     float Program::GetMeanAngleDiff(const Obj_AI_Base& unit) const
     {
         float angle = 0.0f;
@@ -251,20 +267,6 @@ namespace Prediction
             angle += Geometry::Angle(pa.Direction, pb.Direction);
         }
         return (size > 1) ? angle / (float)(size - 1) : 0.0f;
-    }
-
-    bool Program::IsBlinking(const Obj_AI_Base& unit) const
-    {
-        uint32_t id = this->api->GetObjectId(unit);
-        if (this->dashes.count(id) == 0) return false;
-        return this->dashes[id].IsBlink;
-    }
-
-    bool Program::IsDashing(const Obj_AI_Base& unit) const
-    {
-        uint32_t id = this->api->GetObjectId(unit);
-        if (this->dashes.count(id) > 0) return true;
-        return this->api->IsDashing(unit);
     }
 
     bool Program::IsCastingDash(const Obj_AI_Base& unit) const

@@ -28,14 +28,13 @@ namespace Prediction
             float GetCollisionBuffer() const;
             float GetMiaDuration(const Obj_AI_Base& unit) const;
             float GetPathChangeTime(const Obj_AI_Base& unit) const;
-            float GetWindupTime(const Obj_AI_Base& unit) const;
+            float GetWindupDuration(const Obj_AI_Base& unit) const;
             Path GetWaypoints(const Obj_AI_Base& unit) const;
 
             float GetBlinkDuration(const Obj_AI_Base& unit) const;
+            float GetDashDuration(const Obj_AI_Base& unit) const;
             float GetMeanAngleDiff(const Obj_AI_Base& unit) const;
             bool IsCastingDash(const Obj_AI_Base& unit) const;
-            bool IsBlinking(const Obj_AI_Base& unit) const;
-            bool IsDashing(const Obj_AI_Base& unit) const;
 
             template<typename T>
             T GetValue(const std::string& id) const;

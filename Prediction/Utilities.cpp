@@ -146,20 +146,20 @@ namespace Prediction
         const Vector& cast_pos = output.CastPosition;
         const Vector& pred_pos = output.TargetPosition;
         const Segment& last_path = output.Waypoints.back();
+        const auto& data = this->program->GetPathData();
 
         uint32_t target_id = this->api->GetObjectId(target);
         uint32_t hero_flag = (uint32_t)CollisionFlag::Heroes;
         uint32_t minion_flag = (uint32_t)CollisionFlag::Minions;
-        bool dashing = this->program->IsDashing(target);
-        const auto& data = this->program->GetPathData();
-        const auto& lt = data.at(target_id).Last();
+
+        float timer = this->api->GetTime();
+        float mia_time = this->program->GetMiaDuration(target);
+        float dash_time = this->program->GetDashDuration(target);
+        float path_time = this->program->GetPathChangeTime(target);
 
         float intercept = output.Intercept;
-        float timer = this->api->GetTime();
         float hitbox = this->api->GetHitbox(target);
         float speed = this->api->GetMoveSpeed(target);
-        float change = this->program->GetPathChangeTime(target);
-        float mia_time = this->program->GetMiaDuration(target);
         float radius = MAX(input.Radius, input.Width / 2.0f);
         radius += (input.AddHitbox ? hitbox : 0.0f);
 
@@ -169,7 +169,7 @@ namespace Prediction
             source = this->api->GetPosition(input.SourceObject);
         }
 
-        // Abort if target immunity exceeds the hit time
+        // Abort if target is immune at the time of impact
         if (this->GetImmunityTime(target) > output.TimeToHit)
         {
             output.HitChance = HitChance::Impossible;
@@ -202,14 +202,6 @@ namespace Prediction
             return;
         }
 
-        // Mid-dash collision before final landing ensures a hit
-        if (dashing && output.TargetPosition != last_path.EndPos)
-        {
-            output.CastRate = CastRate::Precise;
-            output.HitChance = HitChance::Dashing;
-            output.Confidence = 1.0f; return;
-        }
-
         // Return if the target remains immobile until impact
         float immobility = this->GetImmobilityTime(target);
         if (output.TimeToHit - immobility <= 0.0f)
@@ -219,8 +211,17 @@ namespace Prediction
             output.Confidence = 1.0f; return;
         }
 
+        // Hitting the target before dash completion ensures a hit
+        if (dash_time > 0 && output.TargetPosition != last_path.EndPos)
+        {
+            output.CastRate = CastRate::Precise;
+            output.HitChance = HitChance::Dashing;
+            output.Confidence = 1.0f; return;
+        }
+
         // Hit is guaranteed if interception covers the escape window
-        if ((intercept -= immobility - mia_time) <= radius / speed)
+        float pause_time = dash_time > 0 ? dash_time : immobility;
+        if ((intercept -= pause_time - mia_time) <= radius / speed)
         {
             output.CastRate = CastRate::Precise;
             output.HitChance = HitChance::Certain;
@@ -235,21 +236,22 @@ namespace Prediction
             output.Confidence = 0.99f; return;
         }
 
-        // Compute metrics and pass to neural network
+        // Compute metrics and pass to the model
+        const auto& lt = data.at(target_id).Last();
         float hit_ratio = radius / speed / intercept;
         float mean_angle = this->program->GetMeanAngleDiff(target);
-        float path_count = (float)(data.at(target_id).Count()) - 1.0f;
-        float path_length = lt.PathLength, react_time = lt.UpdateTime;
+        float path_count = (float)(data.at(target_id).Count() - 1);
+        float path_len = lt.PathLength, react_time = lt.UpdateTime;
         react_time = MAX(0.0f, 0.25f - (timer - react_time));
 
-        // The model estimates probability of spell hitting target
+        // Estimate spell hit probability (0.0% – 99.99%)
         output.Confidence = this->network->Predict({ hit_ratio,
-            mean_angle / M_PI_F, MIN(1.0f, path_length / 1000.0f),
+            mean_angle / M_PI_F, MIN(1.0f, path_len / 1000.0f),
             MIN(1.0f, path_count / 5.0f), react_time / 0.25f })[0];
         output.HitChance = output.GetHitChance(output.Confidence);
 
         // Set cast frequency based on path change time or high confidence
-        bool freq = change < 0.1f || output.HitChance > HitChance::High;
+        bool freq = path_time < 0.1f || output.HitChance > HitChance::High;
         output.CastRate = freq ? CastRate::Moderate : CastRate::Instant;
     }
 
@@ -264,15 +266,17 @@ namespace Prediction
         Vector source = input.SourcePosition;
         uint32_t hero_flag = (uint32_t)CollisionFlag::Heroes;
         uint32_t minion_flag = (uint32_t)CollisionFlag::Minions;
-        bool casting_dash = this->program->IsCastingDash(target);
-        bool blinking = this->program->IsBlinking(target);
-        bool dashing = this->program->IsDashing(target);
-        bool apply_offset = input.EdgeCast && !dashing;
 
-        float epsilon = EPSILON * 2.0f; // 0.02
+        const float epsilon = EPSILON * 2.0f; // 0.02
+        float mia_time = this->program->GetMiaDuration(target);
+        float dash_time = this->program->GetDashDuration(target);
+        float blink_time = this->program->GetBlinkDuration(target);
+        bool casting_dash = this->program->IsCastingDash(target);
+        bool apply_offset = input.EdgeCast && dash_time == 0.0f;
+        bool standing = path.size() == 1 && IsZero(path[0].Length);
+
         float hitbox = this->api->GetHitbox(target);
         float delay = input.Delay + this->GetTotalLatency();
-        float mia_time = this->program->GetMiaDuration(target);
         float radius = MAX(input.Radius, input.Width / 2.0f);
         float speed = path.back().Speed, boundary = 0.0f;
         radius += (input.AddHitbox ? hitbox : 0.0f);
@@ -288,7 +292,7 @@ namespace Prediction
             return length > start.DistanceSquared(pos) ? pos : start;
         };
 
-        // Set the skillshot boundary to calculate hit time precisely
+        // Set the spell boundary to calculate time of impact precisely
         if ((input.CollisionFlags & (hero_flag | minion_flag)) != 0)
         {
             boundary = radius;
@@ -300,14 +304,14 @@ namespace Prediction
             source = this->api->GetPosition(input.SourceObject);
         }
 
-        // Enable fog-of-war support
-        if (!casting_dash && mia_time > 0)
+        // Adjust path for time spent in fog of war
+        if (casting_dash == false && mia_time > 0.0f)
         {
             path = Geometry::CutPath(path, speed * mia_time);
         }
 
         // Target is either stationary or blinking
-        if (blinking || path.size() == 1 && IsZero(path[0].Length))
+        if (blink_time > 0.0f || standing)
         {
             const Vector& start = path.front().StartPos;
             const Vector& ending = path.front().EndPos;
@@ -323,9 +327,8 @@ namespace Prediction
                 output.CastPosition = source + direction * output.Distance;
                 output.TargetPosition = position.Clone();
 
-                if (!blinking || position == ending) return output;
-                float time = this->program->GetBlinkDuration(target);
-                if (output.TimeToHit < time) return output;
+                if (blink_time == 0.0f || position == ending ||
+                    output.TimeToHit < blink_time) return output;
             }
         }
 
@@ -346,7 +349,7 @@ namespace Prediction
         // Trim target's path by offset to boost hit chance
         path = Geometry::CutPath(path, speed * delay - offset);
 
-        // Calculate interception point for a skillshot to land accurately
+        // Calculate the interception point for spell to land accurately
         auto solution = Geometry::Interception(path, source, input.Speed);
         Vector intercept = fix_position(solution.second);
         float shift = solution.first + offset / speed;
@@ -400,8 +403,8 @@ namespace Prediction
         const auto& types = this->data->GetImmobilityTypes();
         float immobile_time = this->api->GetBuffTime(unit, types);
 
-        // Windup time (e.g., spell casting lock duration)
-        float windup_time = this->program->GetWindupTime(unit);
+        // Windup duration (e.g., spell casting lock duration)
+        float windup_time = this->program->GetWindupDuration(unit);
         return MAX(buff_time, MAX(immobile_time, windup_time));
     }
 

@@ -159,7 +159,7 @@ namespace Prediction
 
         float intercept = output.Intercept;
         float hitbox = this->api->GetHitbox(target);
-        float speed = this->api->GetMoveSpeed(target);
+        float speed = this->api->GetMovementSpeed(target);
         float radius = MAX(input.Radius, input.Width / 2.0f);
         radius += (input.AddHitbox ? hitbox : 0.0f);
 

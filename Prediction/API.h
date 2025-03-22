@@ -106,7 +106,7 @@ namespace Prediction
             Vector GetDashStartPos(const Obj_AI_Base& unit) const;
             Vector GetDirection(const Obj_AI_Base& unit) const;
             float GetHitbox(const Obj_AI_Base& unit) const;
-            float GetMoveSpeed(const Obj_AI_Base& unit) const;
+            float GetMovementSpeed(const Obj_AI_Base& unit) const;
             Linq<Vector> GetPath(const Obj_AI_Base& unit) const;
             float GetPathLength(const Linq<Vector>& path) const;
             float GetPathSpeed(const Obj_AI_Base& unit) const;

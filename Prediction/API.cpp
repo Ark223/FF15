@@ -414,7 +414,7 @@ namespace Prediction
         return unit->get_bounding_radius();
     }
 
-    float API::GetMoveSpeed(const Obj_AI_Base& unit) const
+    float API::GetMovementSpeed(const Obj_AI_Base& unit) const
     {
         return unit->get_character_intermediate()->get_movement_speed();
     }

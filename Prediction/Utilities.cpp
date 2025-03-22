@@ -150,9 +150,9 @@ namespace Prediction
         uint32_t target_id = this->api->GetObjectId(target);
         uint32_t hero_flag = (uint32_t)CollisionFlag::Heroes;
         uint32_t minion_flag = (uint32_t)CollisionFlag::Minions;
-        bool circle = input.SpellType == SpellType::Circular;
         bool dashing = this->program->IsDashing(target);
         const auto& data = this->program->GetPathData();
+        const auto& lt = data.at(target_id).Last();
 
         float intercept = output.Intercept;
         float timer = this->api->GetTime();
@@ -176,16 +176,16 @@ namespace Prediction
             return;
         }
 
-        // Check if target is out of range: perform edge-range check
-        if (output.Distance > input.Range + (circle ? radius : 0.0f))
+        // Check if target is out of range
+        if (output.Distance > input.Range)
         {
             output.HitChance = HitChance::OutOfRange;
             return;
         }
 
-        // Special case for linear missiles: perform center-range check
-        else if ((input.CollisionFlags & (hero_flag | minion_flag)) != 0 &&
-            source.DistanceSquared(pred_pos) > input.Range * input.Range)
+        // Perform a center-range check for non-circular spells
+        else if (source.DistanceSquared(pred_pos) > input.Range *
+            input.Range && input.SpellType != SpellType::Circular)
         {
             output.HitChance = HitChance::OutOfRange;
             return;
@@ -235,12 +235,11 @@ namespace Prediction
             output.Confidence = 0.99f; return;
         }
 
-        // Compute metrics and pass to the neural network
-        float hit_ratio = (radius / speed) / intercept;
+        // Compute metrics and pass to neural network
+        float hit_ratio = radius / speed / intercept;
         float mean_angle = this->program->GetMeanAngleDiff(target);
-        float path_length = data.at(target_id).Last().PathLength;
-        float path_count = (float)(data.at(target_id).Count() - 1);
-        float react_time = data.at(target_id).Last().UpdateTime;
+        float path_count = (float)(data.at(target_id).Count()) - 1.0f;
+        float path_length = lt.PathLength, react_time = lt.UpdateTime;
         react_time = MAX(0.0f, 0.25f - (timer - react_time));
 
         // The model estimates probability of spell hitting target
@@ -250,7 +249,7 @@ namespace Prediction
         output.HitChance = output.GetHitChance(output.Confidence);
 
         // Set cast frequency based on path change time or high confidence
-        bool freq = change < 0.05f || output.HitChance > HitChance::High;
+        bool freq = change < 0.1f || output.HitChance > HitChance::High;
         output.CastRate = freq ? CastRate::Moderate : CastRate::Instant;
     }
 

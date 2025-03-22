@@ -43,9 +43,10 @@ namespace Prediction
         Medium,
         High,
         VeryHigh,
+        Extreme,
         Certain,
         Dashing,
-        Immobile,
+        Immobile
     };
 
     enum class SpellType
@@ -146,8 +147,9 @@ namespace Prediction
 
         static Prediction::HitChance GetHitChance(double cf)
         {
+            if (cf >= 0.95) return HitChance::Extreme;
             if (cf >= 0.9) return HitChance::VeryHigh;
-            if (cf >= 0.75) return HitChance::High;
+            if (cf >= 0.8) return HitChance::High;
             if (cf >= 0.5) return HitChance::Medium;
             return HitChance::Low;
         }

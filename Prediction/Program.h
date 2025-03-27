@@ -3,6 +3,7 @@
 #define PROGRAM_H
 
 #include <algorithm>
+#include <sstream>
 #include "Data.h"
 #include "Config.h"
 #include "Network.h"
@@ -11,7 +12,7 @@ namespace Prediction
 {
     class Utilities;
 
-    const std::string PRED_VERSION = "2025.03.12.01";
+    const std::string PRED_VERSION = "2025.03.28.01";
 
     class Program
     {

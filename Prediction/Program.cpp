@@ -419,8 +419,8 @@ namespace Prediction
                 if (!this->api->CanUseSpell(spell_slot)) return;
                 
                 // Validate cast rate and hit chance thresholds before casting
-                CastRate rate = (CastRate)this->GetValue<int>("S|CastRate");
-                HitChance chance = (HitChance)this->GetValue<int>("S|HitChance");
+                auto rate = (CastRate)(this->GetValue<int>("S|CastRate") + 1);
+                auto chance = (HitChance)(this->GetValue<int>("S|HitChance") + 3);
                 if (output.CastRate < rate || output.HitChance < chance) return;
                 this->api->CastSpell(spell_slot, output.CastPosition, height);
             });

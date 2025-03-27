@@ -135,32 +135,23 @@ namespace Prediction
 
         // Simulation settings
         auto simulation = this->config->AddSubMenu(menu, "Simulation", "<< Simulation >>");
-
-        this->settings["S|Run"] = this->config->AddCheckbox(simulation, "S|Run", "Run Simulation", false);
-        this->settings["S|Cast"] = this->config->AddCheckbox(simulation, "S|Cast", "Cast Skillshot", false);
+        this->settings["S|Draw"] = this->config->AddCheckbox(simulation, "S|Draw", "Draw Positions", true);
         this->settings["S|Hitbox"] = this->config->AddCheckbox(simulation, "S|Hitbox", "Include Hitbox", true);
-        this->settings["S|Infinite"] = this->config->AddCheckbox(simulation, "S|Infinite", "Infinite Speed", false);
-        this->settings["S|Collision"] = this->config->AddCheckbox(simulation, "S|Collision", "Unit Collision", false);
-
+        this->settings["S|Collision"] = this->config->AddCheckbox(simulation, "S|Collision", "Unit Collision", true);
+        this->settings["S|Infinite"] = this->config->AddCheckbox(simulation, "S|Infinite", "Infinite Speed", true);
         this->settings["S|Delay"] = this->config->AddSlider(simulation, "S|Delay", "Delay", 250, 0, 1000, 25);
         this->settings["S|Range"] = this->config->AddSlider(simulation, "S|Range", "Range", 1200, 200, 2000, 25);
         this->settings["S|Speed"] = this->config->AddSlider(simulation, "S|Speed", "Speed", 2000, 600, 3000, 25);
         this->settings["S|Radius"] = this->config->AddSlider(simulation, "S|Radius", "Radius", 60, 20, 300, 5);
-        this->settings["S|Type"] = this->config->AddList(simulation, "S|Type", "Spell Type", { "Line", "Circle" }, 0);
-        this->settings["S|Slot"] = this->config->AddList(simulation, "S|Slot", "Spell Slot", { "Q", "W", "E", "R" }, 0);
-
-        std::vector<std::string> cast_rates = { "Instant", "Moderate", "Precise" };
-        std::vector<std::string> hit_chances = { "Low", "Normal", "High", "VeryHigh", "Extreme", "Guaranteed" };
-        this->settings["S|CastRate"] = this->config->AddList(simulation, "S|CastRate", "Cast Rate", cast_rates, 1);
-        this->settings["S|HitChance"] = this->config->AddList(simulation, "S|HitChance", "Hit Chance", hit_chances, 2);
+        this->settings["S|Type"] = this->config->AddList(simulation, "S|Type", "Type", { "Circle", "Line" }, 1);
 
         // Measurement settings
         auto measurement = this->config->AddSubMenu(menu, "Measurement", "<< Measurement >>");
-        this->settings["M|Draw"] = this->config->AddCheckbox(measurement, "M|Draw", "Draw Skillshot", false);
+        this->settings["M|Draw"] = this->config->AddCheckbox(measurement, "M|Draw", "Draw Skillshot", true);
         this->settings["M|Fixed"] = this->config->AddCheckbox(measurement, "M|Fixed", "Fixed Range", true);
         this->settings["M|Range"] = this->config->AddSlider(measurement, "M|Range", "Range", 1200, 200, 2000, 25);
         this->settings["M|Radius"] = this->config->AddSlider(measurement, "M|Radius", "Radius", 60, 20, 300, 5);
-        this->settings["M|Type"] = this->config->AddList(measurement, "M|Type", "Type", { "Line", "Circle" }, 0);
+        this->settings["M|Type"] = this->config->AddList(measurement, "M|Type", "Type", { "Circle", "Line" }, 1);
 
         // Version
         this->config->AddLabel(menu, "Creator", "Creator: Uncle Ark", true);
@@ -354,79 +345,9 @@ namespace Prediction
             Path waypoints = this->utils->GetWaypoints(unit);
             this->CleanUpHistory(this->paths[id], timer, 1.0f);
             this->UpdatePaths(unit, waypoints, false);
-
-            if (!this->GetValue<bool>("Waypoints")) return;
-            const auto& path = this->paths[id].Last().Waypoints;
-            this->utils->DrawPath(path, this->api->GetHeight(unit),
-                std::vector<uint32_t>{0xC0FFFFFF, 0x30FFFFFF}.data());
         });
 
-        // Simulation test for debug
-        if (this->GetValue<bool>("S|Run"))
-        {
-            PredictionInput input = PredictionInput();
-            bool collision = this->GetValue<bool>("S|Collision");
-            bool infinite = this->GetValue<bool>("S|Infinite");
-            int spell_type = this->GetValue<int>("S|Type");
-
-            input.SourceObject = this->my_hero;
-            input.AddHitbox = this->GetValue<bool>("S|Hitbox");
-            input.Delay = (float)this->GetValue<int>("S|Delay");
-            input.Range = (float)this->GetValue<int>("S|Range");
-            input.Speed = (float)this->GetValue<int>("S|Speed");
-            input.Radius = (float)this->GetValue<int>("S|Radius");
-
-            input.SpellType = (SpellType)(spell_type + 1);
-            input.Speed = infinite ? FLT_MAX : input.Speed;
-            input.CollisionFlags = collision ? 0xF : 0x0;
-            input.MaxCollisions = collision ? 1U : 0U;
-            input.Delay = input.Delay / 1000.0f;
-            
-            // Iterate over enemy heroes and display valid prediction details
-            this->api->GetEnemyHeroes(0, Vector(), false).ForEach([&](auto& unit)
-            {
-                input.TargetObject = unit;
-                PredictionOutput output = this->GetPrediction(input);
-                if (output.HitChance == HitChance::Impossible) return;
-
-                std::ostringstream oss;
-                oss << "Confidence: " << output.Confidence << "\n"
-                    << "TimeToHit: " << output.TimeToHit << "\n"
-                    << "Intercept: " << output.Intercept << "\n"
-                    << "Distance: " << output.Distance << "\n";
-                std::string text = oss.str();
-
-                const Vector& cast_pos = output.CastPosition;
-                const Vector& pred_pos = output.TargetPosition;
-                float height = this->api->GetHeight(unit);
-                float hitbox = this->api->GetHitbox(unit);
-                if (!input.AddHitbox) hitbox = 5.0f;
-
-                // Draw predicted target position and cast position
-                this->api->DrawCircle(pred_pos, 5.0f, height, 0xFF0096FF);
-                this->api->DrawCircle(cast_pos, 5.0f, height, 0xFFD4AF37);
-                this->api->DrawCircle(pred_pos, hitbox, height, 0xFF0096FF);
-                this->api->DrawCircle(cast_pos, input.Radius, height, 0xFFD4AF37);
-                
-                // Display remaining prediction output in a text format
-                Vector2 screen_pos = this->api->ToScreen(cast_pos, height);
-                screen_pos = Vector2(screen_pos.x, screen_pos.y + 30.0f);
-                this->api->DrawCenteredText(screen_pos, text.c_str(), 0xC0FFFFFF);
-
-                // Check if spell casting is enabled and ready
-                if (!this->GetValue<bool>("S|Cast")) return;
-                int spell_slot = this->GetValue<int>("S|Slot");
-                if (!this->api->CanUseSpell(spell_slot)) return;
-                
-                // Validate cast rate and hit chance thresholds before casting
-                CastRate rate = (CastRate)this->GetValue<int>("S|CastRate");
-                HitChance chance = (HitChance)this->GetValue<int>("S|HitChance");
-                if (output.CastRate < rate || output.HitChance < chance) return;
-                this->api->CastSpell(spell_slot, output.CastPosition, height);
-            });
-        }
-
-        // Skillshot measurement option
+        // Measurement option
         if (this->GetValue<bool>("M|Draw"))
         {
             bool fixed = this->GetValue<bool>("M|Fixed");
@@ -443,7 +364,7 @@ namespace Prediction
             Vector dest_pos = hero_pos + direction * distance;
             Vector perpend = direction.Perpendicular() * radius;
 
-            if (this->GetValue<int>("M|Type") == 0)
+            if (this->GetValue<int>("M|Type") == 1)
             {
                 // Draw a rectangle to simulate path for linear skillshot
                 std::vector<Vector> box = {dest_pos - perpend, dest_pos

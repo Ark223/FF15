@@ -97,25 +97,6 @@ namespace Prediction
         return this->m_api->get_riot_clock()->get_time();
     }
 
-    // Hero actions
-
-    bool API::CanUseSpell(int slot)
-    {
-        auto book = this->m_hero->get_spellbook();
-        return book->can_use_spell(slot) == SpellState::Ready;
-    }
-
-    void API::CastSpell(int slot, const Object& unit)
-    {
-        this->m_hero->get_spellbook()->cast_spell(slot, unit);
-    }
-
-    void API::CastSpell(int slot, const Vector& pos, float height)
-    {
-        Vector3 vec = this->To3D(pos, height);
-        this->m_hero->get_spellbook()->cast_spell(slot, vec);
-    }
-
     // Drawings
 
     void API::DrawCenteredText(const Vector2& pos, const char* text, uint32_t color)

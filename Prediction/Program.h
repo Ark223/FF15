@@ -3,7 +3,6 @@
 #define PROGRAM_H
 
 #include <algorithm>
-#include <sstream>
 #include "Data.h"
 #include "Config.h"
 #include "Network.h"

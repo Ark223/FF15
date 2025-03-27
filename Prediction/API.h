@@ -23,7 +23,6 @@ namespace Prediction
     using Obj_AI_Hero = AIHeroPlayer*;
     using Obj_AI_Minion = AIMinionCommon*;
     using PublicAPI = NS SurrenderAt15*;
-    using SpellState = SDK::Enums::SpellState;
     using Vector2 = SDK::Structs::Math::Vector2;
     using Vector3 = SDK::Structs::Math::Vector3;
 
@@ -58,10 +57,6 @@ namespace Prediction
             float GetLatency() const;
             float GetPing() const;
             float GetTime() const;
-
-            bool CanUseSpell(int slot);
-            void CastSpell(int slot, const Object& unit);
-            void CastSpell(int slot, const Vector& pos, float height);
 
             void DrawCenteredText(const Vector2& pos, const char* text, uint32_t color);
             void DrawCircle(const Vector& pos, float radius, float height, uint32_t color);

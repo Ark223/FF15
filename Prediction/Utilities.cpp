@@ -73,7 +73,6 @@ namespace Prediction
         Linq<CollisionData> results = Linq<CollisionData>();
         if (!destination.IsValid()) return results.ToArray();
         if (!input.CollisionFlags) return results.ToArray();
-        if (input.Speed > 1e+4) return results.ToArray();
 
         Vector source = input.SourcePosition;
         const float range = input.Range + 500.0f;
@@ -148,9 +147,11 @@ namespace Prediction
         const Vector& cast_pos = output.CastPosition;
         const Vector& pred_pos = output.TargetPosition;
         const Segment& last_path = output.Waypoints.back();
-
         const auto& data = this->program->GetPathData();
+
         uint32_t target_id = this->api->GetObjectId(target);
+        uint32_t hero_flag = (uint32_t)CollisionFlag::Heroes;
+        uint32_t minion_flag = (uint32_t)CollisionFlag::Minions;
 
         float timer = this->api->GetTime();
         float mia_time = this->program->GetMiaDuration(target);
@@ -266,12 +267,12 @@ namespace Prediction
         Vector source = input.SourcePosition;
         uint32_t hero_flag = (uint32_t)CollisionFlag::Heroes;
         uint32_t minion_flag = (uint32_t)CollisionFlag::Minions;
-        uint32_t mixed_flag = (uint32_t)(hero_flag | minion_flag);
 
         float mia_time = this->program->GetMiaDuration(target);
         float dash_time = this->program->GetDashDuration(target);
         float blink_time = this->program->GetBlinkDuration(target);
         bool casting_dash = this->program->IsCastingDash(target);
+        bool standing = path.size() == 1 && IsZero(path[0].Length);
 
         float hitbox = this->api->GetHitbox(target);
         float delay = input.Delay + this->GetTotalLatency();
@@ -290,14 +291,8 @@ namespace Prediction
             return length > start.DistanceSquared(pos) ? pos : start;
         };
 
-        // Stationary target has one waypoint with zero length
-        const auto is_standing = [&](const Path& path) -> bool
-        {
-            return path.size() == 1 && IsZero(path[0].Length);
-        };
-
         // Set the spell boundary to calculate time of impact precisely
-        if (input.Speed < 1e+4 && (input.CollisionFlags & mixed_flag) != 0)
+        if ((input.CollisionFlags & (hero_flag | minion_flag)) != 0)
         {
             boundary = radius;
         }
@@ -315,7 +310,7 @@ namespace Prediction
         }
 
         // Target is either stationary or blinking
-        if (blink_time > 0.0f || is_standing(path))
+        if (blink_time > 0.0f || standing)
         {
             const Vector& start = path.front().StartPos;
             const Vector& ending = path.front().EndPos;

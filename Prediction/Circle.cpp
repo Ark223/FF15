@@ -17,7 +17,7 @@ namespace Prediction
     {
         points.Remove(points.MaxBy<float>([&](const Vector& point)
         {
-            return point.DistanceSquared(circle.second);
+            return circle.second.DistanceSquared(point);
         }));
     }
 

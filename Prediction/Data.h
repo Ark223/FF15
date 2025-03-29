@@ -74,6 +74,7 @@ namespace Prediction
         float Range = 0.0f;
         float Offset = 0.0f;
         float Speed = 0.0f;
+        float ExtraTime = 0.0f;
         float StartTime = 0.0f;
         bool FixedRange = false;
         bool IsBlink = false;

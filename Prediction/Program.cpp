@@ -110,7 +110,7 @@ namespace Prediction
            -1.110289,    2.3377445,   2.079283,   -3.154874,   -0.2554172
         });
 
-        // Initialize a path history for each enemy (used in hit chance calcs)
+        // Initialize a path history for each enemy (used for hit chance)
         this->api->GetEnemyHeroes(0, Vector(), false).ForEach([&](auto& unit)
         {
             this->UpdatePaths(unit, this->utils->GetWaypoints(unit), false);
@@ -130,7 +130,7 @@ namespace Prediction
 
         // Core settings
         auto core = this->config->AddSubMenu(menu, "Core", "<< Core >>");
-        this->settings["Waypoints"] = this->config->AddCheckbox(core, "Waypoints", "Draw Waypoints", true);
+        this->settings["Draw"] = this->config->AddCheckbox(core, "Draw", "Draw Waypoints", true);
         this->settings["Buffer"] = this->config->AddSlider(core, "Buffer", "Collision Buffer", 20, 0, 50, 5);
 
         // Simulation settings
@@ -140,7 +140,7 @@ namespace Prediction
         this->settings["S|Cast"] = this->config->AddCheckbox(simulation, "S|Cast", "Cast Skillshot", false);
         this->settings["S|Hitbox"] = this->config->AddCheckbox(simulation, "S|Hitbox", "Include Hitbox", true);
         this->settings["S|Infinite"] = this->config->AddCheckbox(simulation, "S|Infinite", "Infinite Speed", false);
-        this->settings["S|Collision"] = this->config->AddCheckbox(simulation, "S|Collision", "Unit Collision", false);
+        this->settings["S|Collision"] = this->config->AddCheckbox(simulation, "S|Collision", "Unit Collision", true);
 
         this->settings["S|Delay"] = this->config->AddSlider(simulation, "S|Delay", "Delay", 250, 0, 1000, 25);
         this->settings["S|Range"] = this->config->AddSlider(simulation, "S|Range", "Range", 1200, 200, 2000, 25);
@@ -239,12 +239,16 @@ namespace Prediction
 
     bool Program::IsBlinking(const Obj_AI_Base& unit) const
     {
-        return this->GetBlinkDuration(unit) > 0.0f;
+        uint32_t id = this->api->GetObjectId(unit);
+        if (this->dashes.count(id) == 0) return false;
+        return this->dashes[id].IsBlink;
     }
 
     bool Program::IsDashing(const Obj_AI_Base& unit) const
     {
-        return this->GetDashDuration(unit) > 0.0f;
+        uint32_t id = this->api->GetObjectId(unit);
+        if (this->dashes.count(id) > 0) return true;
+        return this->api->IsDashing(unit);
     }
 
     // Public core methods
@@ -321,44 +325,55 @@ namespace Prediction
     void Program::OnDraw()
     {
         float timer = this->api->GetTime();
-        float height = this->api->GetHeight(this->my_hero);
         Vector hero_pos = this->api->GetPosition(this->my_hero);
+        auto colors = std::vector<uint32_t>{0xC0FFFFFF, 0x30FFFFFF};
+        float height = this->api->GetHeight(hero_pos);
 
-        // Update target's waypoints for dash spells and handle blinks
+        // Process each enemy to update paths for dash spells and blinks
         for (auto it = this->dashes.begin(); it != this->dashes.end(); )
         {
             DashData& data = it->second;
             if (!data.IsBlink)
             {
+                float fly_time = data.Range / data.Speed;
                 float length = data.Speed * (timer - data.StartTime);
                 data.Waypoints = Geometry::CutPath(data.TotalPath, length);
-                bool should_erase = (data.Waypoints[0].Length == 0.0f);
+
+                float total_time = fly_time + data.Delay + data.ExtraTime;
+                bool should_erase = (timer - data.StartTime > total_time);
                 it = should_erase ? this->dashes.erase(it) : std::next(it);
             }
             else
             {
-                bool should_erase = (timer - data.StartTime > data.Delay);
+                float total_time = data.Delay + data.ExtraTime;
+                bool should_erase = (timer - data.StartTime > total_time);
                 it = should_erase ? this->dashes.erase(it) : std::next(it);
             }
         }
 
-        // Update each enemy's path if visible; if not, mark the loss of vision
+        // Process each enemy to update and render standard movement paths
         this->api->GetEnemyHeroes(0, Vector(), false).ForEach([&](auto& unit)
         {
+            // Remove old entries from path history
             uint32_t id = this->api->GetObjectId(unit);
+            this->CleanUpHistory(this->paths[id], timer, 1.0f);
+
             if (!this->api->IsVisible(unit))
             {
+                // Mark the time when unit was last seen visible
                 PathData& last = this->paths[id].ToArray().back();
-                if (last.MiaTime < 0) last.MiaTime = timer; return;
+                if (last.MiaTime < 0) last.MiaTime = timer;
             }
-            Path waypoints = this->utils->GetWaypoints(unit);
-            this->CleanUpHistory(this->paths[id], timer, 1.0f);
-            this->UpdatePaths(unit, waypoints, false);
+            else
+            {
+                // If visible, update paths with current waypoints
+                Path waypoints = this->utils->GetWaypoints(unit);
+                this->UpdatePaths(unit, waypoints, false);
+            }
 
-            if (!this->GetValue<bool>("Waypoints")) return;
-            const auto& path = this->paths[id].Last().Waypoints;
-            this->utils->DrawPath(path, this->api->GetHeight(unit),
-                std::vector<uint32_t>{0xC0FFFFFF, 0x30FFFFFF}.data());
+            if (!this->GetValue<bool>("Draw")) return;
+            const Path& path = this->GetWaypoints(unit);
+            this->utils->DrawPath(path, height, colors.data());
         });
 
         // Simulation test for debug
@@ -398,7 +413,6 @@ namespace Prediction
 
                 const Vector& cast_pos = output.CastPosition;
                 const Vector& pred_pos = output.TargetPosition;
-                float height = this->api->GetHeight(unit);
                 float hitbox = this->api->GetHitbox(unit);
                 if (!input.AddHitbox) hitbox = 5.0f;
 
@@ -417,7 +431,7 @@ namespace Prediction
                 if (!this->GetValue<bool>("S|Cast")) return;
                 int spell_slot = this->GetValue<int>("S|Slot");
                 if (!this->api->CanUseSpell(spell_slot)) return;
-                
+
                 // Validate cast rate and hit chance thresholds before casting
                 auto rate = (CastRate)(this->GetValue<int>("S|CastRate") + 1);
                 auto chance = (HitChance)(this->GetValue<int>("S|HitChance") + 3);
@@ -460,9 +474,13 @@ namespace Prediction
 
     void Program::OnNewPath(const Obj_AI_Base& unit, Linq<Vector> path, float speed)
     {
+        float threshold = 50.0f;
         Path waypoints = Path();
         if (path.Count() <= 1)
         {
+            uint32_t id = this->api->GetObjectId(unit);
+            const auto& last = this->paths[id].Last();
+            if (last.PathLength <= threshold) return;
             Vector position = this->api->GetPosition(unit);
             waypoints.push_back(Segment(position, speed));
         }
@@ -478,8 +496,6 @@ namespace Prediction
     void Program::OnProcessSpell(const Obj_AI_Base& unit, const std::string& spell_name,
         const Vector& start_pos, const Vector& end_pos, const float cast_delay)
     {
-        if (!this->api->IsHero(unit)) return;
-        if (!this->api->IsEnemy(unit)) return;
         uint32_t id = this->api->GetObjectId(unit);
         float timer = this->api->GetTime();
 
@@ -506,7 +522,7 @@ namespace Prediction
 
         auto path = {Segment(start, ending, data.Speed)};
         data.TotalPath = path; data.Waypoints = path;
-        data.StartTime = timer;
+        data.StartTime = timer; data.ExtraTime = 0.1f;
 
         // Track the dash for target
         this->dashes[id] = data;
@@ -514,6 +530,8 @@ namespace Prediction
 
     void Program::OnNewPathInternal(const Obj_AI_Base& unit, std::vector<Vector3>& paths)
     {
+        if (!this->api->IsHero(unit)) return;
+        if (!this->api->IsEnemy(unit)) return;
         float speed = this->api->GetPathSpeed(unit);
         auto converter = [&](const auto& p) { return this->api->ToVector(p); };
         this->OnNewPath(unit, Linq(paths).Select<Vector>(converter), speed);
@@ -521,6 +539,8 @@ namespace Prediction
 
     void Program::OnProcessSpellInternal(const Obj_AI_Base& unit, const CastInfo& info)
     {
+        if (!this->api->IsHero(unit)) return;
+        if (!this->api->IsEnemy(unit)) return;
         auto name = this->api->GetSpellCastName(info);
         Vector end_pos = this->api->GetSpellCastEndPos(info);
         Vector start_pos = this->api->GetSpellCastStartPos(info);

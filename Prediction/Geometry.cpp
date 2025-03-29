@@ -55,8 +55,12 @@ namespace Prediction
             remaining -= path[index].Length;
         }
 
-        // Return last point if remainer exceeds path length
-        if (index == path.size()) return { path.back() };
+        // Return last point if cut exceeds path length
+        if (index == path.size() || remaining < 0.0f)
+        {
+            const Segment& last = path.back();
+            return { Segment(last.EndPos, last.Speed) };
+        }
 
         // Interpolate new starting point on current segment
         result.push_back(update(path[index], remaining));

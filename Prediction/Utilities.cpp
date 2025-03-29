@@ -267,27 +267,31 @@ namespace Prediction
         uint32_t hero_flag = (uint32_t)CollisionFlag::Heroes;
         uint32_t minion_flag = (uint32_t)CollisionFlag::Minions;
         uint32_t mixed_flag = (uint32_t)(hero_flag | minion_flag);
+        uint32_t target_id = this->api->GetObjectId(target);
 
+        const auto& data = this->program->GetActiveDashes();
         float mia_time = this->program->GetMiaDuration(target);
-        float dash_time = this->program->GetDashDuration(target);
-        float blink_time = this->program->GetBlinkDuration(target);
         bool casting_dash = this->program->IsCastingDash(target);
+        bool is_blinking = this->program->IsBlinking(target);
+        bool is_dashing = this->program->IsDashing(target);
 
         float hitbox = this->api->GetHitbox(target);
         float delay = input.Delay + this->GetTotalLatency();
         float radius = MAX(input.Radius, input.Width / 2.0f);
         radius = MAX(1.0f, radius + hitbox * input.AddHitbox);
-        float offset = dash_time == 0.0f ? radius : 0.0f;
         float speed = path.back().Speed, boundary = 0.0f;
+        float offset = !is_dashing ? radius : 0.0f;
 
         // Dash waypoints are extended backwards if windup is active
         // Use a starting point in case position does not lie on path
         const auto fix_position = [&](const Vector& pos) -> Vector
         {
             if (casting_dash == false) return pos;
-            const Vector& start = path.front().StartPos;
-            float length = start.DistanceSquared(path.back().EndPos);
-            return length > start.DistanceSquared(pos) ? pos : start;
+            const DashData& dash = data.at(target_id);
+            const Segment& path = dash.TotalPath.front();
+            float length = pos.DistanceSquared(path.EndPos);
+            Vector start = path.EndPos - path.Direction * dash.Range;
+            return length <= dash.Range * dash.Range ? pos : start;
         };
 
         // Stationary target has one waypoint with zero length
@@ -315,7 +319,7 @@ namespace Prediction
         }
 
         // Target is either stationary or blinking
-        if (blink_time > 0.0f || is_standing(path))
+        if (is_blinking || is_standing(path))
         {
             const Vector& start = path.front().StartPos;
             const Vector& ending = path.front().EndPos;
@@ -331,8 +335,9 @@ namespace Prediction
                 output.CastPosition = source + direction * output.Distance;
                 output.TargetPosition = position.Clone();
 
-                if (blink_time == 0.0f || position == ending ||
-                    output.TimeToHit < blink_time) return output;
+                if (!is_blinking || position == ending) return output;
+                float time = this->program->GetBlinkDuration(target);
+                if (output.TimeToHit < time) return output;
             }
         }
 

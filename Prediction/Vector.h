@@ -41,7 +41,7 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
-namespace Prediction
+namespace IPrediction
 {
     constexpr float EPSILON = 1e-2f;
 
@@ -113,9 +113,9 @@ namespace Prediction
 namespace std
 {
     template <>
-    struct hash<Prediction::Vector>
+    struct hash<IPrediction::Vector>
     {
-        size_t operator()(const Prediction::Vector& v) const
+        size_t operator()(const IPrediction::Vector& v) const
         {
             return hash<float>()(v.x) ^ (hash<float>()(v.y) << 1);
         }

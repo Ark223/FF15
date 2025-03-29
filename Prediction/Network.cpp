@@ -1,7 +1,7 @@
 
 #include "Network.h"
 
-namespace Prediction
+namespace IPrediction
 {
     Network* Network::m_instance = nullptr;
 

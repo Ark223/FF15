@@ -2,7 +2,7 @@
 #include "Program.h"
 #include "Utilities.h"
 
-namespace Prediction
+namespace IPrediction
 {
     Program* Program::m_instance = nullptr;
 
@@ -133,26 +133,26 @@ namespace Prediction
         this->settings["Draw"] = this->config->AddCheckbox(core, "Draw", "Draw Waypoints", true);
         this->settings["Buffer"] = this->config->AddSlider(core, "Buffer", "Collision Buffer", 20, 0, 50, 5);
 
-        // Simulation settings
-        auto simulation = this->config->AddSubMenu(menu, "Simulation", "<< Simulation >>");
+        // Live Demo settings
+        auto demo = this->config->AddSubMenu(menu, "Demo", "<< Live Demo >>");
 
-        this->settings["S|Run"] = this->config->AddCheckbox(simulation, "S|Run", "Run Simulation", false);
-        this->settings["S|Cast"] = this->config->AddCheckbox(simulation, "S|Cast", "Cast Skillshot", false);
-        this->settings["S|Hitbox"] = this->config->AddCheckbox(simulation, "S|Hitbox", "Include Hitbox", true);
-        this->settings["S|Infinite"] = this->config->AddCheckbox(simulation, "S|Infinite", "Infinite Speed", false);
-        this->settings["S|Collision"] = this->config->AddCheckbox(simulation, "S|Collision", "Unit Collision", true);
+        this->settings["D|Run"] = this->config->AddCheckbox(demo, "D|Run", "Run Live Demo", false);
+        this->settings["D|Cast"] = this->config->AddCheckbox(demo, "D|Cast", "Cast Skillshot", false);
+        this->settings["D|Hitbox"] = this->config->AddCheckbox(demo, "D|Hitbox", "Include Hitbox", true);
+        this->settings["D|Infinite"] = this->config->AddCheckbox(demo, "D|Infinite", "Infinite Speed", false);
+        this->settings["D|Collision"] = this->config->AddCheckbox(demo, "D|Collision", "Unit Collision", true);
 
-        this->settings["S|Delay"] = this->config->AddSlider(simulation, "S|Delay", "Delay", 250, 0, 1000, 25);
-        this->settings["S|Range"] = this->config->AddSlider(simulation, "S|Range", "Range", 1200, 200, 2000, 25);
-        this->settings["S|Speed"] = this->config->AddSlider(simulation, "S|Speed", "Speed", 2000, 600, 3000, 25);
-        this->settings["S|Radius"] = this->config->AddSlider(simulation, "S|Radius", "Radius", 60, 20, 300, 5);
-        this->settings["S|Type"] = this->config->AddList(simulation, "S|Type", "Spell Type", { "Line", "Circle" }, 0);
-        this->settings["S|Slot"] = this->config->AddList(simulation, "S|Slot", "Spell Slot", { "Q", "W", "E", "R" }, 0);
+        this->settings["D|Delay"] = this->config->AddSlider(demo, "D|Delay", "Delay", 250, 0, 1000, 25);
+        this->settings["D|Range"] = this->config->AddSlider(demo, "D|Range", "Range", 1200, 200, 2000, 25);
+        this->settings["D|Speed"] = this->config->AddSlider(demo, "D|Speed", "Speed", 2000, 600, 3000, 25);
+        this->settings["D|Radius"] = this->config->AddSlider(demo, "D|Radius", "Radius", 60, 20, 300, 5);
+        this->settings["D|Type"] = this->config->AddList(demo, "D|Type", "Spell Type", { "Line", "Circle" }, 0);
+        this->settings["D|Slot"] = this->config->AddList(demo, "D|Slot", "Spell Slot", { "Q", "W", "E", "R" }, 0);
 
         std::vector<std::string> cast_rates = { "Instant", "Moderate", "Precise" };
         std::vector<std::string> hit_chances = { "Low", "Normal", "High", "VeryHigh", "Extreme", "Guaranteed" };
-        this->settings["S|CastRate"] = this->config->AddList(simulation, "S|CastRate", "Cast Rate", cast_rates, 1);
-        this->settings["S|HitChance"] = this->config->AddList(simulation, "S|HitChance", "Hit Chance", hit_chances, 2);
+        this->settings["D|CastRate"] = this->config->AddList(demo, "D|CastRate", "Cast Rate", cast_rates, 1);
+        this->settings["D|HitChance"] = this->config->AddList(demo, "D|HitChance", "Hit Chance", hit_chances, 2);
 
         // Measurement settings
         auto measurement = this->config->AddSubMenu(menu, "Measurement", "<< Measurement >>");
@@ -377,20 +377,20 @@ namespace Prediction
         });
 
         // Simulation test for debug
-        if (this->GetValue<bool>("S|Run"))
+        if (this->GetValue<bool>("D|Run"))
         {
             PredictionInput input = PredictionInput();
-            bool collision = this->GetValue<bool>("S|Collision");
-            bool infinite = this->GetValue<bool>("S|Infinite");
-            int spell_type = this->GetValue<int>("S|Type");
+            bool collision = this->GetValue<bool>("D|Collision");
+            bool infinite = this->GetValue<bool>("D|Infinite");
+            int spell_type = this->GetValue<int>("D|Type");
+
+            input.AddHitbox = this->GetValue<bool>("D|Hitbox");
+            input.Delay = (float)this->GetValue<int>("D|Delay");
+            input.Range = (float)this->GetValue<int>("D|Range");
+            input.Speed = (float)this->GetValue<int>("D|Speed");
+            input.Radius = (float)this->GetValue<int>("D|Radius");
 
             input.SourceObject = this->my_hero;
-            input.AddHitbox = this->GetValue<bool>("S|Hitbox");
-            input.Delay = (float)this->GetValue<int>("S|Delay");
-            input.Range = (float)this->GetValue<int>("S|Range");
-            input.Speed = (float)this->GetValue<int>("S|Speed");
-            input.Radius = (float)this->GetValue<int>("S|Radius");
-
             input.SpellType = (SpellType)(spell_type + 1);
             input.Speed = infinite ? FLT_MAX : input.Speed;
             input.CollisionFlags = collision ? 0xF : 0x0;
@@ -428,13 +428,13 @@ namespace Prediction
                 this->api->DrawCenteredText(screen_pos, text.c_str(), 0xC0FFFFFF);
 
                 // Check if spell casting is enabled and ready
-                if (!this->GetValue<bool>("S|Cast")) return;
-                int spell_slot = this->GetValue<int>("S|Slot");
+                if (!this->GetValue<bool>("D|Cast")) return;
+                int spell_slot = this->GetValue<int>("D|Slot");
                 if (!this->api->CanUseSpell(spell_slot)) return;
 
                 // Validate cast rate and hit chance thresholds before casting
-                auto rate = (CastRate)(this->GetValue<int>("S|CastRate") + 1);
-                auto chance = (HitChance)(this->GetValue<int>("S|HitChance") + 3);
+                auto rate = (CastRate)(this->GetValue<int>("D|CastRate") + 1);
+                auto chance = (HitChance)(this->GetValue<int>("D|HitChance") + 3);
                 if (output.CastRate < rate || output.HitChance < chance) return;
                 this->api->CastSpell(spell_slot, output.CastPosition, height);
             });

@@ -1,7 +1,7 @@
 
 #include "Linq.h"
 
-namespace Prediction
+namespace IPrediction
 {
     template<typename T>
     Linq<T>::Linq(std::initializer_list<T> input) : data(input) {}

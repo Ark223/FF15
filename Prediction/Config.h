@@ -4,7 +4,7 @@
 
 #include "API/public_menu_api.h"
 
-namespace Prediction
+namespace IPrediction
 {
     using MenuItem = Menu::AMenu*;
     using PublicAPI = NS SurrenderAt15*;

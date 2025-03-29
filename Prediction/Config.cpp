@@ -1,7 +1,7 @@
 
 #include "Config.h"
 
-namespace Prediction
+namespace IPrediction
 {
     Config* Config::m_instance = nullptr;
 

@@ -1,7 +1,7 @@
 
 #include "Geometry.h"
 
-namespace Prediction
+namespace IPrediction
 {
     float Geometry::Angle(const Vector& v1, const Vector& v2)
     {

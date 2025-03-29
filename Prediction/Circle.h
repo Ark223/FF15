@@ -4,7 +4,7 @@
 
 #include "Data.h"
 
-namespace Prediction
+namespace IPrediction
 {
     class Circle : public IAoeSpell
     {

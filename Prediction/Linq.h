@@ -6,7 +6,7 @@
 #include <regex>
 #include <vector>
 
-namespace Prediction
+namespace IPrediction
 {
     template<typename T>
     class Linq

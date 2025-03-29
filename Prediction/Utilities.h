@@ -5,7 +5,7 @@
 #include "Geometry.h"
 #include "Program.h"
 
-namespace Prediction
+namespace IPrediction
 {
     class Program;
 

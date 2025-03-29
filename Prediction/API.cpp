@@ -1,7 +1,7 @@
 
 #include "API.h"
 
-namespace Prediction
+namespace IPrediction
 {
     API* API::m_instance = nullptr;
 

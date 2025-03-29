@@ -5,7 +5,7 @@
 #include <cmath>
 #include <vector>
 
-namespace Prediction
+namespace IPrediction
 {
     class IActivation
     {

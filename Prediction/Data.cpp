@@ -1,7 +1,7 @@
 
 #include "Data.h"
 
-namespace Prediction
+namespace IPrediction
 {
     Data* Data::m_instance = nullptr;
 
@@ -68,7 +68,7 @@ namespace Prediction
             this->dashes[data.SpellName] = data;
         };
 
-        #pragma region Akali E
+        // Akali E
 
         DashData data;
         data.SpellName = "AkaliE";
@@ -79,7 +79,7 @@ namespace Prediction
         data.FixedRange = true;
         add_to_table(data);
 
-        #pragma region Aurora E
+        // Aurora E
 
         data = DashData();
         data.SpellName = "AuroraE";
@@ -90,7 +90,7 @@ namespace Prediction
         data.FixedRange = true;
         add_to_table(data);
 
-        #pragma region Caitlyn E
+        // Caitlyn E
 
         data = DashData();
         data.SpellName = "CaitlynE";
@@ -101,7 +101,7 @@ namespace Prediction
         data.FixedRange = true;
         add_to_table(data);
 
-        #pragma region Ezreal E
+        // Ezreal E
 
         data = DashData();
         data.SpellName = "EzrealE";
@@ -110,7 +110,7 @@ namespace Prediction
         data.IsBlink = true;
         add_to_table(data);
 
-        #pragma region FiddleSticks R
+        // FiddleSticks R
 
         data = DashData();
         data.SpellName = "FiddleSticksR";
@@ -119,7 +119,7 @@ namespace Prediction
         data.IsBlink = true;
         add_to_table(data);
 
-        #pragma region Graves R
+        // Graves R
 
         data = DashData();
         data.SpellName = "GravesChargeShot";
@@ -130,7 +130,7 @@ namespace Prediction
         data.FixedRange = true;
         add_to_table(data);
 
-        #pragma region Kassadin R
+        // Kassadin R
 
         data = DashData();
         data.SpellName = "Riftwalk";
@@ -139,7 +139,7 @@ namespace Prediction
         data.IsBlink = true;
         add_to_table(data);
 
-        #pragma region Ornn E
+        // Ornn E
 
         data = DashData();
         data.SpellName = "OrnnE";
@@ -149,7 +149,7 @@ namespace Prediction
         data.FixedRange = true;
         add_to_table(data);
 
-        #pragma region Pyke R
+        // Pyke R
 
         data = DashData();
         data.SpellName = "PykeR";
@@ -158,7 +158,7 @@ namespace Prediction
         data.IsBlink = true;
         add_to_table(data);
 
-        #pragma region Shaco Q
+        // Shaco Q
 
         data = DashData();
         data.SpellName = "Deceive";
@@ -167,7 +167,7 @@ namespace Prediction
         data.IsBlink = true;
         add_to_table(data);
 
-        #pragma region Shyvana R
+        // Shyvana R
 
         data = DashData();
         data.SpellName = "ShyvanaTransformCast";
@@ -176,7 +176,7 @@ namespace Prediction
         data.Speed = 1100.0f;
         add_to_table(data);
 
-        #pragma region TahmKench W
+        // TahmKench W
 
         data = DashData();
         data.SpellName = "TahmKenchW";
@@ -185,7 +185,7 @@ namespace Prediction
         data.IsBlink = true;
         add_to_table(data);
 
-        #pragma region Tristana W
+        // Tristana W
 
         data = DashData();
         data.SpellName = "TristanaW";
@@ -194,7 +194,7 @@ namespace Prediction
         data.Speed = 1100.0f;
         add_to_table(data);
 
-        #pragma region TwistedFate R
+        // TwistedFate R
 
         data = DashData();
         data.SpellName = "Gate";
@@ -203,7 +203,7 @@ namespace Prediction
         data.IsBlink = true;
         add_to_table(data);
 
-        #pragma region Urgot E
+        // Urgot E
 
         data = DashData();
         data.SpellName = "UrgotE";
@@ -213,7 +213,7 @@ namespace Prediction
         data.FixedRange = true;
         add_to_table(data);
 
-        #pragma region Viego R
+        // Viego R
 
         data = DashData();
         data.SpellName = "ViegoR";

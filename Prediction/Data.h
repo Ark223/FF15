@@ -5,7 +5,7 @@
 #include "API.h"
 #include "Geometry.h"
 
-namespace Prediction
+namespace IPrediction
 {
     struct CollisionData;
     struct DashData;
@@ -143,7 +143,7 @@ namespace Prediction
         float TimeToHit = 0.0f;
         float Distance = 0.0f;
 
-        static Prediction::HitChance GetHitChance(double cf)
+        static IPrediction::HitChance GetHitChance(double cf)
         {
             if (cf >= 0.95) return HitChance::Extreme;
             if (cf >= 0.9) return HitChance::VeryHigh;

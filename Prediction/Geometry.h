@@ -6,7 +6,7 @@
 #include <vector>
 #include "Vector.h"
 
-namespace Prediction
+namespace IPrediction
 {
     struct Segment;
 

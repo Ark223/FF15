@@ -1,7 +1,7 @@
 
 #include "Utilities.h"
 
-namespace Prediction
+namespace IPrediction
 {
     Utilities* Utilities::m_instance = nullptr;
 

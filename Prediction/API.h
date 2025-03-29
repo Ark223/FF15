@@ -11,7 +11,7 @@
 #include "Linq.cpp"
 #include "Vector.h"
 
-namespace Prediction
+namespace IPrediction
 {
     using Buff = BuffInstance*;
     using BuffType = SDK::Enums::BuffType;

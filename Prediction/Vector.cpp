@@ -1,7 +1,7 @@
 
 #include "Vector.h"
 
-namespace Prediction
+namespace IPrediction
 {
     bool Vector::operator==(const Vector& v) const
     {

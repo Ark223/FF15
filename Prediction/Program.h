@@ -8,11 +8,11 @@
 #include "Config.h"
 #include "Network.h"
 
-namespace Prediction
+namespace IPrediction
 {
     class Utilities;
 
-    const std::string PRED_VERSION = "2025.03.29.01";
+    const std::string PRED_VERSION = "2025.03.29.02";
 
     class Program
     {

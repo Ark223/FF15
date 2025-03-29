@@ -1,7 +1,7 @@
 
 #include "Circle.h"
 
-namespace Prediction
+namespace IPrediction
 {
     // Helper methods
 

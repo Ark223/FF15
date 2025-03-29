@@ -630,12 +630,13 @@ namespace Evade
 
     bool Utilities::ShouldEvade(Linq<Skillshot*>& skillshots, Solution& solution, bool any_dynamic) const
     {
-        // There is no solution available, return
+        // Return if no available solution
         if (!solution.IsValid) return false;
 
         // Constantly recalculate path against dynamic skillshots
         if (any_dynamic) return this->program->RecalculatePath(0.25f);
 
+        bool valid = solution.Destination.IsValid();
         CollectionType type = CollectionType::DANGEROUS;
         auto& dangerous = this->program->GetSkillshots(type);
         const Vector& position = this->program->GetHeroPos();
@@ -647,10 +648,10 @@ namespace Evade
         // Calculate time required for any skillshot to hit
         float time = skillshots.Min([&](Skillshot* skillshot)
         {
-            if (!skillshot->PathIntersection({ position,
-                solution.Destination }).Any()) return 10.0f;
-            if (!dangerous.Contains(skillshot)) return 0.0f;
-            return skillshot->TimeToHit(position, true);
+            bool inside = dangerous.Contains(skillshot);
+            if (inside) return skillshot->TimeToHit(position, true);
+            return (valid && !skillshot->PathIntersection({ position,
+                solution.Destination }).Any()) ? FLT_MAX : 0.0f;
         });
 
         // Delay pathfinding if evasion is not needed yet

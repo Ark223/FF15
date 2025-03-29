@@ -431,6 +431,7 @@ namespace IPrediction
                 if (!this->GetValue<bool>("D|Cast")) return;
                 int spell_slot = this->GetValue<int>("D|Slot");
                 if (!this->api->CanUseSpell(spell_slot)) return;
+                if (this->GetMiaDuration(unit) > 0.25f) return;
 
                 // Validate cast rate and hit chance thresholds before casting
                 auto rate = (CastRate)(this->GetValue<int>("D|CastRate") + 1);

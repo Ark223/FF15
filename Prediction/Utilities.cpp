@@ -143,6 +143,7 @@ namespace IPrediction
         const Obj_AI_Base& target = input.TargetObject;
         if (!output.TargetPosition.IsValid()) return;
         if (!this->ShouldCast(target)) return;
+        if (this->api->IsDead(target)) return;
 
         Vector source = input.SourcePosition;
         const Vector& cast_pos = output.CastPosition;

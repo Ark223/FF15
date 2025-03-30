@@ -87,9 +87,9 @@ namespace IPrediction
             Linq<Obj_AI_Base> GetAllyHeroes(float range, const Vector& pos, bool valid = true) const;
             Linq<Obj_AI_Base> GetEnemyHeroes(float range, const Vector& pos, bool valid = true) const;
             Linq<Obj_AI_Base> GetHeroes(float range, const Vector& pos, bool valid = true) const;
-            Linq<Obj_AI_Base> GetAllyMinions(float range, const Vector& pos) const;
-            Linq<Obj_AI_Base> GetEnemyMinions(float range, const Vector& pos) const;
-            Linq<Obj_AI_Base> GetMinions(float range, const Vector& pos) const;
+            Linq<Obj_AI_Base> GetAllyMinions(float range, const Vector& pos, bool filter = true) const;
+            Linq<Obj_AI_Base> GetEnemyMinions(float range, const Vector& pos, bool filter = true) const;
+            Linq<Obj_AI_Base> GetMinions(float range, const Vector& pos, bool filter = true) const;
 
             std::string GetBuffName(const Buff& buff) const;
             float GetBuffTime(const Obj_AI_Base& unit, const BuffTable& hashes) const;
@@ -103,8 +103,10 @@ namespace IPrediction
             bool IsEnemy(const Obj_AI_Base& unit) const;
             bool IsHero(const Obj_AI_Base& unit) const;
             bool IsMoving(const Obj_AI_Base& unit) const;
+            bool IsPlant(const Obj_AI_Minion& unit) const;
             bool IsValid(const Object& unit) const;
             bool IsVisible(const Obj_AI_Base& unit) const;
+            bool IsWard(const Obj_AI_Minion& unit) const;
 
             float GetDashSpeed(const Obj_AI_Base& unit) const;
             Vector GetDashEndPos(const Obj_AI_Base& unit) const;

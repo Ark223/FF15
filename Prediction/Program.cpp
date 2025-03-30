@@ -394,7 +394,6 @@ namespace IPrediction
             input.SpellType = (SpellType)(spell_type + 1);
             input.Speed = infinite ? FLT_MAX : input.Speed;
             input.CollisionFlags = collision ? 0xF : 0x0;
-            input.MaxCollisions = collision ? 1U : 0U;
             input.Delay = input.Delay / 1000.0f;
             
             // Iterate over enemy heroes and display valid prediction details

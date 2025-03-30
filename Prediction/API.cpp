@@ -262,28 +262,30 @@ namespace IPrediction
         return result;
     }
 
-    Linq<Obj_AI_Base> API::GetAllyMinions(float range, const Vector& pos) const
+    Linq<Obj_AI_Base> API::GetAllyMinions(float range, const Vector& pos, bool filter) const
     {
-        auto minions = this->GetMinions(range, pos);
+        auto minions = this->GetMinions(range, pos, filter);
         return minions.Where([&](const auto& u) { return this->IsAlly(u); });
     }
 
-    Linq<Obj_AI_Base> API::GetEnemyMinions(float range, const Vector& pos) const
+    Linq<Obj_AI_Base> API::GetEnemyMinions(float range, const Vector& pos, bool filter) const
     {
-        auto minions = this->GetMinions(range, pos);
+        auto minions = this->GetMinions(range, pos, filter);
         return minions.Where([&](const auto& u) { return this->IsEnemy(u); });
     }
 
-    Linq<Obj_AI_Base> API::GetMinions(float range, const Vector& pos) const
+    Linq<Obj_AI_Base> API::GetMinions(float range, const Vector& pos, bool filter) const
     {
         Linq<Obj_AI_Base> result;
         size_t npos = std::string::npos;
         auto manager = this->m_api->get_game_object_manager();
         for (const auto& minion : manager->get_minions())
         {
-            auto unit = (Obj_AI_Base)minion->as_ai_base();
-            if (!this->IsValid(unit)) continue;
-            if (!this->IsVisible(unit)) continue;
+            auto unit = (Obj_AI_Minion)minion->as_minion();
+            if (!unit || !this->IsValid(unit)) continue;
+            if (!unit || !this->IsVisible(unit)) continue;
+            if (filter && this->IsPlant(unit)) continue;
+            if (filter && this->IsWard(unit)) continue;
             Vector unit_pos = this->GetPosition(unit);
             float dist = unit_pos.DistanceSquared(pos);
             if (dist <= range * range) result.Append(unit);
@@ -396,6 +398,11 @@ namespace IPrediction
         return unit->get_navigation_path()->is_moving();
     }
 
+    bool API::IsPlant(const Obj_AI_Minion& unit) const
+    {
+        return unit->is_plant();
+    }
+
     bool API::IsValid(const Object& unit) const
     {
         return unit && unit->is_valid();
@@ -404,6 +411,11 @@ namespace IPrediction
     bool API::IsVisible(const Obj_AI_Base& unit) const
     {
         return unit->is_visible();
+    }
+
+    bool API::IsWard(const Obj_AI_Minion& unit) const
+    {
+        return unit->is_ward();
     }
 
     // Pathing

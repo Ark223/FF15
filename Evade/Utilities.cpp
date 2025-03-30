@@ -650,8 +650,8 @@ namespace Evade
         {
             bool inside = dangerous.Contains(skillshot);
             if (inside) return skillshot->TimeToHit(position, true);
-            return (valid && !skillshot->PathIntersection({ position,
-                solution.Destination }).Any()) ? FLT_MAX : 0.0f;
+            return (valid && !skillshot->PathIntersection({position,
+                solution.Destination}).Any()) ? FLT_MAX : 0.0f;
         });
 
         // Delay pathfinding if evasion is not needed yet

@@ -192,7 +192,7 @@ namespace Evade
     {
         Vector3 vec = this->To3D(pos, height);
         auto manager = this->m_api->get_hud_manager();
-        manager->get_cursor_logic()->right_click_move(&vec, false);
+        manager->get_cursor_logic()->right_click_move(&vec, false, true);
     }
 
     void API::SetOverrideOrder(const Vector& pos, float height)

@@ -15,7 +15,7 @@ namespace Evade
     class Utilities;
 
     constexpr float SAFETY_BUFFER = 30.0f;
-    const std::string EVADE_VERSION = "2025.03.29.01";
+    const std::string EVADE_VERSION = "2025.03.30.01";
 
     enum class CollectionType { ACTIVE, CONSIDERED, DANGEROUS };
 

@@ -1258,7 +1258,7 @@ namespace Evade
         if (path.Count() < 2) return;
 
         // Retrieve all skillshots that hero might be about to cross
-        auto skillshots = this->skillshots.Except(this->dangerous);
+        auto skillshots = this->considered.Except(this->dangerous);
 
         // Find the closest intersection with any skillshot along the path to desired destination
         Intersection result = skillshots.Select<Linq<Intersection>>([&](Skillshot* skillshot)

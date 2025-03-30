@@ -831,7 +831,7 @@ namespace Evade
                 force_update = true;
                 float hitbox = api->GetHitbox(this->hero);
                 float move_speed = api->GetMovementSpeed(this->hero);
-                float threshold = (radius + hitbox) / move_speed + 1.25f;
+                float threshold = (radius + hitbox) / move_speed + 1.5f;
                 float offset = MIN(range - distance, threshold * speed);
                 skillshot->Set().EndPos = pos + dir * offset;
             }

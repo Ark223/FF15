@@ -626,8 +626,8 @@ namespace Evade
         for (const auto& minion : manager->get_minions())
         {
             auto unit = (Obj_AI_Minion)minion->as_minion();
-            if (!this->IsValid(unit)) continue;
-            if (!this->IsVisible(unit)) continue;
+            if (!unit || !this->IsValid(unit)) continue;
+            if (!unit || !this->IsVisible(unit)) continue;
             std::string name(unit->get_char_name());
             if (name.find("Minion") == npos) continue;
 

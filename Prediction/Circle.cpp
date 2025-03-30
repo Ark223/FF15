@@ -23,24 +23,24 @@ namespace IPrediction
 
     bool Circle::IsInside(const Solution& circle, const Vector& point)
     {
-        return point.DistanceSquared(circle.second) <= circle.first;
+        return point.DistanceSquared(circle.second) <= circle.first + EPSILON;
     }
 
-    Solution Circle::Trivial(const Linq<Vector>& boundary)
+    Solution Circle::Trivial(const Linq<Vector>& boundary, bool repair)
     {
         if (boundary.Count() == 0)
         {
-            return { 0.0f, Vector() };
+            return {0.0f, Vector()};
         }
         else if (boundary.Count() == 1)
         {
-            return { 0.0f, boundary.First() };
+            return {0.0f, boundary.First()};
         }
         else if (boundary.Count() == 2)
         {
             const Vector& first = boundary.First();
             Vector center = (first + boundary.Last()) / 2.0f;
-            return { center.DistanceSquared(first), center };
+            return {center.DistanceSquared(first), center};
         }
 
         // For three points, compute the circumcenter
@@ -50,54 +50,59 @@ namespace IPrediction
 
         // Calculate the area of the triangle
         Vector db = (pb - pa), dc = (pc - pa);
-        float area = 2.0f * db.CrossProduct(dc);
+        float area = db.CrossProduct(dc);
 
         // Zero denominator suggests the points do not form triangle
         // So then, return circle defined by the two farthest points
-        if (IsZero(area))
+        if (repair && IsZero(area))
         {
             float dab = pa.DistanceSquared(pb) / 4.0f;
             float dac = pa.DistanceSquared(pc) / 4.0f;
             float dbc = pb.DistanceSquared(pc) / 4.0f;
             return (dab >= dac && dab >= dbc) ?
                 Solution({ dab, (pa + pb) / 2.0f }) :
-                   (dac >= dab && dac >= dbc) ?
+                (dac >= dab && dac >= dbc) ?
                 Solution({ dac, (pa + pc) / 2.0f }) :
                 Solution({ dbc, (pb + pc) / 2.0f });
         }
 
         // Finally, compute circumcenter for non-collinear points
         float ldb = db.LengthSquared(), ldc = dc.LengthSquared();
-        Vector center = pa + (dc * ldb - db * ldc) / area;
-        return { center.DistanceSquared(pa), center };
+        Vector shift = (db * ldc - dc * ldb).Perpendicular();
+        Vector center = (pa + shift / (2.0f * area));
+        return {center.DistanceSquared(pa), center};
     }
 
-    Solution Circle::Welzl(Linq<Vector>& boundary)
+    Solution Circle::Welzl(Linq<Vector> points, Linq<Vector>& boundary)
     {
-        size_t size = this->points.Count();
+        auto& array = points.ToArray();
+        size_t size = array.size();
         if (size == 0 || boundary.Count() == 3)
-            return this->Trivial(boundary);
+            return this->Trivial(boundary, true);
 
-        size_t index = std::rand() % size;
-        auto& points = this->points.ToArray();
-        points[index] = points[size - 1];
+        // Pick a random point from candidates
+        size_t index = std::rand() % size--;
+        std::swap(array[index], array[size]);
+        Vector point = array[size];
+        points.RemoveAt(size);
 
-        Vector point = this->points.Last();
-        auto solution = this->Welzl(boundary);
-        if (this->IsInside(solution, point))
-            return solution;
+        // Circle is valid if point lies inside it
+        Solution circle = this->Welzl(points, boundary);
+        if (this->IsInside(circle, point)) return circle;
 
+        // Point must be on the boundary
         boundary.Append(point);
-        solution = this->Welzl(boundary);
+        circle = this->Welzl(points, boundary);
         boundary.RemoveAt(boundary.Count() - 1);
-        return solution;
+        return circle;
     }
 
     AoeSolution Circle::FindMEC(Linq<Vector> points)
     {
         while (points.Count() > 0)
         {
-            Solution solution = this->Welzl(points);
+            Linq<Vector> empty;
+            auto solution = this->Welzl(points, empty);
             int count = this->Count(solution, points);
             AoeSolution result = {count, solution.second};
             if (count == points.Count()) return result;

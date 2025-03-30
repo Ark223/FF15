@@ -12,8 +12,8 @@ namespace IPrediction
             int Count(const Solution& circle, Linq<Vector>& points);
             void Erase(const Solution& circle, Linq<Vector>& points);
             bool IsInside(const Solution& circle, const Vector& point);
-            Solution Trivial(const Linq<Vector>& boundary);
-            Solution Welzl(Linq<Vector>& boundary);
+            Solution Trivial(const Linq<Vector>& boundary, bool repair);
+            Solution Welzl(Linq<Vector> points, Linq<Vector>& boundary);
             AoeSolution FindMEC(Linq<Vector> points);
 
         public:

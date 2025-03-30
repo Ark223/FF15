@@ -53,7 +53,8 @@ namespace IPrediction
     {
         None = 0,
         Linear,
-        Circular
+        Circular,
+        Conic
     };
 
     // Structures
@@ -165,7 +166,7 @@ namespace IPrediction
         public:
             virtual ~IAoeSpell() = default;
             virtual AoeSolution GetAoeSolution() = 0;
-            virtual void SetCandidates(Linq<Vector>& points) = 0;
+            virtual void SetCandidates(Linq<Vector> points) = 0;
             virtual void SetStarPoint(const Vector& star_point) = 0;
             IAoeSpell(const PredictionInput& input) : input(input) {}
     };

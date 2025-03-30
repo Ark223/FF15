@@ -61,7 +61,7 @@ namespace IPrediction
             float dbc = pb.DistanceSquared(pc) / 4.0f;
             return (dab >= dac && dab >= dbc) ?
                 Solution({ dab, (pa + pb) / 2.0f }) :
-                (dac >= dab && dac >= dbc) ?
+                   (dac >= dab && dac >= dbc) ?
                 Solution({ dac, (pa + pc) / 2.0f }) :
                 Solution({ dbc, (pb + pc) / 2.0f });
         }
@@ -118,7 +118,7 @@ namespace IPrediction
         return this->FindMEC(this->points);
     }
 
-    void Circle::SetCandidates(Linq<Vector>& points)
+    void Circle::SetCandidates(Linq<Vector> points)
     {
         this->points = points;
     }

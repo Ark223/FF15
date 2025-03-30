@@ -18,7 +18,7 @@ namespace IPrediction
 
         public:
             AoeSolution GetAoeSolution() override;
-            void SetCandidates(Linq<Vector>& points) override;
+            void SetCandidates(Linq<Vector> points) override;
             void SetStarPoint(const Vector& star_point) override;
             Circle(const PredictionInput& input) : IAoeSpell(input) {}
     };

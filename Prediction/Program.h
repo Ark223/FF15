@@ -12,7 +12,7 @@ namespace IPrediction
 {
     class Utilities;
 
-    const std::string PRED_VERSION = "2025.03.30.02";
+    const std::string PRED_VERSION = "2025.03.30.03";
 
     class Program
     {

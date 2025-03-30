@@ -67,6 +67,24 @@ namespace IPrediction
         }
     }
 
+    AoeSolution Utilities::GetAoeSolution(const PredictionInput& input,
+        const Linq<Vector>& candidates, const Vector& star_point) const
+    {
+        IAoeSpell* spell = nullptr;
+        
+        switch (input.SpellType)
+        {
+            case SpellType::None: return AoeSolution();
+            case SpellType::Conic: return AoeSolution(); // To Do
+            case SpellType::Linear: return AoeSolution(); // To Do
+            case SpellType::Circular: spell = new Circle(input);
+        }
+
+        spell->SetCandidates(candidates);
+        spell->SetStarPoint(star_point);
+        return spell->GetAoeSolution();
+    }
+
     std::vector<CollisionData> Utilities::GetCollision(const PredictionInput& input,
         const Vector& destination, float buffer, uint32_t exclude_id) const
     {

@@ -151,8 +151,8 @@ namespace IPrediction
 
         std::vector<std::string> cast_rates = { "Instant", "Moderate", "Precise" };
         std::vector<std::string> hit_chances = { "Low", "Normal", "High", "VeryHigh", "Extreme", "Guaranteed" };
-        this->settings["D|CastRate"] = this->config->AddList(demo, "D|CastRate", "Cast Rate", cast_rates, 1);
         this->settings["D|HitChance"] = this->config->AddList(demo, "D|HitChance", "Hit Chance", hit_chances, 2);
+        this->settings["D|CastRate"] = this->config->AddList(demo, "D|CastRate", "Cast Rate", cast_rates, 1);
 
         // Measurement settings
         auto measurement = this->config->AddSubMenu(menu, "Measurement", "<< Measurement >>");
@@ -327,7 +327,6 @@ namespace IPrediction
         float timer = this->api->GetTime();
         Vector hero_pos = this->api->GetPosition(this->my_hero);
         auto colors = std::vector<uint32_t>{0xC0FFFFFF, 0x30FFFFFF};
-        float height = this->api->GetHeight(hero_pos);
 
         // Process each enemy to update paths for dash spells and blinks
         for (auto it = this->dashes.begin(); it != this->dashes.end(); )
@@ -358,7 +357,14 @@ namespace IPrediction
             uint32_t id = this->api->GetObjectId(unit);
             this->CleanUpHistory(this->paths[id], timer, 1.0f);
 
-            if (!this->api->IsVisible(unit))
+            if (this->api->IsDead(unit))
+            {
+                // Clean up dead target
+                this->paths[id].Clear();
+                Path waypoints = {Segment(Vector(), 0.0f)};
+                this->UpdatePaths(unit, waypoints, true);
+            }
+            else if (!this->api->IsVisible(unit))
             {
                 // Mark the time when unit was last seen visible
                 PathData& last = this->paths[id].ToArray().back();
@@ -373,6 +379,10 @@ namespace IPrediction
 
             if (!this->GetValue<bool>("Draw")) return;
             const Path& path = this->GetWaypoints(unit);
+            const Vector& pos = path.back().EndPos;
+
+            float height = this->api->GetHeight(pos);
+            this->api->DrawCircle(pos, 10.0f, height, colors[0]);
             this->utils->DrawPath(path, height, colors.data());
         });
 
@@ -395,7 +405,7 @@ namespace IPrediction
             input.Speed = infinite ? FLT_MAX : input.Speed;
             input.CollisionFlags = collision ? 0xF : 0x0;
             input.Delay = input.Delay / 1000.0f;
-            
+
             // Iterate over enemy heroes and display valid prediction details
             this->api->GetEnemyHeroes(0, Vector(), false).ForEach([&](auto& unit)
             {
@@ -412,6 +422,7 @@ namespace IPrediction
 
                 const Vector& cast_pos = output.CastPosition;
                 const Vector& pred_pos = output.TargetPosition;
+                float height = this->api->GetHeight(pred_pos);
                 float hitbox = this->api->GetHitbox(unit);
                 if (!input.AddHitbox) hitbox = 5.0f;
 
@@ -420,7 +431,7 @@ namespace IPrediction
                 this->api->DrawCircle(cast_pos, 5.0f, height, 0xFFD4AF37);
                 this->api->DrawCircle(pred_pos, hitbox, height, 0xFF0096FF);
                 this->api->DrawCircle(cast_pos, input.Radius, height, 0xFFD4AF37);
-                
+
                 // Display remaining prediction output in a text format
                 Vector2 screen_pos = this->api->ToScreen(cast_pos, height);
                 screen_pos = Vector2(screen_pos.x, screen_pos.y + 30.0f);
@@ -431,6 +442,7 @@ namespace IPrediction
                 int spell_slot = this->GetValue<int>("D|Slot");
                 if (!this->api->CanUseSpell(spell_slot)) return;
                 if (this->GetMiaDuration(unit) > 0.25f) return;
+                height = this->api->GetHeight(cast_pos);
 
                 // Validate cast rate and hit chance thresholds before casting
                 auto rate = (CastRate)(this->GetValue<int>("D|CastRate") + 1);
@@ -446,6 +458,7 @@ namespace IPrediction
             bool fixed = this->GetValue<bool>("M|Fixed");
             float range = (float)this->GetValue<int>("M|Range");
             float radius = (float)this->GetValue<int>("M|Radius");
+            float height = this->api->GetHeight(this->my_hero);
 
             Vector mouse_pos = this->api->GetCursorPos();
             Vector direction = (mouse_pos - hero_pos);

@@ -252,9 +252,11 @@ namespace IPrediction
         for (const auto& hero : manager->get_heroes())
         {
             auto unit = (Obj_AI_Base)hero->as_ai_base();
+
             if (valid && !this->IsValid(unit)) continue;
             if (valid && !this->IsVisible(unit)) continue;
             if (inf) { result.Append(unit); continue; }
+
             Vector unit_pos = this->GetPosition(unit);
             float dist = unit_pos.DistanceSquared(pos);
             if (dist <= range * range) result.Append(unit);
@@ -282,10 +284,14 @@ namespace IPrediction
         for (const auto& minion : manager->get_minions())
         {
             auto unit = (Obj_AI_Minion)minion->as_minion();
-            if (!unit || !this->IsValid(unit)) continue;
-            if (!unit || !this->IsVisible(unit)) continue;
+
+            if (!this->IsValid(unit)) continue;
+            if (!this->IsVisible(unit)) continue;
+            if (!this->IsAlive(unit)) continue;
+
             if (filter && this->IsPlant(unit)) continue;
             if (filter && this->IsWard(unit)) continue;
+            
             Vector unit_pos = this->GetPosition(unit);
             float dist = unit_pos.DistanceSquared(pos);
             if (dist <= range * range) result.Append(unit);

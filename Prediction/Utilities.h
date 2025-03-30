@@ -2,6 +2,7 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
+#include "Circle.h"
 #include "Geometry.h"
 #include "Program.h"
 
@@ -24,6 +25,8 @@ namespace IPrediction
             static Utilities* Get();
 
             void DrawPath(const Path& path, float height, uint32_t* colors);
+            AoeSolution GetAoeSolution(const PredictionInput& input,
+                const Linq<Vector>& candidates, const Vector& star_point) const;
             std::vector<CollisionData> GetCollision(const PredictionInput& input,
                 const Vector& destination, float buffer, uint32_t exclude_id = 0U) const;
             void GetHitChance(const PredictionInput& input, PredictionOutput& output) const;

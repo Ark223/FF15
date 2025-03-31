@@ -151,7 +151,7 @@ namespace IPrediction
 
         std::vector<std::string> cast_rates = { "Instant", "Moderate", "Precise" };
         std::vector<std::string> hit_chances = { "Low", "Normal", "High", "VeryHigh", "Extreme", "Guaranteed" };
-        this->settings["D|HitChance"] = this->config->AddList(demo, "D|HitChance", "Hit Chance", hit_chances, 2);
+        this->settings["D|HitChance"] = this->config->AddList(demo, "D|HitChance", "Hit Chance", hit_chances, 1);
         this->settings["D|CastRate"] = this->config->AddList(demo, "D|CastRate", "Cast Rate", cast_rates, 1);
 
         // Measurement settings
@@ -211,6 +211,11 @@ namespace IPrediction
         return mia_time < 0 ? 0.0f : timer - mia_time;
     }
 
+    float Program::GetImmobilityTime(const Obj_AI_Base& unit) const
+    {
+        return this->utils->GetImmobilityTime(unit);
+    }
+
     float Program::GetPathChangeTime(const Obj_AI_Base& unit) const
     {
         float timer = this->api->GetTime();
@@ -256,13 +261,17 @@ namespace IPrediction
     AoeSolution Program::GetAoeSolution(const std::vector<Vector>& candidates,
         const PredictionInput& input, const Vector& star_point) const
     {
-        return AoeSolution();
+        Linq<Vector> points = Linq<Vector>(candidates);
+        return this->utils->GetAoeSolution(input, points, star_point);
     }
 
     AoeSolution Program::GetAoeSolution(const std::vector<Obj_AI_Base>& candidates,
         const PredictionInput& input, const Obj_AI_Base& star_unit) const
     {
-        return AoeSolution();
+        auto converter = [&](auto& unit) { return this->api->GetPosition(unit); };
+        const auto& points = Linq(candidates).Select<Vector>(converter).ToArray();
+        Vector star = !star_unit ? Vector() : this->api->GetPosition(star_unit);
+        return this->GetAoeSolution(points, input, star);
     }
 
     PredictionOutput Program::GetPrediction(const PredictionInput& input) const
@@ -379,10 +388,11 @@ namespace IPrediction
 
             if (!this->GetValue<bool>("Draw")) return;
             const Path& path = this->GetWaypoints(unit);
-            const Vector& pos = path.back().EndPos;
+            const Vector& start = path.front().StartPos;
+            const Vector& ending = path.back().EndPos;
 
-            float height = this->api->GetHeight(pos);
-            this->api->DrawCircle(pos, 10.0f, height, colors[0]);
+            float height = this->api->GetHeight(ending);
+            this->api->DrawCircle(start, 10.0f, height, colors[0]);
             this->utils->DrawPath(path, height, colors.data());
         });
 

@@ -122,7 +122,7 @@ namespace IPrediction
         SpellType SpellType = SpellType::None;
         uint32_t CollisionFlags = 0U;
         uint32_t MaxCollisions = 0U;
-        float Angle = 180.0f;
+        float Angle = 0.0f;
         float Delay = 0.0f;
         float Radius = 1.0f;
         float Width = 1.0f;
@@ -143,6 +143,7 @@ namespace IPrediction
         float Intercept = 0.0f;
         float TimeToHit = 0.0f;
         float Distance = 0.0f;
+        float Margin = 0.0f;
 
         static IPrediction::HitChance GetHitChance(double cf)
         {
@@ -159,9 +160,10 @@ namespace IPrediction
     class IAoeSpell
     {
         protected:
-            Vector star_point;
+            API* api = API::Get();
             PredictionInput input;
             Linq<Vector> points;
+            Vector star_point;
 
         public:
             virtual ~IAoeSpell() = default;

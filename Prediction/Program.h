@@ -12,7 +12,7 @@ namespace IPrediction
 {
     class Utilities;
 
-    const std::string PRED_VERSION = "2025.03.30.03";
+    const std::string PRED_VERSION = "2025.03.31.01";
 
     class Program
     {
@@ -27,9 +27,12 @@ namespace IPrediction
             const auto& GetPathData() const { return this->paths; }
 
             float GetCollisionBuffer() const;
+
             float GetMiaDuration(const Obj_AI_Base& unit) const;
+            float GetImmobilityTime(const Obj_AI_Base& unit) const;
             float GetPathChangeTime(const Obj_AI_Base& unit) const;
             float GetWindupDuration(const Obj_AI_Base& unit) const;
+
             Path GetWaypoints(const Obj_AI_Base& unit) const;
             bool IsBlinking(const Obj_AI_Base& unit) const;
             bool IsDashing(const Obj_AI_Base& unit) const;

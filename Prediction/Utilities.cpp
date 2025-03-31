@@ -75,8 +75,8 @@ namespace IPrediction
         switch (input.SpellType)
         {
             case SpellType::None: return AoeSolution();
-            case SpellType::Conic: return AoeSolution(); // To Do
-            case SpellType::Linear: return AoeSolution(); // To Do
+            case SpellType::Conic: return AoeSolution();
+            case SpellType::Linear: return AoeSolution();
             case SpellType::Circular: spell = new Circle(input);
         }
 
@@ -161,26 +161,26 @@ namespace IPrediction
         const Obj_AI_Base& target = input.TargetObject;
         if (!output.TargetPosition.IsValid()) return;
         if (!this->ShouldCast(target)) return;
-        if (this->api->IsDead(target)) return;
 
         Vector source = input.SourcePosition;
-        const Vector& cast_pos = output.CastPosition;
+        Vector cast_pos = output.CastPosition;
         const Vector& pred_pos = output.TargetPosition;
         const Segment& last_path = output.Waypoints.back();
 
         const auto& data = this->program->GetPathData();
-        uint32_t target_id = this->api->GetObjectId(target);
+        auto target_id = this->api->GetObjectId(target);
+        const auto& lt = data.at(target_id).Last();
 
         float timer = this->api->GetTime();
         float mia_time = this->program->GetMiaDuration(target);
         float dash_time = this->program->GetDashDuration(target);
         float path_time = this->program->GetPathChangeTime(target);
+        float hit_time = output.TimeToHit - this->GetTotalLatency();
 
         float intercept = output.Intercept;
         float hitbox = this->api->GetHitbox(target);
         float speed = this->api->GetMovementSpeed(target);
-        float radius = MAX(input.Radius, input.Width / 2.0f);
-        radius = MAX(1.0f, radius + hitbox * input.AddHitbox);
+        float max_margin = output.Margin / speed;
 
         // Use object position if object is valid
         if (this->api->IsValid(input.SourceObject))
@@ -189,7 +189,7 @@ namespace IPrediction
         }
 
         // Abort if target is immune at the time of impact
-        if (this->GetImmunityTime(target) > output.TimeToHit)
+        if (this->GetImmunityTime(target) > hit_time)
         {
             output.HitChance = HitChance::Impossible;
             return;
@@ -210,7 +210,8 @@ namespace IPrediction
             return;
         }
 
-        // Check for possible collisions along the missile path
+        // Check for possible collisions along missile path
+        cast_pos = source.Extend(cast_pos, output.Distance);
         output.Collisions = this->GetCollision(input, cast_pos,
             this->program->GetCollisionBuffer(), target_id);
 
@@ -240,7 +241,7 @@ namespace IPrediction
 
         // Hit is guaranteed if interception covers the escape window
         float pause_time = dash_time > 0 ? dash_time : immobility;
-        if ((intercept -= pause_time - mia_time) <= radius / speed)
+        if ((intercept -= pause_time - mia_time) <= max_margin)
         {
             output.CastRate = CastRate::Precise;
             output.HitChance = HitChance::Certain;
@@ -256,8 +257,7 @@ namespace IPrediction
         }
 
         // Compute metrics and pass to the model
-        const auto& lt = data.at(target_id).Last();
-        float hit_ratio = radius / speed / intercept;
+        float hit_ratio = max_margin / intercept;
         float mean_angle = this->program->GetMeanAngleDiff(target);
         float path_count = (float)(data.at(target_id).Count() - 1);
         float path_len = lt.PathLength, react_time = lt.UpdateTime;
@@ -270,7 +270,7 @@ namespace IPrediction
         output.HitChance = output.GetHitChance(output.Confidence);
 
         // Set cast frequency based on path change time or high confidence
-        bool freq = path_time < 0.1f || output.HitChance > HitChance::High;
+        bool freq = path_time < 0.1f || output.HitChance >= HitChance::High;
         output.CastRate = freq ? CastRate::Moderate : CastRate::Instant;
     }
 
@@ -293,13 +293,16 @@ namespace IPrediction
         bool casting_dash = this->program->IsCastingDash(target);
         bool is_blinking = this->program->IsBlinking(target);
         bool is_dashing = this->program->IsDashing(target);
+        bool conic = input.SpellType == SpellType::Conic;
 
+        const float min_cast_len = 50.0f;
         float hitbox = this->api->GetHitbox(target);
         float delay = input.Delay + this->GetTotalLatency();
+        float angle = conic ? M_RAD(input.Angle / 2.0f) : 0.0f;
         float radius = MAX(input.Radius, input.Width / 2.0f);
-        radius = MAX(1.0f, radius + hitbox * input.AddHitbox);
+        output.Margin = (radius + hitbox * input.AddHitbox);
+        float offset = !is_dashing ? output.Margin : 0.0f;
         float speed = path.back().Speed, boundary = 0.0f;
-        float offset = !is_dashing ? radius : 0.0f;
 
         // Dash waypoints are extended backwards if windup is active
         // Use a starting point in case position does not lie on path
@@ -319,10 +322,16 @@ namespace IPrediction
             return path.size() == 1 && IsZero(path[0].Length);
         };
 
+        // Dynamic conic spells are not supported
+        if (input.Speed < 1e+4 && conic == true)
+        {
+            return output;
+        }
+
         // Set the spell boundary to calculate time of impact precisely
         if (input.Speed < 1e+4 && (input.CollisionFlags & mixed_flag) != 0)
         {
-            boundary = radius;
+            boundary = output.Margin;
         }
 
         // Use object position if object is valid
@@ -348,10 +357,12 @@ namespace IPrediction
                 float distance = direction.Length();
                 direction = direction / distance;
 
+                float fixed_len = boundary == 0.0f ? distance
+                    : MAX(min_cast_len, distance - boundary);
                 output.Distance = MAX(0.0f, distance - boundary);
                 output.Intercept = distance / input.Speed + delay;
                 output.TimeToHit = output.Distance / input.Speed + delay;
-                output.CastPosition = source + direction * output.Distance;
+                output.CastPosition = source + direction * fixed_len;
                 output.TargetPosition = position.Clone();
 
                 if (!is_blinking || position == ending) return output;
@@ -363,9 +374,10 @@ namespace IPrediction
         // For static spells, offset position by delay
         if (input.Speed == FLT_MAX || input.Speed > 1e+4)
         {
-            float shift = delay - offset / speed;
-            output.CastPosition = Geometry::PositionAfter(path, shift);
             output.TargetPosition = Geometry::PositionAfter(path, delay);
+            output.Margin += angle * output.TargetPosition.Distance(source);
+            offset = delay - (offset > 0.0f ? output.Margin : 0.0f) / speed;
+            output.CastPosition = Geometry::PositionAfter(path, offset);
 
             output.Intercept = output.TimeToHit = delay;
             output.Distance = output.CastPosition.Distance(source);
@@ -374,7 +386,7 @@ namespace IPrediction
             return output;
         }
 
-        // Trim target's path by offset to boost hit chance
+        // Trim target's path by offset to improve accuracy
         path = Geometry::CutPath(path, speed * delay - offset);
 
         // Calculate the interception point for spell to land accurately
@@ -386,12 +398,13 @@ namespace IPrediction
         {
             // Adjust the path to account for delay
             path = Geometry::CutPath(path, offset);
+            volatile float margin = output.Margin;
 
             // Compute the exact collision for a missile skillshot
-            radius -= (hitbox * input.AddHitbox - EPSILON * 2.0f);
+            margin -= (hitbox * input.AddHitbox - EPSILON * 2.0f);
             auto segment = Segment(source, intercept, input.Speed);
             auto collision = Geometry::DynamicCollision(segment,
-                {Obstacle(std::make_pair(hitbox, path))}, radius);
+                {Obstacle(std::make_pair(hitbox, path))}, margin);
 
             // This condition should theoretically never be met
             // It may occur due to floating-point precision errors
@@ -401,12 +414,14 @@ namespace IPrediction
             const Solution& result = collision.front().second;
             float intercept_time = segment.Length / segment.Speed;
             Vector pos = Geometry::PositionAfter(path, result.first);
+            Vector cast_pos = segment.StartPos + segment.Direction *
+                MAX(min_cast_len, segment.Speed * result.first);
 
             // Set the output based on collision results
             output.Distance = segment.Speed * result.first;
             output.Intercept = intercept_time + delay;
             output.TimeToHit = result.first + delay;
-            output.CastPosition = result.second;
+            output.CastPosition = cast_pos;
             output.TargetPosition = pos;
             return output;
         }
@@ -452,6 +467,7 @@ namespace IPrediction
         Path empty = Path({ Segment() });
         if (!this->api->IsValid(unit)) return empty;
         if (!this->api->IsVisible(unit)) return empty;
+        if (!this->api->IsAlive(unit)) return empty;
 
         Path result = Path();
         float speed = this->api->GetPathSpeed(unit);
@@ -507,6 +523,6 @@ namespace IPrediction
 
         // Special case: Zed's buff remains active until R2 is used
         return time <= (this->api->GetCharacterName(unit) == "Zed" &&
-            !this->api->HasBuff(unit, { 0x48E4DD46 }) ? 6.5f : 0.0f);
+            !this->api->HasBuff(unit, { 0x3DC195A6 }) ? 6.5f : 0.0f);
     }
 }

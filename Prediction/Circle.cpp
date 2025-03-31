@@ -17,6 +17,7 @@ namespace IPrediction
     {
         points.Remove(points.MaxBy<float>([&](const Vector& point)
         {
+            if (point == this->star_point) return 0.0f;
             return point.DistanceSquared(circle.second);
         }));
     }
@@ -104,6 +105,7 @@ namespace IPrediction
             Linq<Vector> empty;
             auto solution = this->Welzl(points, empty);
             int count = this->Count(solution, points);
+
             AoeSolution result = {count, solution.second};
             if (count == points.Count()) return result;
             this->Erase(solution, points);
@@ -120,7 +122,17 @@ namespace IPrediction
 
     void Circle::SetCandidates(Linq<Vector> points)
     {
-        this->points = points;
+        float range = input.Range * input.Range;
+        Vector source = this->input.SourcePosition;
+
+        if (this->api->IsValid(this->input.SourceObject))
+        {
+            source = this->api->GetPosition(this->input.SourceObject);
+        }
+        this->points = points.Where([&](const Vector& point)
+        {
+            return source.DistanceSquared(point) <= range;
+        });
     }
 
     void Circle::SetStarPoint(const Vector& star_point)

@@ -25,7 +25,7 @@ namespace IPrediction
             static Utilities* Get();
 
             void DrawPath(const Path& path, float height, uint32_t* colors);
-            AoeSolution GetAoeSolution(const PredictionInput& input,
+            AoeSolution GetAoeSolution(const PredictionInput& aoe_spell_input,
                 const Linq<Vector>& candidates, const Vector& star_point) const;
             std::vector<CollisionData> GetCollision(const PredictionInput& input,
                 const Vector& destination, float buffer, uint32_t exclude_id = 0U) const;

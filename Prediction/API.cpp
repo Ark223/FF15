@@ -61,7 +61,7 @@ namespace IPrediction
         uint32_t hash = 0x811C9DC5u;
         while (*str != 0)
         {
-            hash ^= *str++;
+            hash ^= std::tolower(*str++);
             hash *= 0x01000193;
         }
         return hash;
@@ -234,14 +234,14 @@ namespace IPrediction
 
     Linq<Obj_AI_Base> API::GetAllyHeroes(float range, const Vector& pos, bool valid) const
     {
-        auto heroes = this->GetHeroes(range, pos, valid);
-        return heroes.Where([&](const auto& u) { return this->IsAlly(u); });
+        auto selector = [&](auto& unit) { return this->IsAlly(unit); };
+        return this->GetHeroes(range, pos, valid).Where(selector);
     }
 
     Linq<Obj_AI_Base> API::GetEnemyHeroes(float range, const Vector& pos, bool valid) const
     {
-        auto heroes = this->GetHeroes(range, pos, valid);
-        return heroes.Where([&](const auto& u) { return this->IsEnemy(u); });
+        auto selector = [&](auto& unit) { return this->IsEnemy(unit); };
+        return this->GetHeroes(range, pos, valid).Where(selector);
     }
 
     Linq<Obj_AI_Base> API::GetHeroes(float range, const Vector& pos, bool valid) const
@@ -266,14 +266,14 @@ namespace IPrediction
 
     Linq<Obj_AI_Base> API::GetAllyMinions(float range, const Vector& pos, bool filter) const
     {
-        auto minions = this->GetMinions(range, pos, filter);
-        return minions.Where([&](const auto& u) { return this->IsAlly(u); });
+        auto selector = [&](auto& unit) { return this->IsAlly(unit); };
+        return this->GetMinions(range, pos, filter).Where(selector);
     }
 
     Linq<Obj_AI_Base> API::GetEnemyMinions(float range, const Vector& pos, bool filter) const
     {
-        auto minions = this->GetMinions(range, pos, filter);
-        return minions.Where([&](const auto& u) { return this->IsEnemy(u); });
+        auto selector = [&](auto& unit) { return this->IsEnemy(unit); };
+        return this->GetMinions(range, pos, filter).Where(selector);
     }
 
     Linq<Obj_AI_Base> API::GetMinions(float range, const Vector& pos, bool filter) const

@@ -81,7 +81,7 @@ namespace Evade
         uint32_t hash = 0x811C9DC5u;
         while (*str != 0)
         {
-            hash ^= *str++;
+            hash ^= std::tolower(*str++);
             hash *= 0x01000193;
         }
         return hash;

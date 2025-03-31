@@ -59,7 +59,7 @@ namespace Evade
         if (api->HasBuffType(hero, stun)) return false;
 
         bool kaisa = hero_name == "Kaisa";
-        if (kaisa) kaisa = api->HasBuff(hero, 0xDB58751F);
+        if (kaisa) kaisa = api->HasBuff(hero, 0x0DFBD75F);
         if (api->IsDashing(hero) && !kaisa) return false;
 
         bool attacking = api->IsAttacking(hero);
@@ -663,10 +663,10 @@ namespace Evade
 
     float Utilities::TimeToRecall(float extra_delay)
     {
-        float time = this->api->GetBuffTime(this->hero, 0xA31133D0);
+        float time = this->api->GetBuffTime(this->hero, 0x5A81BDB0);
         if (time == 0.0f)
         {
-            time = this->api->GetBuffTime(this->hero, 0x0AAC64F9);
+            time = this->api->GetBuffTime(this->hero, 0x4D587F79);
         }
         return time > 0 ? time + extra_delay : 0.0f;
     }

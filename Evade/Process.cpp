@@ -563,14 +563,14 @@ namespace Evade
         }
 
         // Adjust various numeric properties
-        if (name == "AurelionE" || name == "AurelionR")
+        if (name == "AurelionSolE" || name == "AurelionSolR")
         {
-            int stacks = api->GetBuffCount(caster, 0x42E9ABCB);
+            int stacks = api->GetBuffCount(caster, 0xC9372C6B);
             skillshot->Set().Radius = std::sqrtf(75625 + 286.625f * stacks);
         }
         else if (name == "AurelionSolR2")
         {
-            int stacks = api->GetBuffCount(caster, 0x42E9ABCB);
+            int stacks = api->GetBuffCount(caster, 0xC9372C6B);
             skillshot->Set().Radius = std::sqrtf(151251 + 477.423f * stacks);
         }
         else if (name == "BriarE" && proc_type)

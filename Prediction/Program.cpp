@@ -370,8 +370,7 @@ namespace IPrediction
             {
                 // Clean up dead target
                 this->paths[id].Clear();
-                Path waypoints = {Segment(Vector(), 0.0f)};
-                this->UpdatePaths(unit, waypoints, true);
+                this->UpdatePaths(unit, {Segment()}, true);
             }
             else if (!this->api->IsVisible(unit))
             {

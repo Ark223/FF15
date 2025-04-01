@@ -161,14 +161,14 @@ namespace IPrediction
     {
         protected:
             API* api = API::Get();
+            Linq<Vector> candidates;
+            Vector source, star_point;
             PredictionInput input;
-            Linq<Vector> points;
-            Vector star_point;
 
         public:
             virtual ~IAoeSpell() = default;
             virtual AoeSolution GetAoeSolution() = 0;
-            virtual void SetCandidates(Linq<Vector> points) = 0;
+            virtual void SetCandidates(Linq<Vector> candidates) = 0;
             virtual void SetStarPoint(const Vector& star_point) = 0;
             IAoeSpell(const PredictionInput& input) : input(input) {}
     };

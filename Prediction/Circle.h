@@ -9,8 +9,10 @@ namespace IPrediction
     class Circle : public IAoeSpell
     {
         private:
+            void Initialize();
             int Count(const Solution& circle, Linq<Vector>& points);
             void Erase(const Solution& circle, Linq<Vector>& points);
+            bool IsInside(const Vector& circle, const Vector& point);
             bool IsInside(const Solution& circle, const Vector& point);
             Solution Trivial(const Linq<Vector>& boundary, bool repair);
             Solution Welzl(Linq<Vector> points, Linq<Vector>& boundary);
@@ -18,7 +20,7 @@ namespace IPrediction
 
         public:
             AoeSolution GetAoeSolution() override;
-            void SetCandidates(Linq<Vector> points) override;
+            void SetCandidates(Linq<Vector> candidates) override;
             void SetStarPoint(const Vector& star_point) override;
             Circle(const PredictionInput& input) : IAoeSpell(input) {}
     };

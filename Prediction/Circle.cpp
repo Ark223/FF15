@@ -9,7 +9,7 @@ namespace IPrediction
     {
         return (int)points.Count([&](const Vector& point)
         {
-            return this->IsInside(circle, point);
+            return this->IsInside(circle.second, point);
         });
     }
 
@@ -20,6 +20,12 @@ namespace IPrediction
             if (point == this->star_point) return 0.0f;
             return point.DistanceSquared(circle.second);
         }));
+    }
+
+    bool Circle::IsInside(const Vector& circle, const Vector& point)
+    {
+        float radius = this->input.Radius * this->input.Radius;
+        return point.DistanceSquared(circle) <= radius + EPSILON;
     }
 
     bool Circle::IsInside(const Solution& circle, const Vector& point)
@@ -100,12 +106,20 @@ namespace IPrediction
 
     AoeSolution Circle::FindMEC(Linq<Vector> points)
     {
+        this->Initialize();
         while (points.Count() > 0)
         {
-            Linq<Vector> empty;
+            // Compute the minimum enclosing circle
+            Linq<Vector> empty = Linq<Vector>({});
             auto solution = this->Welzl(points, empty);
+
+            // Clamp the center within spell radius 
+            solution.second = this->source.Extend(
+                solution.second, MIN(this->input.Radius,
+                this->source.Distance(solution.second)));
             int count = this->Count(solution, points);
 
+            // Return if all remaining targets are hit
             AoeSolution result = {count, solution.second};
             if (count == points.Count()) return result;
             this->Erase(solution, points);
@@ -115,24 +129,34 @@ namespace IPrediction
 
     // Core methods
 
-    AoeSolution Circle::GetAoeSolution()
+    void Circle::Initialize()
     {
-        return this->FindMEC(this->points);
+        this->source = this->input.SourcePosition;
+        const auto& object = this->input.SourceObject;
+        float range = this->input.Range + this->input.Radius;
+
+        // Use object position if object is valid
+        if (this->api->IsValid(object))
+        {
+            this->source = this->api->GetPosition(object);
+        }
+
+        // Filter candidates to only those within effective range
+        this->candidates = this->candidates.Where([&](auto& point)
+        {
+            float distance = this->source.DistanceSquared(point);
+            return distance <= range * range;
+        });
     }
 
-    void Circle::SetCandidates(Linq<Vector> points)
+    AoeSolution Circle::GetAoeSolution()
     {
-        float range = input.Range * input.Range;
-        Vector source = this->input.SourcePosition;
+        return this->FindMEC(this->candidates);
+    }
 
-        if (this->api->IsValid(this->input.SourceObject))
-        {
-            source = this->api->GetPosition(this->input.SourceObject);
-        }
-        this->points = points.Where([&](const Vector& point)
-        {
-            return source.DistanceSquared(point) <= range;
-        });
+    void Circle::SetCandidates(Linq<Vector> candidates)
+    {
+        this->candidates = candidates;
     }
 
     void Circle::SetStarPoint(const Vector& star_point)

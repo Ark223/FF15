@@ -258,20 +258,18 @@ namespace IPrediction
 
     // Public core methods
 
-    AoeSolution Program::GetAoeSolution(const std::vector<Vector>& candidates,
+    AoeSolution Program::GetAoeSolution(const Linq<Vector>& candidates,
         const PredictionInput& input, const Vector& star_point) const
     {
-        Linq<Vector> points = Linq<Vector>(candidates);
-        return this->utils->GetAoeSolution(input, points, star_point);
+        return this->utils->GetAoeSolution(input, candidates, star_point);
     }
 
-    AoeSolution Program::GetAoeSolution(const std::vector<Obj_AI_Base>& candidates,
+    AoeSolution Program::GetAoeSolution(const Linq<Obj_AI_Base>& candidates,
         const PredictionInput& input, const Obj_AI_Base& star_unit) const
     {
+        Vector star = star_unit ? this->api->GetPosition(star_unit) : Vector();
         auto converter = [&](auto& unit) { return this->api->GetPosition(unit); };
-        const auto& points = Linq(candidates).Select<Vector>(converter).ToArray();
-        Vector star = !star_unit ? Vector() : this->api->GetPosition(star_unit);
-        return this->GetAoeSolution(points, input, star);
+        return this->GetAoeSolution(candidates.Select<Vector>(converter), input, star);
     }
 
     PredictionOutput Program::GetPrediction(const PredictionInput& input) const

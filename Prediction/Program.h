@@ -37,10 +37,10 @@ namespace IPrediction
             bool IsBlinking(const Obj_AI_Base& unit) const;
             bool IsDashing(const Obj_AI_Base& unit) const;
 
-            AoeSolution GetAoeSolution(const std::vector<Vector>& candidates,
-                const PredictionInput& input, const Vector& star_point) const;
-            AoeSolution GetAoeSolution(const std::vector<Obj_AI_Base>& candidates,
-                const PredictionInput& input, const Obj_AI_Base& star_unit) const;
+            AoeSolution GetAoeSolution(const Linq<Vector>& candidates,
+                const PredictionInput& input, const Vector& star_pt) const;
+            AoeSolution GetAoeSolution(const Linq<Obj_AI_Base>& candidates,
+                const PredictionInput& input, const Obj_AI_Base& star_obj) const;
             PredictionOutput GetPrediction(const PredictionInput& input) const;
 
             float GetBlinkDuration(const Obj_AI_Base& unit) const;

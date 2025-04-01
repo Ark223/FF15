@@ -113,9 +113,9 @@ namespace IPrediction
             Linq<Vector> empty = Linq<Vector>({});
             auto solution = this->Welzl(points, empty);
 
-            // Clamp the center within spell radius 
+            // Clamp the center within spell range
             solution.second = this->source.Extend(
-                solution.second, MIN(this->input.Radius,
+                solution.second, MIN(this->input.Range,
                 this->source.Distance(solution.second)));
 
             // Return if all remaining targets are hit

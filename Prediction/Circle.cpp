@@ -117,9 +117,9 @@ namespace IPrediction
             solution.second = this->source.Extend(
                 solution.second, MIN(this->input.Radius,
                 this->source.Distance(solution.second)));
-            int count = this->Count(solution, points);
 
             // Return if all remaining targets are hit
+            int count = this->Count(solution, points);
             AoeSolution result = {count, solution.second};
             if (count == points.Count()) return result;
             this->Erase(solution, points);

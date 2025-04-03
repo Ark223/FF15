@@ -6073,7 +6073,7 @@ namespace Evade
         {
             float base_scale[] = { 60, 85, 110, 135, 160 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.6f * info.TotalAbilityDamage;
+            return base_damage + 0.5f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::CIRCLE;
@@ -6120,7 +6120,7 @@ namespace Evade
         {
             float base_scale[] = { 60, 85, 110, 135, 160 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.6f * info.TotalAbilityDamage;
+            return base_damage + 0.5f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -6322,7 +6322,7 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 70, 105, 140, 175, 210 };
+            float base_scale[] = { 60, 95, 130, 165, 200 };
             float base_damage = base_scale[info.SpellLevel];
             return base_damage + 0.5f * info.TotalAbilityDamage;
         };
@@ -7138,8 +7138,8 @@ namespace Evade
             API* api = API::Get();
             uint32_t hash = api->FNV1A32("NaafiriQBleed");
 
-            float base_scale[] = { 35, 45, 55, 65, 75 };
-            float bonus_scale[] = { 30, 60, 90, 120, 150 };
+            float base_scale[] = { 35, 40, 45, 50, 55 };
+            float bonus_scale[] = { 35, 60, 85, 110, 135 };
             float base_damage = base_scale[info.SpellLevel];
             float bonus_damage = bonus_scale[info.SpellLevel];
             bonus_damage += 1.0f * info.BonusAttackDamage;
@@ -7183,7 +7183,7 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 35, 50, 65, 80, 95 };
+            float base_scale[] = { 15, 25, 35, 45, 55 };
             float base_damage = base_scale[info.SpellLevel];
             return base_damage + 0.5f * info.BonusAttackDamage;
         };
@@ -7213,7 +7213,7 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 60, 90, 120, 150, 180 };
+            float base_scale[] = { 60, 85, 110, 135, 160 };
             float base_damage = base_scale[info.SpellLevel];
             return base_damage + 0.8f * info.BonusAttackDamage;
         };
@@ -12674,7 +12674,7 @@ namespace Evade
         {
             float base_scale[] = { 70, 110, 150, 190, 230 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.85f * info.TotalAbilityDamage;
+            return base_damage + 0.9f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::LINE;
@@ -12707,9 +12707,9 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 60, 95, 130, 165, 200 };
+            float base_scale[] = { 50, 85, 120, 155, 190 };
             float base_damage = base_scale[info.SpellLevel];
-            float bonus_damage = 0.6f * info.TotalAbilityDamage;
+            float bonus_damage = 0.65f * info.TotalAbilityDamage;
             return (base_damage + bonus_damage) * 1.667f;
         };
         data.DamageType = DamageType::MAGICAL;
@@ -12751,7 +12751,7 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 80, 110, 140, 170, 200 };
+            float base_scale[] = { 70, 100, 130, 160, 190 };
             float base_damage = base_scale[info.SpellLevel];
             return base_damage + 0.45f * info.TotalAbilityDamage;
         };
@@ -12784,9 +12784,9 @@ namespace Evade
         };
         data.Damage = [](const StatData& info)
         {
-            float base_scale[] = { 180, 230, 280 };
+            float base_scale[] = { 170, 220, 270 };
             float base_damage = base_scale[info.SpellLevel];
-            return base_damage + 0.4f * info.TotalAbilityDamage;
+            return base_damage + 0.45f * info.TotalAbilityDamage;
         };
         data.DamageType = DamageType::MAGICAL;
         data.SkillshotType = SkillshotType::CIRCLE;

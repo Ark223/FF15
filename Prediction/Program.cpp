@@ -85,7 +85,7 @@ namespace IPrediction
     void Program::InitComponents()
     {
         // The neural network estimates the probability of a successful spell hit
-        // Its features represent movement behavior, reaction time and spell type
+        // Features include hit ratio, pathing data, reaction time and spell type
         this->network->DefineLayout({6, 12, 1}, {new Mish(), new Sigmoid()});
 
         // Initialize pretrained weights

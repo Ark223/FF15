@@ -298,7 +298,7 @@ namespace IPrediction
 
         const float min_cast_len = 50.0f;
         float hitbox = this->api->GetHitbox(target);
-        float delay = input.Delay + this->GetTotalLatency();
+        float delay = input.Delay + this->GetTotalLatency(2);
         float angle = conic ? M_RAD(input.Angle / 2.0f) : 0.0f;
         float radius = MAX(input.Radius, input.Width / 2.0f);
         output.Margin = (radius + hitbox * input.AddHitbox);
@@ -375,6 +375,7 @@ namespace IPrediction
         // For static spells, offset position by delay
         if (input.Speed == FLT_MAX || input.Speed > 1e+4)
         {
+            delay += 0.03334f; // Some spells need an extra tick
             output.TargetPosition = Geometry::PositionAfter(path, delay);
             output.Margin += angle * output.TargetPosition.Distance(source);
             offset = delay - (offset > 0.0f ? output.Margin : 0.0f) / speed;
@@ -460,7 +461,7 @@ namespace IPrediction
 
     float Utilities::GetTotalLatency(int tick_counter) const
     {
-        return this->api->GetPing() + 0.034f * tick_counter;
+        return this->api->GetPing() + 0.03334f * tick_counter;
     }
 
     Path Utilities::GetWaypoints(const Obj_AI_Base& unit) const

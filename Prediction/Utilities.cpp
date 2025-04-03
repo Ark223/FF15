@@ -175,7 +175,7 @@ namespace IPrediction
         float mia_time = this->program->GetMiaDuration(target);
         float dash_time = this->program->GetDashDuration(target);
         float path_time = this->program->GetPathChangeTime(target);
-        float hit_time = output.TimeToHit - this->GetTotalLatency();
+        float hit_time = output.Intercept - this->GetTotalLatency(2);
 
         float intercept = output.Intercept;
         float hitbox = this->api->GetHitbox(target);
@@ -261,12 +261,13 @@ namespace IPrediction
         float mean_angle = this->program->GetMeanAngleDiff(target);
         float path_count = (float)(data.at(target_id).Count() - 1);
         float path_len = lt.PathLength, react_time = lt.UpdateTime;
-        react_time = MAX(0.0f, 0.25f - (timer - react_time));
+        react_time = MAX(0.0f, react_time - timer + 0.25f) / 0.25f;
+        float linear = (float)(input.SpellType == SpellType::Linear);
 
         // Estimate spell hit probability (0.0% – 99.99%)
         output.Confidence = this->network->Predict({ hit_ratio,
             mean_angle / M_PI_F, MIN(1.0f, path_len / 1000.0f),
-            MIN(1.0f, path_count / 5.0f), react_time / 0.25f })[0];
+            MIN(1.0f, path_count / 5.0f), react_time, linear })[0];
         output.HitChance = output.GetHitChance(output.Confidence);
 
         // Set cast frequency based on path change time or high confidence

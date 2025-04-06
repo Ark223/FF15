@@ -40,6 +40,7 @@ namespace IPrediction
         this->api->RegisterEvent(EventType::OnDraw, OnDrawWrapper);
         this->api->RegisterEvent(EventType::OnNewPath, OnNewPathWrapper);
         this->api->RegisterEvent(EventType::OnProcessSpell, OnProcessSpellWrapper);
+        this->api->RegisterEvent(EventType::OnCreateObject, OnCreateObjectWrapper);
     }
 
     void Program::RegisterMenu()
@@ -75,9 +76,14 @@ namespace IPrediction
         Program::Get()->OnNewPathInternal(unit, paths);
     }
 
-    void Program::OnProcessSpellWrapper(Obj_AI_Base unit, CastInfo info)
+    void Program::OnProcessSpellWrapper(Obj_AI_Base unit, CastInfo cast_info)
     {
-        Program::Get()->OnProcessSpellInternal(unit, info);
+        Program::Get()->OnProcessSpellInternal(unit, cast_info);
+    }
+
+    void Program::OnCreateObjectWrapper(Object object, uint32_t network_id)
+    {
+        Program::Get()->OnCreateObject(object, network_id);
     }
 
     // Component initialization
@@ -133,7 +139,8 @@ namespace IPrediction
 
         // Core settings
         auto core = this->config->AddSubMenu(menu, "Core", "<< Core >>");
-        this->settings["Draw"] = this->config->AddCheckbox(core, "Draw", "Draw Waypoints", true);
+        this->settings["Waypoints"] = this->config->AddCheckbox(core, "Waypoints", "Draw Waypoints", true);
+        this->settings["Windwalls"] = this->config->AddCheckbox(core, "Windwalls", "Draw Wind Walls", true);
         this->settings["Buffer"] = this->config->AddSlider(core, "Buffer", "Collision Buffer", 20, 0, 50, 5);
 
         // Live Demo settings
@@ -338,6 +345,12 @@ namespace IPrediction
         Vector hero_pos = this->api->GetPosition(this->my_hero);
         auto colors = std::vector<uint32_t>{0xC0FFFFFF, 0x30FFFFFF};
 
+        // Remove all windwalls that have exceeded duration
+        this->walls.RemoveAll([&timer](const WallData& info)
+        {
+            return timer - info.StartTime > 4.0f;
+        });
+
         // Process each enemy to update paths for dash spells and blinks
         for (auto it = this->dashes.begin(); it != this->dashes.end(); )
         {
@@ -386,7 +399,7 @@ namespace IPrediction
                 this->UpdatePaths(unit, waypoints, false);
             }
 
-            if (!this->GetValue<bool>("Draw")) return;
+            if (!this->GetValue<bool>("Waypoints")) return;
             const Path& path = this->GetWaypoints(unit);
             const Vector& start = path.front().StartPos;
             const Vector& ending = path.back().EndPos;
@@ -396,7 +409,17 @@ namespace IPrediction
             this->utils->DrawPath(path, height, colors.data());
         });
 
-        // Simulation test for debug
+        // Draw registered and active windwalls
+        if (this->GetValue<bool>("Windwalls"))
+        {
+            this->walls.ForEach([&](const WallData& info)
+            {
+                float height = this->api->GetHeight(info.Polygon[0]);
+                this->api->DrawPolygon(info.Polygon, height, 0xFFFFFFFF);
+            });
+        }
+
+        // Live demo of prediction core
         if (this->GetValue<bool>("D|Run"))
         {
             PredictionInput input = PredictionInput();
@@ -549,6 +572,45 @@ namespace IPrediction
 
         // Track the dash for target
         this->dashes[id] = data;
+    }
+
+    void Program::OnCreateObject(const Object& game_object, const uint32_t network_id)
+    {
+        if (!this->api->IsValid(game_object)) return;
+        if (!this->api->IsMissile(game_object)) return;
+        const size_t npos = std::string::npos;
+
+        // Track windwalls for later collision detection
+        auto missile = this->api->AsMissile(game_object);
+        std::string name = this->api->GetMissileName(missile);
+        if (name.find("YasuoW_VisualMis") == npos) return;
+
+        // Missile should have a valid owner to process
+        auto owner = this->api->GetMissileOwner(missile);
+        if (!this->api->IsValid(owner)) return;
+
+        // Make sure the owner is not an ally
+        auto hero = this->api->AsHero(owner);
+        if (!this->api->IsEnemy(hero)) return;
+
+        float timer = this->api->GetTime();
+        size_t level = this->api->GetSpellLevel(hero, 1);
+        float extension = 160.0f + 35.0f * (level - 1);
+
+        Vector position = this->api->GetMissileStartPos(missile);
+        Vector destination = this->api->GetMissileEndPos(missile);
+        Vector direction = (destination - position).Normalize();
+        Vector perpend = direction.Perpendicular() * extension;
+
+        // Build wall as a rectangle
+        std::vector<Vector> wall{};
+        wall.push_back(position + direction * 300.0f - perpend);
+        wall.push_back(position + direction * 300.0f + perpend);
+        wall.push_back(position + direction * 350.0f + perpend);
+        wall.push_back(position + direction * 350.0f - perpend);
+
+        // Register windwall geometry and timestamp for further processing
+        this->walls.Append({direction, perpend /= extension, wall, timer});
     }
 
     void Program::OnNewPathInternal(const Obj_AI_Base& unit, std::vector<Vector3>& paths)

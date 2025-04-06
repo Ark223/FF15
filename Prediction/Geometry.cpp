@@ -100,6 +100,26 @@ namespace IPrediction
         return MIN(root(t1), root(t2));
     }
 
+    bool Geometry::IsInside(const std::vector<Vector>& poly, Vector& point)
+    {
+        bool inside = false;
+        int size = (int)poly.size();
+
+        // Fast even-odd rule for point-in-polygon test
+        for (int i = 0, j = size - 1; i < size; j = i++)
+        {
+            const Vector& p1 = poly[i], p2 = poly[j];
+            if ((p1.y >= point.y) != (p2.y >= point.y))
+            {
+                float crs = p1.x + (p2.x - p1.x) *
+                    (point.y - p1.y) / (p2.y - p1.y);
+                if (IsZero(crs - point.x)) return true;
+                if (crs > point.x) inside = !inside;
+            }
+        }
+        return inside;
+    }
+
     std::vector<Collision> Geometry::DynamicCollision(const Segment& missile,
         const std::vector<Obstacle>& obstacles, float hitbox, size_t* hit_index)
     {

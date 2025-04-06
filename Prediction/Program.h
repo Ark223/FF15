@@ -12,7 +12,7 @@ namespace IPrediction
 {
     class Utilities;
 
-    const std::string PRED_VERSION = "2025.04.03.02";
+    const std::string PRED_VERSION = "2025.04.06.01";
 
     class Program
     {
@@ -25,6 +25,7 @@ namespace IPrediction
             const bool DependencyCheck() const { return this->libs_loaded; }
             const auto& GetActiveDashes() const { return this->dashes; }
             const auto& GetPathData() const { return this->paths; }
+            const auto& GetWindWalls() const { return this->walls; }
 
             float GetCollisionBuffer() const;
 
@@ -67,11 +68,13 @@ namespace IPrediction
 
             static void OnDrawWrapper();
             static void OnNewPathWrapper(Obj_AI_Base unit, std::vector<Vector3> paths);
-            static void OnProcessSpellWrapper(Obj_AI_Base unit, CastInfo info);
+            static void OnProcessSpellWrapper(Obj_AI_Base unit, CastInfo cast_info);
+            static void OnCreateObjectWrapper(Object object, uint32_t network_id);
 
             // Main components
 
             bool libs_loaded = false;
+            mutable Linq<WallData> walls;
             mutable std::unordered_map<uint32_t, float> windups;
             mutable std::unordered_map<uint32_t, DashData> dashes;
             mutable std::unordered_map<uint32_t, Linq<PathData>> paths;
@@ -86,6 +89,7 @@ namespace IPrediction
             void OnNewPath(const Obj_AI_Base& unit, Linq<Vector> path, float speed);
             void OnProcessSpell(const Obj_AI_Base& unit, const std::string& spell_name,
                 const Vector& start_pos, const Vector& end_pos, const float cast_delay);
+            void OnCreateObject(const Object& game_object, const uint32_t network_id);
             void OnNewPathInternal(const Obj_AI_Base& unit, std::vector<Vector3>& paths);
             void OnProcessSpellInternal(const Obj_AI_Base& unit, const CastInfo& info);
     };

@@ -136,7 +136,7 @@ namespace IPrediction
         float range = this->input.Range + this->input.Radius;
 
         // Use object position if object is valid
-        if (this->api->IsValid(object))
+        if (object && this->api->IsValid(object))
         {
             this->source = this->api->GetPosition(object);
         }

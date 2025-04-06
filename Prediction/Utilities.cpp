@@ -71,7 +71,6 @@ namespace IPrediction
         const Linq<Vector>& candidates, const Vector& star_point) const
     {
         IAoeSpell* spell = nullptr;
-        
         switch (input.SpellType)
         {
             case SpellType::None: return AoeSolution();
@@ -79,7 +78,6 @@ namespace IPrediction
             case SpellType::Linear: return AoeSolution();
             case SpellType::Circular: spell = new Circle(input);
         }
-
         spell->SetCandidates(candidates);
         spell->SetStarPoint(star_point);
         return spell->GetAoeSolution();
@@ -93,9 +91,9 @@ namespace IPrediction
         if (!input.CollisionFlags) return results.ToArray();
         if (input.Speed > 1e+4) return results.ToArray();
 
+        Linq<Obj_AI_Base> units;
         Vector source = input.SourcePosition;
         const float range = input.Range + 500.0f;
-        Linq<Obj_AI_Base> units = Linq<Obj_AI_Base>();
 
         // Function to exclude unit from processing
         auto should_include = [&](const auto& unit)
@@ -145,6 +143,37 @@ namespace IPrediction
             data.CollisionFlag = this->api->IsHero(data.Object) ?
                 CollisionFlag::Heroes : CollisionFlag::Minions;
             results.Append(data);
+        }
+
+        // Detect any collisions that occur within windwall boundaries
+        if ((input.CollisionFlags & (uint32_t)CollisionFlag::WindWall) != 0)
+        {
+            float radius = MAX(input.Radius, input.Width / 2.0f);
+            if (input.SpellType != SpellType::Linear) radius = 100.0f;
+            this->program->GetWindWalls().ForEach([&](const WallData& data)
+            {
+                const float hitbox = radius + buffer;
+                const auto& polygon = data.Offset(data, radius).Polygon;
+                auto solution = Geometry::Intersection(missile, polygon);
+
+                // Add collision if missile intersects windwall
+                if (solution.first && solution.second.IsValid())
+                {
+                    CollisionData data = CollisionData();
+                    data.Position = solution.second.Clone();
+                    data.CollisionFlag = CollisionFlag::WindWall;
+                    results.Append(data);
+                }
+
+                // Add collision if missile starts inside the windwall
+                else if (Geometry::IsInside(polygon, missile.StartPos))
+                {
+                    CollisionData data = CollisionData();
+                    data.Position = missile.StartPos.Clone();
+                    data.CollisionFlag = CollisionFlag::WindWall;
+                    results.Append(data);
+                }
+            });
         }
 
         // Sort results by distance to collision (closest first)

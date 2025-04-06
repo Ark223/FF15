@@ -38,6 +38,10 @@ namespace IPrediction
             case EventType::OnProcessSpell:
                 this->m_api->set_on_process_spell(callback);
                 break;
+
+            case EventType::OnCreateObject:
+                this->m_api->set_on_create_object(callback);
+                break;
         }
     }
 
@@ -95,6 +99,38 @@ namespace IPrediction
     float API::GetTime() const
     {
         return this->m_api->get_riot_clock()->get_time();
+    }
+
+    // Object handlers
+
+    Obj_AI_Hero API::AsHero(const Object& object) const
+    {
+        return (Obj_AI_Hero)(object->as_hero());
+    }
+
+    Obj_AI_Minion API::AsMinion(const Object& object) const
+    {
+        return (Obj_AI_Minion)(object->as_minion());
+    }
+
+    MissileClient API::AsMissile(const Object& object) const
+    {
+        return (MissileClient)(object->as_missile());
+    }
+
+    bool API::IsHero(const Object& object) const
+    {
+        return object->get_type() == 0xE260302C;
+    }
+
+    bool API::IsMinion(const Object& object) const
+    {
+        return object->get_type() == 0xCAA58CB2;
+    }
+
+    bool API::IsMissile(const Object& object) const
+    {
+        return object->get_type() == 0x9C8ADE94;
     }
 
     // Hero actions
@@ -175,6 +211,31 @@ namespace IPrediction
         return this->m_api->get_render_helper()->world_to_screen(vec);
     }
 
+    // Missile data
+
+    Vector API::GetMissileEndPos(const MissileClient& missile) const
+    {
+        return this->ToVector(missile->get_movement()->get_target_position());
+    }
+
+    Vector API::GetMissileStartPos(const MissileClient& missile) const
+    {
+        return this->ToVector(missile->get_movement()->get_start_position());
+    }
+
+    std::string API::GetMissileName(const MissileClient& missile) const
+    {
+        return missile->get_spell_cast_info()->get_spell_data()->get_name();
+    }
+
+    Object API::GetMissileOwner(const MissileClient& missile) const
+    {
+        auto info = missile->get_spell_cast_info();
+        auto manager = this->m_api->get_game_object_manager();
+        uint32_t id = info ? info->get_spell_caster_id() : 0;
+        return id ? manager->get_object_by_id(id).release() : nullptr;
+    }
+
     // Spell cast data
 
     std::string API::GetSpellCastName(const CastInfo& info) const
@@ -230,6 +291,12 @@ namespace IPrediction
         return unit->get_spellbook()->get_spell(slot)->get_name();
     }
 
+    uint32_t API::GetSpellLevel(const Obj_AI_Hero& unit, int slot) const
+    {
+        auto spell = unit->get_spellbook()->get_spell(slot);
+        return MAX(1, MIN(6, spell->get_level()));
+    }
+
     // Object manager
 
     Linq<Obj_AI_Base> API::GetAllyHeroes(float range, const Vector& pos, bool valid) const
@@ -247,19 +314,22 @@ namespace IPrediction
     Linq<Obj_AI_Base> API::GetHeroes(float range, const Vector& pos, bool valid) const
     {
         Linq<Obj_AI_Base> result;
-        bool inf = range == 0.0f || range >= 25000.0f;
+        size_t npos = std::string::npos;
+        float len = range == 0.0f ? 25000.0f : range;
+
         auto manager = this->m_api->get_game_object_manager();
         for (const auto& hero : manager->get_heroes())
         {
-            auto unit = (Obj_AI_Base)hero->as_ai_base();
-
+            auto unit = (Obj_AI_Hero)(hero->as_hero());
             if (valid && !this->IsValid(unit)) continue;
             if (valid && !this->IsVisible(unit)) continue;
-            if (inf) { result.Append(unit); continue; }
+
+            std::string name(unit->get_char_name());
+            if (name.find("Dummy") != npos) continue;
 
             Vector unit_pos = this->GetPosition(unit);
             float dist = unit_pos.DistanceSquared(pos);
-            if (dist <= range * range) result.Append(unit);
+            if (dist <= len * len) result.Append(unit);
         }
         return result;
     }
@@ -280,6 +350,7 @@ namespace IPrediction
     {
         Linq<Obj_AI_Base> result;
         size_t npos = std::string::npos;
+
         auto manager = this->m_api->get_game_object_manager();
         for (const auto& minion : manager->get_minions())
         {

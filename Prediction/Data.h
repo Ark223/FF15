@@ -114,6 +114,36 @@ namespace IPrediction
         }
     };
 
+    struct WallData
+    {
+        std::vector<Vector> Polygon{};
+        Vector Direction = Vector();
+        Vector Rotated = Vector();
+        float StartTime = 0.0f;
+
+        WallData(const Vector& direction, const Vector& rotated,
+            const std::vector<Vector>& polygon, const float timer)
+        {
+            this->Direction = direction;
+            this->Rotated = rotated;
+            this->Polygon = polygon;
+            this->StartTime = timer;
+        }
+
+        static WallData Offset(const WallData& wall, float length)
+        {
+            WallData data = wall;
+            Vector rotated = wall.Rotated * length;
+            Vector direction = wall.Direction * length;
+            const std::vector<Vector>& poly = wall.Polygon;
+            data.Polygon[0] = poly[0] - direction - rotated;
+            data.Polygon[1] = poly[1] - direction + rotated;
+            data.Polygon[2] = poly[2] + direction + rotated;
+            data.Polygon[3] = poly[3] + direction - rotated;
+            return data;
+        }
+    };
+
     struct PredictionInput
     {
         Vector SourcePosition = Vector();

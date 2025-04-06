@@ -18,6 +18,7 @@ namespace IPrediction
     using BuffTable = std::unordered_set<uint32_t>;
     using BuffTypes = std::unordered_set<BuffType>;
     using CastInfo = SpellCastInfo*;
+    using MissileClient = Missile*;
     using Object = GameObject*;
     using Obj_AI_Base = AIBaseCommon*;
     using Obj_AI_Hero = AIHeroPlayer*;
@@ -31,7 +32,8 @@ namespace IPrediction
     {
         OnDraw = 0,
         OnNewPath,
-        OnProcessSpell
+        OnProcessSpell,
+        OnCreateObject
     };
 
     class API
@@ -59,6 +61,14 @@ namespace IPrediction
             float GetPing() const;
             float GetTime() const;
 
+            Obj_AI_Hero AsHero(const Object& object) const;
+            Obj_AI_Minion AsMinion(const Object& object) const;
+            MissileClient AsMissile(const Object& object) const;
+
+            bool IsHero(const Object& object) const;
+            bool IsMinion(const Object& object) const;
+            bool IsMissile(const Object& object) const;
+
             bool CanUseSpell(int slot);
             void CastSpell(int slot, const Object& unit);
             void CastSpell(int slot, const Vector& pos, float height);
@@ -72,6 +82,11 @@ namespace IPrediction
             float GetHeight(const Vector& pos) const;
             Vector2 ToScreen(const Vector& pos, float height);
 
+            Vector GetMissileEndPos(const MissileClient& missile) const;
+            Vector GetMissileStartPos(const MissileClient& missile) const;
+            std::string GetMissileName(const MissileClient& missile) const;
+            Object GetMissileOwner(const MissileClient& missile) const;
+
             std::string GetSpellCastName(const CastInfo& info) const;
             Vector GetSpellCastEndPos(const CastInfo& info) const;
             Vector GetSpellCastStartPos(const CastInfo& info) const;
@@ -83,6 +98,7 @@ namespace IPrediction
             std::string GetObjectName(const Object& object) const;
             std::string GetCharacterName(const Obj_AI_Base& unit) const;
             std::string GetSpellName(const Obj_AI_Hero& unit, int slot) const;
+            uint32_t GetSpellLevel(const Obj_AI_Hero& unit, int slot) const;
 
             Linq<Obj_AI_Base> GetAllyHeroes(float range, const Vector& pos, bool valid = true) const;
             Linq<Obj_AI_Base> GetEnemyHeroes(float range, const Vector& pos, bool valid = true) const;

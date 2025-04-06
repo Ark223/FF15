@@ -577,27 +577,29 @@ namespace Evade
 
     Linq<Obj_AI_Hero> API::GetAllyHeroes(float range, const Vector& pos, bool valid) const
     {
-        auto selector = [&](auto& u) { return this->IsAlly(u); };
+        auto selector = [&](auto& unit) { return this->IsAlly(unit); };
         return this->GetHeroes(range, pos, valid).Where(selector);
     }
 
     Linq<Obj_AI_Hero> API::GetEnemyHeroes(float range, const Vector& pos, bool valid) const
     {
-        auto selector = [&](auto& u) { return this->IsEnemy(u); };
+        auto selector = [&](auto& unit) { return this->IsEnemy(unit); };
         return this->GetHeroes(range, pos, valid).Where(selector);
     }
 
     Linq<Obj_AI_Hero> API::GetHeroes(float range, const Vector& pos, bool valid) const
     {
         Linq<Obj_AI_Hero> result;
-        bool inf = range >= 25000.0f;
+        size_t npos = std::string::npos;
         auto manager = this->m_api->get_game_object_manager();
         for (const auto& hero : manager->get_heroes())
         {
             auto unit = (Obj_AI_Hero)hero->as_hero();
             if (valid && !this->IsValid(unit)) continue;
             if (valid && !this->IsVisible(unit)) continue;
-            if (inf) { result.Append(unit); continue; }
+
+            std::string name(unit->get_char_name());
+            if (name.find("Dummy") != npos) continue;
 
             Vector unit_pos = this->GetPosition(unit);
             float dist = unit_pos.DistanceSquared(pos);
@@ -606,19 +608,19 @@ namespace Evade
         return result;
     }
 
-    Linq<Obj_AI_Minion> API::GetAllyMinions(float range, const Vector& pos) const
+    Linq<Obj_AI_Minion> API::GetAllyMinions(float range, const Vector& pos, bool filter) const
     {
-        auto selector = [&](auto& u) { return this->IsAlly(u); };
-        return this->GetMinions(range, pos).Where(selector);
+        auto selector = [&](auto& unit) { return this->IsAlly(unit); };
+        return this->GetMinions(range, pos, filter).Where(selector);
     }
 
-    Linq<Obj_AI_Minion> API::GetEnemyMinions(float range, const Vector& pos) const
+    Linq<Obj_AI_Minion> API::GetEnemyMinions(float range, const Vector& pos, bool filter) const
     {
-        auto selector = [&](auto& u) { return this->IsEnemy(u); };
-        return this->GetMinions(range, pos).Where(selector);
+        auto selector = [&](auto& unit) { return this->IsEnemy(unit); };
+        return this->GetMinions(range, pos, filter).Where(selector);
     }
 
-    Linq<Obj_AI_Minion> API::GetMinions(float range, const Vector& pos) const
+    Linq<Obj_AI_Minion> API::GetMinions(float range, const Vector& pos, bool filter) const
     {
         Linq<Obj_AI_Minion> result;
         size_t npos = std::string::npos;
@@ -626,8 +628,14 @@ namespace Evade
         for (const auto& minion : manager->get_minions())
         {
             auto unit = (Obj_AI_Minion)minion->as_minion();
-            if (!unit || !this->IsValid(unit)) continue;
-            if (!unit || !this->IsVisible(unit)) continue;
+            
+            if (!this->IsValid(unit)) continue;
+            if (!this->IsVisible(unit)) continue;
+            if (!this->IsAlive(unit)) continue;
+
+            if (filter && this->IsPlant(unit)) continue;
+            if (filter && this->IsWard(unit)) continue;
+
             std::string name(unit->get_char_name());
             if (name.find("Minion") == npos) continue;
 
@@ -723,6 +731,11 @@ namespace Evade
         return unit->get_navigation_path()->is_moving();
     }
 
+    bool API::IsPlant(const Obj_AI_Minion& unit) const
+    {
+        return unit->is_plant();
+    }
+
     bool API::IsValid(const Object& unit) const
     {
         return unit && unit->is_valid();
@@ -736,6 +749,11 @@ namespace Evade
     bool API::IsVulnerable(const Obj_AI_Base& unit) const
     {
         return !this->IsImmortal(unit);
+    }
+
+    bool API::IsWard(const Obj_AI_Minion& unit) const
+    {
+        return unit->is_ward();
     }
 
     bool API::IsWindingUp(const Obj_AI_Base& unit) const

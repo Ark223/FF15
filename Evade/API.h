@@ -140,12 +140,12 @@ namespace Evade
             float CalcMagicalDamage(Obj_AI_Hero& source, Obj_AI_Hero& target, float amount) const;
             float CalcMixedDamage(Obj_AI_Hero& source, Obj_AI_Hero& target, float amount) const;
 
-            Linq<Obj_AI_Hero> GetAllyHeroes(float range, const Vector& pos, bool valid) const;
-            Linq<Obj_AI_Hero> GetEnemyHeroes(float range, const Vector& pos, bool valid) const;
-            Linq<Obj_AI_Hero> GetHeroes(float range, const Vector& pos, bool valid) const;
-            Linq<Obj_AI_Minion> GetAllyMinions(float range, const Vector& pos) const;
-            Linq<Obj_AI_Minion> GetEnemyMinions(float range, const Vector& pos) const;
-            Linq<Obj_AI_Minion> GetMinions(float range, const Vector& pos) const;
+            Linq<Obj_AI_Hero> GetAllyHeroes(float range, const Vector& pos, bool valid = true) const;
+            Linq<Obj_AI_Hero> GetEnemyHeroes(float range, const Vector& pos, bool valid = true) const;
+            Linq<Obj_AI_Hero> GetHeroes(float range, const Vector& pos, bool valid = true) const;
+            Linq<Obj_AI_Minion> GetAllyMinions(float range, const Vector& pos, bool filter = true) const;
+            Linq<Obj_AI_Minion> GetEnemyMinions(float range, const Vector& pos, bool filter = true) const;
+            Linq<Obj_AI_Minion> GetMinions(float range, const Vector& pos, bool filter = true) const;
 
             std::string GetBuffName(const Buff& buff) const;
             Object GetBuffOwner(const Buff& buff) const;
@@ -162,9 +162,11 @@ namespace Evade
             bool IsEnemy(const Obj_AI_Base& unit) const;
             bool IsImmortal(const Obj_AI_Base& unit) const;
             bool IsMoving(const Obj_AI_Base& unit) const;
+            bool IsPlant(const Obj_AI_Minion& unit) const;
             bool IsValid(const Object& unit) const;
             bool IsVisible(const Obj_AI_Base& unit) const;
             bool IsVulnerable(const Obj_AI_Base& unit) const;
+            bool IsWard(const Obj_AI_Minion& unit) const;
             bool IsWindingUp(const Obj_AI_Base& unit) const;
 
             float GetDashSpeed(const Obj_AI_Base& unit) const;

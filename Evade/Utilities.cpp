@@ -491,8 +491,6 @@ namespace Evade
                     bool hard_cc = skillshot->Get().HardCC;
                     return soft_cc || hard_cc;
                 });
-
-                if (blocked.Count() == 0) continue;
                 blocked.ForEach([](Skillshot* skillshot)
                 {
                     skillshot->Set().Processed = true;
@@ -518,8 +516,6 @@ namespace Evade
                     const Collisions& flags = skillshot->Get().Collisions;
                     return std::find(flags.begin(), flags.end(), flag) != flags.end();
                 });
-
-                if (blocked.Count() == 0) continue;
                 blocked.ForEach([](Skillshot* skillshot)
                 {
                     skillshot->Set().Processed = true;
@@ -534,7 +530,10 @@ namespace Evade
                 Vector cast_position = hero_pos.Extend(position, 100.0f);
                 return { cast_position, info, nullptr, delay, true };
             }
-            return { Vector(), info, this->hero, delay, true };
+            else if (data.IsTargeted)
+            {
+                return { Vector(), info, this->hero, delay, true };
+            }
         }
 
         return solution; // Return the best available solution (suboptimal)

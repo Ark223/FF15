@@ -1206,7 +1206,7 @@ namespace Evade
         float delay = (float)this->GetValue<int>("DebugDelay") / 1000.0f;
         float cone_angle = M_RAD((float)this->GetValue<int>("DebugAngle"));
 
-        DamageFunc damage_func = [](const StatData& info) { return 0.0f; };
+        DamageFunc damage_func = [](const auto& info) { return 0.0f; };
         auto collisions = std::vector({ CollisionFlag::WIND_WALL });
         DetectionType detect_type = DetectionType::ON_WND_PROC;
         DamageType damage_type = DamageType::TRUE_DAMAGE;

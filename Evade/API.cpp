@@ -847,7 +847,7 @@ namespace Evade
         Vector start = this->GetPosition(hero);
         float shortest = start.Distance(pos);
         length = this->GetPathLength(path);
-        return length <= shortest + 75.0f;
+        return length <= shortest + 65.0f;
     }
 
     // Vectors

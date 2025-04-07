@@ -18,7 +18,7 @@ namespace Evade
         };
         auto one = [](float sol) -> std::array<float, 3>
         {
-            return { sol, sol, sol };
+            return std::array<float, 3>({sol, sol, sol});
         };
 
         bool a_zero = IsZero(a), b_zero = IsZero(b);
@@ -37,12 +37,12 @@ namespace Evade
 
     std::vector<Vector> Geometry::Arc(const Vector& p1, const Vector& p2, float phi, float step)
     {
-        float angle = -phi * 0.5f;
         std::vector<Vector> result;
+        float angle = -phi * 0.5f;
         float length = p1.Distance(p2) * phi;
         if (IsZero(length)) return { p1 };
-
         if (step > length) step = length;
+
         int steps = (int)(length / step);
         for (int i = 0; i <= steps; ++i)
         {
@@ -78,13 +78,15 @@ namespace Evade
         Vector dp = p2 - p1;
         Vector dc = p1 - circle;
         float area = radius * radius;
+
         float a = dp.LengthSquared();
         float b = 2.0f * dc.DotProduct(dp);
         float c = dc.LengthSquared() - area;
-
         auto t = FindRoots(a, b, c, 1.0f, false);
-        if (t[0]) result.push_back(p1 + dp * t[0]);
-        if (t[1]) result.push_back(p1 + dp * t[1]);
+
+        bool u1 = t[0] <= 1.0f, u2 = t[1] <= 1.0f;
+        if (u1) result.push_back(p1 + dp * t[0]);
+        if (u2) result.push_back(p1 + dp * t[1]);
         return result;
     }
 

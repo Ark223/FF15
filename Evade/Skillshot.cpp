@@ -66,7 +66,7 @@ namespace Evade
         if (left <= 0) return this->IsDangerous(path.StartPos) ||
             this->PathIntersection({path.StartPos, path.EndPos}).Any();
 
-        // Unit's movement speed is instant, path is safe
+        // Collision is impossible for a blink
         if (IsInfinite(path.Speed)) return false;
 
         // Predict collision in the future
@@ -77,6 +77,7 @@ namespace Evade
         // No error propagation, so only one position is checked
         if (path.Delta == 0.0f) return this->IsDangerous(p1);
 
+        // Check if collision occured within a tiny time frame
         return this->IsDangerous(p1) || this->IsDangerous(p2)
             || this->PathIntersection({ p1, p2 }).Count() > 0;
     }

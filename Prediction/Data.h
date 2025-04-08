@@ -114,14 +114,14 @@ namespace IPrediction
         }
     };
 
-    struct WallData
+    struct WindWallData
     {
         std::vector<Vector> Polygon{};
         Vector Direction = Vector();
         Vector Rotated = Vector();
         float StartTime = 0.0f;
 
-        WallData(const Vector& direction, const Vector& rotated,
+        WindWallData(const Vector& direction, const Vector& rotated,
             const std::vector<Vector>& polygon, const float timer)
         {
             this->Direction = direction;
@@ -130,9 +130,9 @@ namespace IPrediction
             this->StartTime = timer;
         }
 
-        static WallData Offset(const WallData& wall, float length)
+        static WindWallData Offset(const WindWallData& wall, float length)
         {
-            WallData data = wall;
+            WindWallData data = wall;
             Vector rotated = wall.Rotated * length;
             Vector direction = wall.Direction * length;
             const std::vector<Vector>& poly = wall.Polygon;

@@ -68,9 +68,17 @@ namespace IPrediction
             this->dashes[data.SpellName] = data;
         };
 
-        // Akali E
+        // Summoner Flash
 
         DashData data;
+        data.SpellName = "SummonerFlash";
+        data.Range = 400.0f;
+        data.IsBlink = true;
+        add_to_table(data);
+
+        // Akali E
+
+        data = DashData();
         data.SpellName = "AkaliE";
         data.Delay = 0.15f;
         data.Range = 0.0f;
@@ -242,7 +250,6 @@ namespace IPrediction
         {
             this->api->FNV1A32("bardrstasis"),
             this->api->FNV1A32("ekkorinvuln"),
-            this->api->FNV1A32("GwenW"),
             this->api->FNV1A32("LissandraRSelf"),
             this->api->FNV1A32("MelWReflect"),
             this->api->FNV1A32("PantheonE"),

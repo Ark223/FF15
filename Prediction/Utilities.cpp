@@ -150,7 +150,7 @@ namespace IPrediction
         {
             float radius = MAX(input.Radius, input.Width / 2.0f);
             if (input.SpellType != SpellType::Linear) radius = 100.0f;
-            this->program->GetWindWalls().ForEach([&](const WallData& data)
+            this->program->GetWindWalls().ForEach([&](const auto& data)
             {
                 const float hitbox = radius + buffer;
                 const auto& polygon = data.Offset(data, radius).Polygon;
@@ -195,10 +195,7 @@ namespace IPrediction
         Vector cast_pos = output.CastPosition;
         const Vector& pred_pos = output.TargetPosition;
         const Segment& last_path = output.Waypoints.back();
-
-        const auto& data = this->program->GetPathData();
-        auto target_id = this->api->GetObjectId(target);
-        const auto& lt = data.at(target_id).Last();
+        uint32_t target_id = this->api->GetObjectId(target);
 
         float timer = this->api->GetTime();
         float mia_time = this->program->GetMiaDuration(target);
@@ -277,8 +274,9 @@ namespace IPrediction
             output.Confidence = 1.0f; return;
         }
 
-        // Always return high confidence for non-hero or ally targets
-        if (!this->api->IsHero(target) || this->api->IsAlly(target))
+        // Assume high accuracy if no path history exists
+        const auto& data = this->program->GetPathData();
+        if (data.find(target_id) == data.end())
         {
             output.CastRate = CastRate::Moderate;
             output.HitChance = HitChance::Extreme;
@@ -286,7 +284,8 @@ namespace IPrediction
         }
 
         // Compute metrics and pass to the model
-        float hit_ratio = max_margin / intercept;
+        const auto& lt = data.at(target_id).Last();
+        float hit_ratio = (max_margin / intercept);
         float mean_angle = this->program->GetMeanAngleDiff(target);
         float path_count = (float)(data.at(target_id).Count() - 1);
         float path_len = lt.PathLength, react_time = lt.UpdateTime;
@@ -485,7 +484,8 @@ namespace IPrediction
     float Utilities::GetImmunityTime(const Obj_AI_Base& unit) const
     {
         const auto& buffs = this->data->GetImmunityBuffs();
-        return this->api->GetBuffTime(unit, buffs);
+        float time = this->api->GetBuffTime(unit, buffs);
+        return time > 0.0f ? time + 0.1f : 0.0f;
     }
 
     float Utilities::GetTotalLatency(int tick_counter) const

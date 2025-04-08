@@ -124,6 +124,9 @@ namespace IPrediction
         {
             this->UpdatePaths(unit, this->utils->GetWaypoints(unit), false);
         });
+
+        // Initialize extra exclusion spells to prevent false spell hits
+        this->exclusions = {"Item2420", "SummonerFlash", "ZhonyasHourglass"};
     }
 
     // Menu constructor
@@ -345,8 +348,8 @@ namespace IPrediction
         Vector hero_pos = this->api->GetPosition(this->my_hero);
         auto colors = std::vector<uint32_t>{0xC0FFFFFF, 0x30FFFFFF};
 
-        // Remove all windwalls that have exceeded duration
-        this->walls.RemoveAll([&timer](const WallData& info)
+        // Remove cached windwalls that have exceeded duration
+        this->wind_walls.RemoveAll([&timer](const auto& info)
         {
             return timer - info.StartTime > 4.0f;
         });
@@ -412,7 +415,7 @@ namespace IPrediction
         // Draw registered and active windwalls
         if (this->GetValue<bool>("Windwalls"))
         {
-            this->walls.ForEach([&](const WallData& info)
+            this->wind_walls.ForEach([&](const auto& info)
             {
                 float height = this->api->GetHeight(info.Polygon[0]);
                 this->api->DrawPolygon(info.Polygon, height, 0xFFFFFFFF);
@@ -546,7 +549,8 @@ namespace IPrediction
         float timer = this->api->GetTime();
 
         // Store the windup time for immobile target
-        this->windups[id] = timer + cast_delay;
+        if (this->exclusions.count(spell_name) == 0)
+            this->windups[id] = timer + cast_delay;
 
         // Process and register the custom dash spell
         const auto& spells = this->data->GetDashSpells();
@@ -610,7 +614,7 @@ namespace IPrediction
         wall.push_back(position + direction * 350.0f - perpend);
 
         // Register windwall geometry and timestamp for further processing
-        this->walls.Append({direction, perpend /= extension, wall, timer});
+        this->wind_walls.Append({direction, perpend /= extension, wall, timer});
     }
 
     void Program::OnNewPathInternal(const Obj_AI_Base& unit, std::vector<Vector3>& paths)

@@ -12,7 +12,7 @@ namespace IPrediction
 {
     class Utilities;
 
-    const std::string PRED_VERSION = "2025.04.06.01";
+    const std::string PRED_VERSION = "2025.04.08.01";
 
     class Program
     {
@@ -23,9 +23,9 @@ namespace IPrediction
             static Program* Get();
 
             const bool DependencyCheck() const { return this->libs_loaded; }
+            const auto& GetWindWalls() const { return this->wind_walls; }
             const auto& GetActiveDashes() const { return this->dashes; }
             const auto& GetPathData() const { return this->paths; }
-            const auto& GetWindWalls() const { return this->walls; }
 
             float GetCollisionBuffer() const;
 
@@ -74,7 +74,8 @@ namespace IPrediction
             // Main components
 
             bool libs_loaded = false;
-            mutable Linq<WallData> walls;
+            mutable Linq<WindWallData> wind_walls;
+            mutable std::unordered_set<std::string> exclusions;
             mutable std::unordered_map<uint32_t, float> windups;
             mutable std::unordered_map<uint32_t, DashData> dashes;
             mutable std::unordered_map<uint32_t, Linq<PathData>> paths;

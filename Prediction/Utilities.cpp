@@ -195,13 +195,17 @@ namespace IPrediction
         Vector cast_pos = output.CastPosition;
         const Vector& pred_pos = output.TargetPosition;
         const Segment& last_path = output.Waypoints.back();
-        uint32_t target_id = this->api->GetObjectId(target);
 
         float timer = this->api->GetTime();
         float mia_time = this->program->GetMiaDuration(target);
         float dash_time = this->program->GetDashDuration(target);
         float path_time = this->program->GetPathChangeTime(target);
         float hit_time = output.Intercept - this->GetTotalLatency(2);
+
+        uint32_t target_id = this->api->GetObjectId(target);
+        uint32_t exclusion_id = this->api->FNV1A32("PantheonE");
+        bool pantheon = this->api->HasBuff(target, {exclusion_id});
+        if (pantheon) hit_time -= output.Intercept - output.TimeToHit;
 
         float intercept = output.Intercept;
         float hitbox = this->api->GetHitbox(target);

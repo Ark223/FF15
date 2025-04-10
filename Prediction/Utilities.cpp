@@ -111,12 +111,7 @@ namespace IPrediction
         Segment missile = Segment(source, destination, input.Speed);
         Vector middle = (missile.StartPos + missile.EndPos) / 2.0f;
 
-        // Find all potential candidates based on the set collision flags
-        if ((input.CollisionFlags & (uint32_t)CollisionFlag::Heroes) != 0)
-        {
-            auto enemies = this->api->GetEnemyHeroes(range, middle);
-            units.AddRange(enemies.Where(should_include));
-        }
+        // Find all potential candidates based on the set collision flag
         if ((input.CollisionFlags & (uint32_t)CollisionFlag::Minions) != 0)
         {
             auto minions = this->api->GetEnemyMinions(range, middle);

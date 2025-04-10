@@ -66,6 +66,12 @@ namespace IPrediction
         CollisionFlag CollisionFlag{};
     };
 
+    struct WindupData
+    {
+        float StartTime = 0.0f;
+        float Duration = 0.0f;
+    };
+
     struct DashData
     {
         std::string SpellName;

@@ -229,6 +229,14 @@ namespace IPrediction
         return this->utils->GetImmobilityTime(unit);
     }
 
+    float Program::GetLastWindupTime(const Obj_AI_Base& unit) const
+    {
+        float timer = this->api->GetTime();
+        uint32_t id = this->api->GetObjectId(unit);
+        if (this->windups.count(id) == 0) return 0.0f;
+        return timer - this->windups[id].StartTime;
+    }
+
     float Program::GetPathChangeTime(const Obj_AI_Base& unit) const
     {
         float timer = this->api->GetTime();
@@ -242,7 +250,8 @@ namespace IPrediction
         float timer = this->api->GetTime();
         uint32_t id = this->api->GetObjectId(unit);
         if (this->windups.count(id) == 0) return 0.0f;
-        return MAX(0.0f, this->windups[id] - timer);
+        return MAX(0.0f, this->windups[id].Duration +
+            this->windups[id].StartTime - timer);
     }
 
     Path Program::GetWaypoints(const Obj_AI_Base& unit) const
@@ -548,9 +557,10 @@ namespace IPrediction
         uint32_t id = this->api->GetObjectId(unit);
         float timer = this->api->GetTime();
 
-        // Store the windup time for immobile target
-        if (this->exclusions.count(spell_name) == 0)
-            this->windups[id] = timer + cast_delay;
+        // Store windup data for immobile target
+        if (this->exclusions.find(spell_name) ==
+            this->exclusions.end() && cast_delay > 0)
+            this->windups[id] = {timer, cast_delay};
 
         // Process and register the custom dash spell
         const auto& spells = this->data->GetDashSpells();

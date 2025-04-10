@@ -200,10 +200,12 @@ namespace IPrediction
         float mia_time = this->program->GetMiaDuration(target);
         float dash_time = this->program->GetDashDuration(target);
         float path_time = this->program->GetPathChangeTime(target);
+        float windup_time = this->program->GetLastWindupTime(target);
         float hit_time = output.Intercept - this->GetTotalLatency(2);
 
         uint32_t target_id = this->api->GetObjectId(target);
         uint32_t exclusion_id = this->api->FNV1A32("PantheonE");
+        bool action_taken = path_time < 0.1f || windup_time < 0.1f;
         bool pantheon = this->api->HasBuff(target, {exclusion_id});
         if (pantheon) hit_time -= output.Intercept - output.TimeToHit;
 
@@ -303,7 +305,7 @@ namespace IPrediction
         output.HitChance = output.GetHitChance(output.Confidence);
 
         // Set cast frequency based on path change time or high confidence
-        bool freq = path_time < 0.1f || output.HitChance >= HitChance::High;
+        bool freq = action_taken || output.HitChance >= HitChance::High;
         output.CastRate = freq ? CastRate::Moderate : CastRate::Instant;
     }
 

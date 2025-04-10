@@ -12,7 +12,7 @@ namespace IPrediction
 {
     class Utilities;
 
-    const std::string PRED_VERSION = "2025.04.08.01";
+    const std::string PRED_VERSION = "2025.04.10.01";
 
     class Program
     {
@@ -31,6 +31,7 @@ namespace IPrediction
 
             float GetMiaDuration(const Obj_AI_Base& unit) const;
             float GetImmobilityTime(const Obj_AI_Base& unit) const;
+            float GetLastWindupTime(const Obj_AI_Base& unit) const;
             float GetPathChangeTime(const Obj_AI_Base& unit) const;
             float GetWindupDuration(const Obj_AI_Base& unit) const;
 
@@ -76,8 +77,8 @@ namespace IPrediction
             bool libs_loaded = false;
             mutable Linq<WindWallData> wind_walls;
             mutable std::unordered_set<std::string> exclusions;
-            mutable std::unordered_map<uint32_t, float> windups;
             mutable std::unordered_map<uint32_t, DashData> dashes;
+            mutable std::unordered_map<uint32_t, WindupData> windups;
             mutable std::unordered_map<uint32_t, Linq<PathData>> paths;
             mutable std::unordered_map<std::string, MenuItem> settings;
 

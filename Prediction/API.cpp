@@ -321,11 +321,12 @@ namespace IPrediction
         for (const auto& hero : manager->get_heroes())
         {
             auto unit = (Obj_AI_Hero)(hero->as_hero());
+            if (!unit || this->IsMe(unit)) continue;
+
             if (valid && !this->IsValid(unit)) continue;
             if (valid && !this->IsVisible(unit)) continue;
-
-            std::string name(unit->get_char_name());
-            if (name.find("Dummy") != npos) continue;
+            std::string charname(unit->get_char_name());
+            if (charname.find("Dummy") != npos) continue;
 
             Vector unit_pos = this->GetPosition(unit);
             float dist = unit_pos.DistanceSquared(pos);
@@ -468,6 +469,11 @@ namespace IPrediction
     bool API::IsHero(const Obj_AI_Base& unit) const
     {
         return unit->get_type() == 0xE260302C;
+    }
+
+    bool API::IsMe(const Obj_AI_Base& unit) const
+    {
+        return this->Compare(unit, this->m_hero);
     }
 
     bool API::IsMoving(const Obj_AI_Base& unit) const

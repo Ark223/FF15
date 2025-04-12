@@ -200,8 +200,8 @@ namespace IPrediction
 
         uint32_t target_id = this->api->GetObjectId(target);
         uint32_t exclusion_id = this->api->FNV1A32("PantheonE");
-        bool action_taken = path_time < 0.1f || windup_time < 0.1f;
         bool pantheon = this->api->HasBuff(target, {exclusion_id});
+        bool action_taken = path_time < 0.05f || windup_time < 0.05f;
         if (pantheon) hit_time -= output.Intercept - output.TimeToHit;
 
         float intercept = output.Intercept;
@@ -299,7 +299,7 @@ namespace IPrediction
             MIN(1.0f, path_count / 5.0f), react_time, linear })[0];
         output.HitChance = output.GetHitChance(output.Confidence);
 
-        // Set cast frequency based on path change time or high confidence
+        // Set cast frequency based on last action time and confidence
         bool freq = action_taken || output.HitChance >= HitChance::High;
         output.CastRate = freq ? CastRate::Moderate : CastRate::Instant;
     }
@@ -325,7 +325,7 @@ namespace IPrediction
         bool is_dashing = this->program->IsDashing(target);
         bool conic = input.SpellType == SpellType::Conic;
 
-        const float min_cast_len = 50.0f;
+        const float min_cast_len = 75.0f;
         float hitbox = this->api->GetHitbox(target);
         float delay = input.Delay + this->GetTotalLatency(2);
         float angle = conic ? M_RAD(input.Angle / 2.0f) : 0.0f;

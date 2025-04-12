@@ -118,6 +118,7 @@ namespace IPrediction
             bool IsDead(const Obj_AI_Base& unit) const;
             bool IsEnemy(const Obj_AI_Base& unit) const;
             bool IsHero(const Obj_AI_Base& unit) const;
+            bool IsMe(const Obj_AI_Base& unit) const;
             bool IsMoving(const Obj_AI_Base& unit) const;
             bool IsPlant(const Obj_AI_Minion& unit) const;
             bool IsValid(const Object& unit) const;

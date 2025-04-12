@@ -119,8 +119,8 @@ namespace IPrediction
            -0.54395574,  1.0644993,   0.2848414,  -0.3592015,   0.9421906
         });
 
-        // Initialize a path history for each enemy (used for hit chance)
-        this->api->GetEnemyHeroes(0, Vector(), false).ForEach([&](auto& unit)
+        // Initialize a path history for each hero (used for hit chance)
+        this->api->GetHeroes(0, Vector(), false).ForEach([&](auto& unit)
         {
             this->UpdatePaths(unit, this->utils->GetWaypoints(unit), false);
         });
@@ -363,7 +363,7 @@ namespace IPrediction
             return timer - info.StartTime > 4.0f;
         });
 
-        // Process each enemy to update paths for dash spells and blinks
+        // Process each hero to update paths for dash spells and blinks
         for (auto it = this->dashes.begin(); it != this->dashes.end(); )
         {
             DashData& data = it->second;
@@ -388,8 +388,11 @@ namespace IPrediction
         // Process each enemy to update and render standard movement paths
         this->api->GetEnemyHeroes(0, Vector(), false).ForEach([&](auto& unit)
         {
-            // Remove old entries from path history
+            // Make sure that path data exists for unit
             uint32_t id = this->api->GetObjectId(unit);
+            if (this->paths.count(id) == 0) return;
+
+            // Clean up outdated entries from the path history
             this->CleanUpHistory(this->paths[id], timer, 1.0f);
 
             if (this->api->IsDead(unit))
@@ -411,7 +414,9 @@ namespace IPrediction
                 this->UpdatePaths(unit, waypoints, false);
             }
 
+            if (!this->api->IsEnemy(unit)) return;
             if (!this->GetValue<bool>("Waypoints")) return;
+
             const Path& path = this->GetWaypoints(unit);
             const Vector& start = path.front().StartPos;
             const Vector& ending = path.back().EndPos;
@@ -629,8 +634,8 @@ namespace IPrediction
 
     void Program::OnNewPathInternal(const Obj_AI_Base& unit, std::vector<Vector3>& paths)
     {
+        if (this->api->IsMe(unit)) return;
         if (!this->api->IsHero(unit)) return;
-        if (!this->api->IsEnemy(unit)) return;
         float speed = this->api->GetPathSpeed(unit);
         auto converter = [&](const auto& p) { return this->api->ToVector(p); };
         this->OnNewPath(unit, Linq(paths).Select<Vector>(converter), speed);
@@ -638,8 +643,8 @@ namespace IPrediction
 
     void Program::OnProcessSpellInternal(const Obj_AI_Base& unit, const CastInfo& info)
     {
+        if (this->api->IsMe(unit)) return;
         if (!this->api->IsHero(unit)) return;
-        if (!this->api->IsEnemy(unit)) return;
         auto name = this->api->GetSpellCastName(info);
         Vector end_pos = this->api->GetSpellCastEndPos(info);
         Vector start_pos = this->api->GetSpellCastStartPos(info);

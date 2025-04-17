@@ -122,7 +122,7 @@ namespace IPrediction
 
     struct WindWallData
     {
-        std::vector<Vector> Polygon{};
+        Polygon Polygon{};
         Vector Direction = Vector();
         Vector Rotated = Vector();
         float StartTime = 0.0f;
@@ -141,11 +141,10 @@ namespace IPrediction
             WindWallData data = wall;
             Vector rotated = wall.Rotated * length;
             Vector direction = wall.Direction * length;
-            const std::vector<Vector>& poly = wall.Polygon;
-            data.Polygon[0] = poly[0] - direction - rotated;
-            data.Polygon[1] = poly[1] - direction + rotated;
-            data.Polygon[2] = poly[2] + direction + rotated;
-            data.Polygon[3] = poly[3] + direction - rotated;
+            data.Polygon[0] = wall.Polygon[0] - direction - rotated;
+            data.Polygon[1] = wall.Polygon[1] - direction + rotated;
+            data.Polygon[2] = wall.Polygon[2] + direction + rotated;
+            data.Polygon[3] = wall.Polygon[3] + direction - rotated;
             return data;
         }
     };

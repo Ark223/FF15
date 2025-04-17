@@ -75,7 +75,7 @@ namespace IPrediction
         {
             case SpellType::None: return AoeSolution();
             case SpellType::Conic: return AoeSolution();
-            case SpellType::Linear: return AoeSolution();
+            case SpellType::Linear: spell = new Line(input);
             case SpellType::Circular: spell = new Circle(input);
         }
         spell->SetCandidates(candidates);
@@ -291,12 +291,12 @@ namespace IPrediction
         float path_count = (float)(data.at(target_id).Count() - 1);
         float path_len = lt.PathLength, react_time = lt.UpdateTime;
         react_time = MAX(0.0f, react_time - timer + 0.25f) / 0.25f;
-        float linear = (float)(input.SpellType == SpellType::Linear);
+        float type = (float)(input.SpellType != SpellType::Circular);
 
         // Estimate spell hit probability (0.0% – 99.99%)
         output.Confidence = this->network->Predict({ hit_ratio,
             mean_angle / M_PI_F, MIN(1.0f, path_len / 1000.0f),
-            MIN(1.0f, path_count / 5.0f), react_time, linear })[0];
+            MIN(1.0f, path_count / 5.0f), react_time, type })[0];
         output.HitChance = output.GetHitChance(output.Confidence);
 
         // Set cast frequency based on last action time and confidence

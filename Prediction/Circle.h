@@ -9,14 +9,15 @@ namespace IPrediction
     class Circle : public IAoeSpell
     {
         private:
-            void Initialize();
+            Vector Mean(Linq<Vector>& points);
             int Count(const Solution& circle, Linq<Vector>& points);
-            void Erase(const Solution& circle, Linq<Vector>& points);
+            void Erase(const Vector& center, Linq<Vector>& points);
             bool IsInside(const Vector& circle, const Vector& point);
             bool IsInside(const Solution& circle, const Vector& point);
             Solution Trivial(const Linq<Vector>& boundary, bool repair);
             Solution Welzl(Linq<Vector> points, Linq<Vector>& boundary);
-            AoeSolution FindMEC(Linq<Vector> points);
+            AoeSolution FindSolution(Linq<Vector> points);
+            void Initialize(Linq<Vector>& points);
 
         public:
             AoeSolution GetAoeSolution() override;

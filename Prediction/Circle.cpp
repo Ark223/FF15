@@ -5,6 +5,12 @@ namespace IPrediction
 {
     // Helper methods
 
+    Vector Circle::Mean(Linq<Vector>& points)
+    {
+        auto reducer = [](const Vector& a, const Vector& b) { return a + b; };
+        return points.Aggregate(Vector(), reducer) / (float)points.Count();
+    }
+
     int Circle::Count(const Solution& circle, Linq<Vector>& points)
     {
         return (int)points.Count([&](const Vector& point)
@@ -13,12 +19,12 @@ namespace IPrediction
         });
     }
 
-    void Circle::Erase(const Solution& circle, Linq<Vector>& points)
+    void Circle::Erase(const Vector& center, Linq<Vector>& points)
     {
         points.Remove(points.MaxBy<float>([&](const Vector& point)
         {
             if (point == this->star_point) return 0.0f;
-            return point.DistanceSquared(circle.second);
+            return point.DistanceSquared(center);
         }));
     }
 
@@ -104,9 +110,9 @@ namespace IPrediction
         return circle;
     }
 
-    AoeSolution Circle::FindMEC(Linq<Vector> points)
+    AoeSolution Circle::FindSolution(Linq<Vector> points)
     {
-        this->Initialize();
+        this->Initialize(points);
         while (points.Count() > 0)
         {
             // Compute the minimum enclosing circle
@@ -122,18 +128,19 @@ namespace IPrediction
             int count = this->Count(solution, points);
             AoeSolution result = {count, solution.second};
             if (count == points.Count()) return result;
-            this->Erase(solution, points);
+
+            // Remove the weakest candidate and repeat
+            this->Erase(this->Mean(points), points);
         }
         return AoeSolution();
     }
 
     // Core methods
 
-    void Circle::Initialize()
+    void Circle::Initialize(Linq<Vector>& points)
     {
         this->source = this->input.SourcePosition;
         const auto& object = this->input.SourceObject;
-        float range = this->input.Range + this->input.Radius;
 
         // Use object position if object is valid
         if (object && this->api->IsValid(object))
@@ -141,17 +148,18 @@ namespace IPrediction
             this->source = this->api->GetPosition(object);
         }
 
-        // Filter candidates to only those within effective range
-        this->candidates = this->candidates.Where([&](auto& point)
+        // Filter candidates to only those within spell range
+        float range = this->input.Range + this->input.Radius;
+        points.RemoveAll([this, &range](const Vector& point)
         {
             float distance = this->source.DistanceSquared(point);
-            return distance <= range * range;
+            return distance > range * range;
         });
     }
 
     AoeSolution Circle::GetAoeSolution()
     {
-        return this->FindMEC(this->candidates);
+        return this->FindSolution(this->candidates);
     }
 
     void Circle::SetCandidates(Linq<Vector> candidates)

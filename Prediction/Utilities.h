@@ -4,6 +4,7 @@
 
 #include "Circle.h"
 #include "Geometry.h"
+#include "Line.h"
 #include "Program.h"
 
 namespace IPrediction

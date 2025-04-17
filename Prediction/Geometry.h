@@ -11,6 +11,7 @@ namespace IPrediction
     struct Segment;
 
     using Path = std::vector<Segment>;
+    using Polygon = std::vector<Vector>;
     using Obstacle = std::pair<float, Path>;
     using Solution = std::pair<float, Vector>;
     using Collision = std::pair<size_t, Solution>;
@@ -48,13 +49,13 @@ namespace IPrediction
     {
         public:
             static float Angle(const Vector& v1, const Vector& v2);
-            static Path CutPath(const Path& path, float length);
+            static Path CutPath(const Path& path, const float length);
             static float FindRoot(float a, float b, float c, float max);
-            static bool IsInside(const std::vector<Vector>& poly, Vector& point);
+            static bool IsInside(const Polygon& poly, const Vector& point);
             static std::vector<Collision> DynamicCollision(const Segment& missile,
                 const std::vector<Obstacle>& obstacles, float hitbox, size_t* hit_index = 0);
             static Solution Interception(const Path& path, const Vector& source, float speed);
-            static Solution Intersection(const Segment& missile, const std::vector<Vector>& poly);
+            static Solution Intersection(const Segment& missile, const Polygon& poly);
             static Vector PositionAfter(const Path& path, float time);
 
     };

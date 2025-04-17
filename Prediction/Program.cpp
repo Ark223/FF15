@@ -289,9 +289,13 @@ namespace IPrediction
     AoeSolution Program::GetAoeSolution(const Linq<Obj_AI_Base>& candidates,
         const PredictionInput& input, const Obj_AI_Base& star_unit) const
     {
+        PredictionInput inputs = input;
+        auto fa = [&](auto& unit) { return this->api->GetHitbox(unit); };
+        auto fb = [&](auto& unit) { return this->api->GetPosition(unit); };
+
+        inputs.Radius += input.AddHitbox ? candidates.Min(fa) : 0.0f;
         Vector star = star_unit ? this->api->GetPosition(star_unit) : Vector();
-        auto converter = [&](auto& unit) { return this->api->GetPosition(unit); };
-        return this->GetAoeSolution(candidates.Select<Vector>(converter), input, star);
+        return this->GetAoeSolution(candidates.Select<Vector>(fb), inputs, star);
     }
 
     PredictionOutput Program::GetPrediction(const PredictionInput& input) const
@@ -522,14 +526,14 @@ namespace IPrediction
 
             if (this->GetValue<int>("M|Type") == 0)
             {
-                // Draw a rectangle to simulate path for linear skillshot
-                std::vector<Vector> box = {dest_pos - perpend, dest_pos
-                    + perpend, hero_pos + perpend, hero_pos - perpend};
+                // Draw rectangle to simulate path of a linear skillshot
+                Polygon box = Polygon({dest_pos - perpend, dest_pos +
+                    perpend, hero_pos + perpend, hero_pos - perpend});
                 this->api->DrawPolygon(box, height, 0xFFFFFFFF);
             }
-            else
+            else if (this->GetValue<int>("M|Type") == 1)
             {
-                // Draw a circle at the destination for circular skillshot
+                // Draw the circular skillshot at the target position
                 this->api->DrawCircle(dest_pos, radius, height, 0xFFFFFFFF);
             }
         }
@@ -621,8 +625,8 @@ namespace IPrediction
         Vector direction = (destination - position).Normalize();
         Vector perpend = direction.Perpendicular() * extension;
 
-        // Build wall as a rectangle
-        std::vector<Vector> wall{};
+        // Build wall as rectangle
+        Polygon wall = Polygon();
         wall.push_back(position + direction * 300.0f - perpend);
         wall.push_back(position + direction * 300.0f + perpend);
         wall.push_back(position + direction * 350.0f + perpend);

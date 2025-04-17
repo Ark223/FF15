@@ -10,7 +10,7 @@ namespace IPrediction
         return std::atan2(ABS(cross), dot);
     }
 
-    Path Geometry::CutPath(const Path& path, float length)
+    Path Geometry::CutPath(const Path& path, const float length)
     {
         Path result = Path();
         if (path.empty()) return result;
@@ -100,7 +100,7 @@ namespace IPrediction
         return MIN(root(t1), root(t2));
     }
 
-    bool Geometry::IsInside(const std::vector<Vector>& poly, Vector& point)
+    bool Geometry::IsInside(const Polygon& poly, const Vector& point)
     {
         bool inside = false;
         int size = (int)poly.size();
@@ -243,7 +243,7 @@ namespace IPrediction
         return { distance / speed, path.back().EndPos };
     }
 
-    Solution Geometry::Intersection(const Segment& missile, const std::vector<Vector>& poly)
+    Solution Geometry::Intersection(const Segment& missile, const Polygon& poly)
     {
         float dist = FLT_MAX;
         size_t size = poly.size();

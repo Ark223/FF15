@@ -15,7 +15,7 @@ namespace IPrediction
             bool IsInside(const Vector& circle, const Vector& point);
             bool IsInside(const Solution& circle, const Vector& point);
             Solution Trivial(const Linq<Vector>& boundary, bool repair);
-            Solution Welzl(Linq<Vector> points, Linq<Vector>& boundary);
+            Solution Welzl(Linq<Vector>& p, Linq<Vector>& r, size_t n);
             AoeSolution FindSolution(Linq<Vector> points);
             void Initialize(Linq<Vector>& points);
 

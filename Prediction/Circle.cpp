@@ -86,10 +86,9 @@ namespace IPrediction
         return {center.DistanceSquared(pa), center};
     }
 
-    Solution Circle::Welzl(Linq<Vector> points, Linq<Vector>& boundary)
+    Solution Circle::Welzl(Linq<Vector>& points, Linq<Vector>& boundary, size_t size)
     {
         auto& array = points.ToArray();
-        size_t size = array.size();
         if (size == 0 || boundary.Count() == 3)
             return this->Trivial(boundary, true);
 
@@ -97,17 +96,16 @@ namespace IPrediction
         size_t index = std::rand() % size--;
         std::swap(array[index], array[size]);
         Vector point = array[size];
-        points.RemoveAt(size);
 
-        // Circle is valid if point lies inside it
-        Solution circle = this->Welzl(points, boundary);
-        if (this->IsInside(circle, point)) return circle;
+        // Circle is valid if point lies inside of it
+        auto mec = this->Welzl(points, boundary, size);
+        if (this->IsInside(mec, point)) return mec;
 
         // Point must be on the boundary
         boundary.Append(point);
-        circle = this->Welzl(points, boundary);
+        mec = this->Welzl(points, boundary, size);
         boundary.RemoveAt(boundary.Count() - 1);
-        return circle;
+        return mec;
     }
 
     AoeSolution Circle::FindSolution(Linq<Vector> points)
@@ -116,8 +114,8 @@ namespace IPrediction
         while (points.Count() > 0)
         {
             // Compute the minimum enclosing circle
-            Linq<Vector> empty = Linq<Vector>({});
-            auto solution = this->Welzl(points, empty);
+            Linq<Vector> p = points, r = Linq<Vector>();
+            auto solution = this->Welzl(p, r, p.Count());
 
             // Clamp the center within spell range
             solution.second = this->source.Extend(

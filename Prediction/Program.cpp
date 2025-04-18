@@ -526,7 +526,7 @@ namespace IPrediction
 
             if (this->GetValue<int>("M|Type") == 0)
             {
-                // Draw rectangle to simulate path of a linear skillshot
+                // Draw rectangle to simulate path of linear skillshot
                 Polygon box = Polygon({dest_pos - perpend, dest_pos +
                     perpend, hero_pos + perpend, hero_pos - perpend});
                 this->api->DrawPolygon(box, height, 0xFFFFFFFF);

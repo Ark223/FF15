@@ -29,36 +29,28 @@ namespace IPrediction
         // Symmetric interval around base angle
         float alpha = this->Normalize(phi - delta);
         float beta = this->Normalize(phi + delta);
-        return Interval({ alpha, beta });
+        return Interval({alpha, beta});
     }
 
     Linq<Event> Line::GetEvents(Linq<Vector>& points)
     {
         const float two_pi = 2.0f * M_PI_F;
         Linq<Event> events = Linq<Event>();
+
+        // Build allowed intervals for each point
         points.ForEach([&](const Vector& point)
         {
-            // Generate the candidate’s allowed interval
-            Interval interval = this->GetInterval(point);
-            if (interval.Alpha <= interval.Beta)
-            {
-                // Standard case for plain interval
-                events.Append({ interval.Alpha, +1 });
-                events.Append({ interval.Beta,  -1 });
-            }
-            else
-            {
-                // Keep it continuous if crosses -π/π
-                events.Append({ interval.Alpha, +1 });
-                events.Append({ interval.Beta + two_pi, -1 });
-            }
+            Interval iv = this->GetInterval(point);
+            float alpha = iv.Alpha, beta = iv.Beta;
+            beta += (alpha > beta) ? two_pi : 0.0f;
+            events.AddRange({{alpha, +1}, {beta, -1}});
         });
 
         // Shift events by 2π to handle wraparound in sweep
         for (size_t id = 0; id < 2 * points.Count(); ++id)
         {
             const Event& event = events.ElementAt(id);
-            events.Append({ event.Angle + two_pi, event.Delta });
+            events.Append({event.Angle + two_pi, event.Delta});
         }
 
         // Order is used to efficiently sweep through angles

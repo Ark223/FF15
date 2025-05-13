@@ -6,7 +6,10 @@
 
 namespace IPrediction
 {
-    struct Event { float Angle; int Delta; };
+    using Range = std::pair<size_t, size_t>;
+
+    struct Result { int Count; float Margin; Vector Spot; };
+    struct Event { float Angle; int Delta; Vector Point; };
     struct Interval { float Alpha; float Beta; };
 
     class Line : public IAoeSpell
@@ -15,6 +18,9 @@ namespace IPrediction
             float Normalize(float angle);
             Interval GetInterval(const Vector& point);
             Linq<Event> GetEvents(Linq<Vector>& points);
+            Range GetSweepRange(const Linq<Event>& events);
+            Linq<Vector> FindCovered(Linq<Vector>& points,
+                Vector& direction, Linq<float>& laterals);
             AoeSolution FindSolution(Linq<Vector> points);
             void Initialize(Linq<Vector>& points);
 

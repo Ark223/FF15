@@ -140,13 +140,13 @@ namespace IPrediction
         auto menu = this->config->CreateMenu("Prediction", "Prediction");
         this->config->AddLabel(menu, "Settings", "Settings", true);
 
-        // Core settings
-        auto core = this->config->AddSubMenu(menu, "Core", "<< Core >>");
-        this->settings["Waypoints"] = this->config->AddCheckbox(core, "Waypoints", "Draw Waypoints", true);
-        this->settings["Windwalls"] = this->config->AddCheckbox(core, "Windwalls", "Draw Wind Walls", true);
-        this->settings["Buffer"] = this->config->AddSlider(core, "Buffer", "Collision Buffer", 20, 0, 50, 5);
+        // Tweak settings
+        auto tweaks = this->config->AddSubMenu(menu, "Tweaks", "<< Tweaks >>");
+        this->settings["Waypoints"] = this->config->AddCheckbox(tweaks, "Waypoints", "Draw Waypoints", true);
+        this->settings["Windwalls"] = this->config->AddCheckbox(tweaks, "Windwalls", "Draw Wind Walls", true);
+        this->settings["Buffer"] = this->config->AddSlider(tweaks, "Buffer", "Collision Buffer", 35, 0, 50, 5);
 
-        // Live Demo settings
+        // Demo settings
         auto demo = this->config->AddSubMenu(menu, "Demo", "<< Live Demo >>");
 
         this->settings["D|Run"] = this->config->AddCheckbox(demo, "D|Run", "Run Live Demo", false);
@@ -167,13 +167,16 @@ namespace IPrediction
         this->settings["D|HitChance"] = this->config->AddList(demo, "D|HitChance", "Hit Chance", hit_chances, 1);
         this->settings["D|CastRate"] = this->config->AddList(demo, "D|CastRate", "Cast Rate", cast_rates, 1);
 
-        // Measurement settings
-        auto measurement = this->config->AddSubMenu(menu, "Measurement", "<< Measurement >>");
-        this->settings["M|Draw"] = this->config->AddCheckbox(measurement, "M|Draw", "Draw Skillshot", false);
-        this->settings["M|Fixed"] = this->config->AddCheckbox(measurement, "M|Fixed", "Fixed Range", true);
-        this->settings["M|Range"] = this->config->AddSlider(measurement, "M|Range", "Range", 1200, 200, 2000, 25);
-        this->settings["M|Radius"] = this->config->AddSlider(measurement, "M|Radius", "Radius", 60, 20, 300, 5);
-        this->settings["M|Type"] = this->config->AddList(measurement, "M|Type", "Type", { "Line", "Circle" }, 0);
+        // Dev settings
+        auto dev = this->config->AddSubMenu(menu, "Dev", "<< Dev Tool >>");
+
+        this->config->AddLabel(dev, "Indicator", "Indicator", true);
+        this->settings["I|Draw"] = this->config->AddCheckbox(dev, "I|Draw", "Draw Skillshot", false);
+        this->settings["I|Fixed"] = this->config->AddCheckbox(dev, "I|Fixed", "Fixed Range", true);
+        this->settings["I|Angle"] = this->config->AddSlider(dev, "I|Angle", "Angle", 60, 0, 180, 1);
+        this->settings["I|Range"] = this->config->AddSlider(dev, "I|Range", "Range", 1200, 200, 2000, 25);
+        this->settings["I|Radius"] = this->config->AddSlider(dev, "I|Radius", "Radius", 60, 20, 300, 5);
+        this->settings["I|Type"] = this->config->AddList(dev, "I|Type", "Type", { "Line", "Circle", "Cone" }, 0);
 
         // Version
         this->config->AddLabel(menu, "Creator", "Creator: Uncle Ark", true);
@@ -296,6 +299,20 @@ namespace IPrediction
         inputs.Radius += input.AddHitbox ? candidates.Min(fa) : 0.0f;
         Vector star = star_unit ? this->api->GetPosition(star_unit) : Vector();
         return this->GetAoeSolution(candidates.Select<Vector>(fb), inputs, star);
+    }
+
+    std::vector<CollisionData> Program::GetCollision(const PredictionInput& input,
+        const Vector& destination, float buffer, uint32_t exclude_id) const
+    {
+        return this->utils->GetCollision(input, destination, buffer, exclude_id);
+    }
+
+    Vector Program::GetPosition(const Obj_AI_Base& target, const float delay) const
+    {
+        PredictionInput input;
+        input.Radius = input.Width = 0.0f;
+        input.TargetObject = target; input.Delay = delay;
+        return this->utils->PredictOnPath(input).TargetPosition;
     }
 
     PredictionOutput Program::GetPrediction(const PredictionInput& input) const
@@ -507,11 +524,12 @@ namespace IPrediction
         }
 
         // Skillshot measurement option
-        if (this->GetValue<bool>("M|Draw"))
+        if (this->GetValue<bool>("I|Draw"))
         {
-            bool fixed = this->GetValue<bool>("M|Fixed");
-            float range = (float)this->GetValue<int>("M|Range");
-            float radius = (float)this->GetValue<int>("M|Radius");
+            bool fixed = this->GetValue<bool>("I|Fixed");
+            float angle = (float)this->GetValue<int>("I|Angle");
+            float range = (float)this->GetValue<int>("I|Range");
+            float radius = (float)this->GetValue<int>("I|Radius");
             float height = this->api->GetHeight(this->my_hero);
 
             Vector mouse_pos = this->api->GetCursorPos();
@@ -523,19 +541,26 @@ namespace IPrediction
             distance = fixed ? range : MIN(range, distance);
             Vector dest_pos = hero_pos + direction * distance;
             Vector perpend = direction.Perpendicular() * radius;
+            Polygon polygon = Polygon({ hero_pos, dest_pos });
 
-            if (this->GetValue<int>("M|Type") == 0)
+            if (this->GetValue<int>("I|Type") == 0)
             {
                 // Draw rectangle to simulate path of linear skillshot
                 Polygon box = Polygon({dest_pos - perpend, dest_pos +
                     perpend, hero_pos + perpend, hero_pos - perpend});
-                this->api->DrawPolygon(box, height, 0xFFFFFFFF);
+                return this->api->DrawPolygon(box, height, 0xFFFFFFFF);
             }
-            else if (this->GetValue<int>("M|Type") == 1)
+
+            else if (this->GetValue<int>("I|Type") == 2)
             {
-                // Draw the circular skillshot at the target position
-                this->api->DrawCircle(dest_pos, radius, height, 0xFFFFFFFF);
+                // Draw the cone shape (a circle sector) starting from hero
+                auto arc = Geometry::Arc(polygon.data(), M_RAD(angle), 25.0f);
+                this->api->DrawLine(hero_pos, arc.back(), height, 0xFFFFFFFF);
+                return this->api->DrawPolygon(polygon, height, 0xFFFFFFFF);
             }
+
+            // Draw the circular skillshot at the target position
+            this->api->DrawCircle(dest_pos, radius, height, 0xFFFFFFFF);
         }
     }
 

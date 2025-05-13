@@ -123,6 +123,9 @@ namespace IPrediction
 
             int IndexOf(T item, int index = -1, int count = -1) const;
 
+            template<typename TPredicate>
+            int IndexOf(TPredicate predicate, int index = -1, int count = -1) const;
+
             Linq Intersect(const Linq<T>& other) const;
 
             template<typename TKey>
@@ -134,6 +137,9 @@ namespace IPrediction
             T Last(TPredicate predicate) const;
 
             int LastIndexOf(T item, int index = -1, int count = -1) const;
+
+            template<typename TPredicate>
+            int LastIndexOf(TPredicate predicate, int index = -1, int count = -1) const;
 
             T LastOrDefault(const T& default_value = T()) const;
 

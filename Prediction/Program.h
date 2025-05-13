@@ -12,7 +12,7 @@ namespace IPrediction
 {
     class Utilities;
 
-    const std::string PRED_VERSION = "2025.04.18.01";
+    const std::string PRED_VERSION = "2025.05.14.01";
 
     class Program
     {
@@ -43,6 +43,9 @@ namespace IPrediction
                 const PredictionInput& input, const Vector& star_pt) const;
             AoeSolution GetAoeSolution(const Linq<Obj_AI_Base>& candidates,
                 const PredictionInput& input, const Obj_AI_Base& star_obj) const;
+            std::vector<CollisionData> GetCollision(const PredictionInput& input,
+                const Vector& destination, float buffer, uint32_t exclude_id) const;
+            Vector GetPosition(const Obj_AI_Base& target, const float delay) const;
             PredictionOutput GetPrediction(const PredictionInput& input) const;
 
             float GetBlinkDuration(const Obj_AI_Base& unit) const;

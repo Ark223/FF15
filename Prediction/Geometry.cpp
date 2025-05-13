@@ -10,6 +10,26 @@ namespace IPrediction
         return std::atan2(ABS(cross), dot);
     }
 
+    Polygon Geometry::Arc(Vector* vec, float phi, float step)
+    {
+        std::vector<Vector> result;
+        const Vector& p1 = vec[0], p2 = vec[1];
+        float length = p1.Distance(p2) * phi;
+        if (IsZero(length)) return { p1 };
+        
+        float angle = -phi * 0.5f;
+        if (step > length) step = length;
+        int steps = (int)(length / step);
+
+        for (int id = 0; id <= steps; ++id)
+        {
+            Vector rotated = p2.Rotate(angle, p1);
+            result.push_back(rotated);
+            angle += phi / steps;
+        }
+        return result;
+    }
+    
     Path Geometry::CutPath(const Path& path, const float length)
     {
         Path result = Path();
@@ -71,6 +91,46 @@ namespace IPrediction
             result.push_back(path[id]);
         }
         return result;
+    }
+
+    Polygon Geometry::FindHull(const std::vector<Vector>& points)
+    {
+        size_t size = points.size(), k = 0;
+        if (size <= 3) return points;
+
+        // Initialize a helper vector
+        std::vector<Vector> hull(2 * size);
+
+        // Returns true if three points form a counter-clockwise orientation
+        auto ccw = [](const Vector& pa, const Vector& pb, const Vector& pc)
+        {
+            return (pb - pa).CrossProduct(pc - pa) > 0.0f;
+        };
+
+        // Build lower hull (from leftmost to rightmost)
+        for (size_t i = 0; i <= size - 1; i++)
+        {
+            // Ensure each turn is to the left; pop last point if not
+            while (k >= 2 && !ccw(hull[k - 2], hull[k - 1], points[i]))
+            {
+                k--;
+            }
+            hull[k++] = points[i];
+        }
+
+        // Build upper hull (from rightmost to leftmost)
+        for (size_t i = size - 1, t = k + 1; i > 0; --i)
+        {
+            // Ensure the hull remains convex; pop points causing a right turn
+            while (k >= t && !ccw(hull[k - 2], hull[k - 1], points[i - 1]))
+            {
+                k--;
+            }
+            hull[k++] = points[i - 1];
+        }
+
+        hull.resize(k - 1);
+        return hull;
     }
 
     float Geometry::FindRoot(float a, float b, float c, float max)

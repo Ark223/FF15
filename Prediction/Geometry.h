@@ -49,7 +49,9 @@ namespace IPrediction
     {
         public:
             static float Angle(const Vector& v1, const Vector& v2);
+            static Polygon Arc(Vector* vec, float phi, float step);
             static Path CutPath(const Path& path, const float length);
+            static Polygon FindHull(const std::vector<Vector>& points);
             static float FindRoot(float a, float b, float c, float max);
             static bool IsInside(const Polygon& poly, const Vector& point);
             static std::vector<Collision> DynamicCollision(const Segment& missile,

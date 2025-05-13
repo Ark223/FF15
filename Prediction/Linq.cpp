@@ -397,13 +397,28 @@ namespace IPrediction
     template<typename T>
     int Linq<T>::IndexOf(T item, int index, int count) const
     {
-        size_t size = data.size();
+        int size = (int)data.size();
         if (index == -1) index = 0;
         if (count == -1) count = size - index;
 
         for (int i = index; i < index + count && i < size; ++i)
         {
             if (data[i] == item) return i;
+        }
+        return -1;
+    }
+
+    template<typename T>
+    template<typename TPredicate>
+    int Linq<T>::IndexOf(TPredicate predicate, int index, int count) const
+    {
+        int size = (int)data.size();
+        if (index == -1) index = 0;
+        if (count == -1) count = size - index;
+
+        for (int i = index; i < index + count && i < size; ++i)
+        {
+            if (predicate(data[i])) return i;
         }
         return -1;
     }
@@ -473,13 +488,28 @@ namespace IPrediction
     template<typename T>
     int Linq<T>::LastIndexOf(T item, int index, int count) const
     {
-        size_t size = data.size();
+        int size = (int)data.size();
         if (index == -1) index = size - 1;
         if (count == -1) count = index + 1;
 
         for (int i = index; i >= index - count + 1 && i >= 0; --i)
         {
             if (data[i] == item) return i;
+        }
+        return -1;
+    }
+
+    template<typename T>
+    template<typename TPredicate>
+    int Linq<T>::LastIndexOf(TPredicate predicate, int index, int count) const
+    {
+        int size = (int)data.size();
+        if (index == -1) index = size - 1;
+        if (count == -1) count = index + 1;
+
+        for (int i = index; i >= index - count + 1 && i >= 0; --i)
+        {
+            if (predicate(data[i])) return i;
         }
         return -1;
     }

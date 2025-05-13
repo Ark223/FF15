@@ -7,9 +7,9 @@ namespace IPrediction
 
     float Line::Normalize(float angle)
     {
-        // Normalize an angle to [-π, π) boundary
-        while (angle < -M_PI_F) angle += 2.0f * M_PI_F;
-        while (angle >= M_PI_F) angle -= 2.0f * M_PI_F;
+        const float two_pi = 2.0f * M_PI_F;
+        while (angle < -M_PI_F) angle += two_pi;
+        while (angle >= M_PI_F) angle -= two_pi;
         return angle;
     }
 
@@ -43,14 +43,16 @@ namespace IPrediction
             Interval iv = this->GetInterval(point);
             float alpha = iv.Alpha, beta = iv.Beta;
             beta += (alpha > beta) ? two_pi : 0.0f;
-            events.AddRange({{alpha, +1}, {beta, -1}});
+            events.Append({ alpha, +1, point });
+            events.Append({ beta, -1, point });
         });
 
         // Shift events by 2π to handle wraparound in sweep
         for (size_t id = 0; id < 2 * points.Count(); ++id)
         {
-            const Event& event = events.ElementAt(id);
-            events.Append({event.Angle + two_pi, event.Delta});
+            const auto& event = events.ElementAt(id);
+            const float angle = event.Angle + two_pi;
+            events.Append({ angle, event.Delta, event.Point });
         }
 
         // Order is used to efficiently sweep through angles
@@ -60,79 +62,137 @@ namespace IPrediction
         });
     }
 
+    Range Line::GetSweepRange(const Linq<Event>& events)
+    {
+        const auto& begin = events.begin();
+        const auto& ending = events.end();
+        const Vector& star = this->star_point;
+
+        // If star exists, restrict to its enter-exit range
+        if (star.IsValid() && this->source.DistanceSquared(
+            star) <= this->input.Range * this->input.Range)
+        {
+            // Find the angle where the star first becomes counted
+            auto enter = std::find_if(begin, ending, [&](auto& event)
+            {
+                return star == event.Point && event.Delta == +1;
+            });
+
+            // After that, find the corresponding exit event and return
+            auto exit = std::find_if(enter + 1, ending, [&](auto& event)
+            {
+                return star == event.Point && event.Delta == -1;
+            });
+            return Range(enter - begin, exit - begin);
+        }
+
+        // Otherwise, sweep the full list
+        return Range(0, events.Count());
+    }
+
+    Linq<Vector> Line::FindCovered(Linq<Vector>& points,
+        Vector& direction, Linq<float>& laterals)
+    {
+        if (laterals.Any()) laterals.Clear();
+        const float range = this->input.Range;
+        const float radius = this->input.Radius;
+        Vector perpend = direction.Perpendicular();
+
+        // Return points that lie within oriented slab
+        return points.Where([&](const Vector& point)
+        {
+            // Lateral check (distance to side edge)
+            Vector diff = (point - this->source);
+            float lateral = ABS(diff.DotProduct(perpend));
+            if (lateral > radius + EPSILON) return false;
+
+            // Forward check (distance along direction)
+            float forward = diff.DotProduct(direction);
+            if (forward > range + EPSILON) return false;
+            if (forward < 0.0f) return false;
+
+            laterals.Append(lateral);
+            return true;
+        });
+    }
+
     AoeSolution Line::FindSolution(Linq<Vector> points)
     {
         this->Initialize(points);
-        auto events = this->GetEvents(points);
-        if (!events.Any()) return {0, Vector()};
+        size_t size = points.Count();
+        if (size == 0) return {0, Vector()};
+        if (size == 1) return {1, points.First()};
 
-        bool max_region = false;
+        Linq<float> laterals;
+        float best_angle = 0.0f;
         int best_count = 0, curr_count = 0;
-        const float two_pi = 2.0f * M_PI_F;
-        const float range = this->input.Range;
-        float best_angle, start_angle, widest_region;
-        best_angle = start_angle = widest_region = 0.0f;
+        Vector edge_point = points.First();
 
-        // First pass: determine maximum coverage
-        events.ForEach([&](const Event& event)
-        {
-            curr_count = curr_count + event.Delta;
-            best_count = MAX(best_count, curr_count);
-        });
-        curr_count = 0;
+        auto events = this->GetEvents(points);
+        auto range = this->GetSweepRange(events);
+        const size_t begin_idx = range.first;
+        const size_t end_idx = range.second;
 
-        // Compute the wrapped width between two angles
-        auto wrap_width = [&](float start, float ending)
+        // Sweep to find angle covering the most points
+        for (size_t id = begin_idx; id < end_idx; ++id)
         {
-            float width = ending - start;
-            return width < 0 ? width + two_pi : width;
-        };
-
-        // Update best angle if a new region is wider
-        auto update_angle = [&](float ending) -> void
-        {
-            float width = wrap_width(start_angle, ending);
-            if (width > widest_region)
+            const Event& event = events.ElementAt(id);
+            if ((curr_count += event.Delta) > best_count)
             {
-                widest_region = width;
-                float phi = start_angle + width * 0.5f;
-                best_angle = this->Normalize(phi);
+                best_count = curr_count;
+                best_angle = event.Angle;
+                edge_point = event.Point;
             }
-        };
+        }
 
-        // Find the widest region with most hits
-        events.ForEach([&](const Event& event)
+        // Find all points initially covered by the best direction
+        Vector dir(std::cosf(best_angle), std::sinf(best_angle));
+        auto inside = this->FindCovered(points, dir, laterals);
+        Result result = Result({1, -1.0f, points.First()});
+
+        // Avoid bad solutions if initial point lies at the start
+        if ((edge_point - this->source).DotProduct(dir) < EPSILON)
         {
-            int prev_count = curr_count;
-            curr_count += event.Delta;
+            Vector spot = this->source + dir * this->input.Range;
+            result = Result({(int)inside.Count(), -1.0f, spot});
+        }
 
-            // Entered a region that hits the maximum number of targets
-            if (prev_count < best_count && curr_count == best_count)
+        // Build convex hull around covered points for scan
+        auto hull = Geometry::FindHull(inside.ToArray());
+
+        // Evaluate pairs to optimize centering
+        for (size_t i = 0; i < hull.size(); ++i)
+        {
+            for (size_t j = i + 1; j < hull.size(); ++j)
             {
-                start_angle = event.Angle;
-                max_region = true;
+                // Compute bisector direction between points
+                Vector middle = (hull[i] + hull[j]) * 0.5f;
+                Vector dir = (middle - this->source).Normalize();
+                Vector spot = this->source + dir * this->input.Range;
+                auto check = this->FindCovered(inside, dir, laterals);
+                int count = (int)check.Count(), covered = result.Count;
+
+                // Find the smallest gap from any point to the rectangle's side wall
+                float margin = laterals.Aggregate(FLT_MAX, [&](float acc, float lat)
+                {
+                    return MIN(acc, this->input.Radius - lat);
+                });
+
+                // Update result if there is better coverage or spacing
+                bool wider = count == covered && margin > result.Margin;
+                if (count > covered || wider) result = {count, margin, spot};
             }
+        }
 
-            // Exiting a region including maximum coverage, update solution
-            else if (prev_count == best_count && curr_count < best_count)
-            {
-                update_angle(event.Angle);
-                max_region = false;
-            }
-        });
-
-        // Handle edge case where max region wraps around to the start
-        if (max_region) update_angle(events.First().Angle + two_pi);
-
-        // Convert the final angle to a directional vector and return
-        Vector direction(std::cosf(best_angle), std::sinf(best_angle));
-        return AoeSolution(best_count, this->source + direction * range);
+        // Return solution using best refined direction
+        return AoeSolution(result.Count, result.Spot);
     }
 
     // Core methods
 
     void Line::Initialize(Linq<Vector>& points)
     {
+        using type = std::pair<float, float>;
         this->source = this->input.SourcePosition;
         const auto& object = this->input.SourceObject;
 
@@ -147,6 +207,12 @@ namespace IPrediction
         {
             return this->source.DistanceSquared(point) >
                 this->input.Range * this->input.Range;
+        });
+
+        // Sort points lexicographically for hull computations
+        points = points.OrderBy<type>([&](const Vector& point)
+        {
+            return std::make_pair(point.x, point.y);
         });
     }
 

@@ -74,7 +74,7 @@ namespace IPrediction
         switch (input.SpellType)
         {
             case SpellType::None: return AoeSolution();
-            case SpellType::Conic: return AoeSolution();
+            case SpellType::Conic: spell = new Cone(input);
             case SpellType::Linear: spell = new Line(input);
             case SpellType::Circular: spell = new Circle(input);
         }
@@ -189,25 +189,28 @@ namespace IPrediction
         Vector source = input.SourcePosition;
         Vector cast_pos = output.CastPosition;
         const Vector& pred_pos = output.TargetPosition;
+        const Segment& first_path = output.Waypoints.front();
         const Segment& last_path = output.Waypoints.back();
 
+        float ping = this->api->GetPing();
         float timer = this->api->GetTime();
+        float hitbox = this->api->GetHitbox(target);
+        float speed = this->api->GetMovementSpeed(target);
+        float length = source.DistanceSquared(first_path.StartPos);
+        auto ticks = (length <= input.Range * input.Range ? 2 : 0);
+
         float mia_time = this->program->GetMiaDuration(target);
         float dash_time = this->program->GetDashDuration(target);
         float path_time = this->program->GetPathChangeTime(target);
         float windup_time = this->program->GetLastWindupTime(target);
-        float hit_time = output.Intercept - this->GetTotalLatency(2);
+        float hit_time = output.Intercept - this->GetTotalLatency(ticks);
+        float intercept = output.Intercept, window = output.Margin / speed;
 
         uint32_t target_id = this->api->GetObjectId(target);
         uint32_t exclusion_id = this->api->FNV1A32("PantheonE");
         bool pantheon = this->api->HasBuff(target, {exclusion_id});
         bool action_taken = path_time < 0.05f || windup_time < 0.05f;
         if (pantheon) hit_time -= output.Intercept - output.TimeToHit;
-
-        float intercept = output.Intercept;
-        float hitbox = this->api->GetHitbox(target);
-        float speed = this->api->GetMovementSpeed(target);
-        float max_margin = output.Margin / speed;
 
         // Use object position if object is valid
         if (this->api->IsValid(input.SourceObject))
@@ -268,7 +271,7 @@ namespace IPrediction
 
         // Hit is guaranteed if interception covers the escape window
         float pause_time = dash_time > 0 ? dash_time : immobility;
-        if ((intercept -= pause_time - mia_time) <= max_margin)
+        if ((intercept -= pause_time - mia_time) <= window)
         {
             output.CastRate = CastRate::Precise;
             output.HitChance = HitChance::Certain;
@@ -286,7 +289,7 @@ namespace IPrediction
 
         // Compute metrics and pass to the model
         const auto& lt = data.at(target_id).Last();
-        float hit_ratio = (max_margin / intercept);
+        const float hit_ratio = window / intercept;
         float mean_angle = this->program->GetMeanAngleDiff(target);
         float path_count = (float)(data.at(target_id).Count() - 1);
         float path_len = lt.PathLength, react_time = lt.UpdateTime;
@@ -299,9 +302,10 @@ namespace IPrediction
             MIN(1.0f, path_count / 5.0f), react_time, type })[0];
         output.HitChance = output.GetHitChance(output.Confidence);
 
-        // Set cast frequency based on last action time and confidence
-        bool freq = action_taken || output.HitChance >= HitChance::High;
-        output.CastRate = freq ? CastRate::Moderate : CastRate::Instant;
+        // Set cast frequency based on accuracy and latency
+        bool high_conf = output.HitChance >= HitChance::High;
+        output.CastRate = ticks == 2 && ping < 250 && (high_conf ||
+            action_taken) ? CastRate::Moderate : CastRate::Instant;
     }
 
     PredictionOutput Utilities::PredictOnPath(const PredictionInput& input) const
@@ -313,6 +317,7 @@ namespace IPrediction
 
         output.Waypoints = path;
         Vector source = input.SourcePosition;
+        Vector start_pos = path.front().StartPos;
         uint32_t hero_flag = (uint32_t)CollisionFlag::Heroes;
         uint32_t minion_flag = (uint32_t)CollisionFlag::Minions;
         uint32_t mixed_flag = (uint32_t)(hero_flag | minion_flag);
@@ -323,11 +328,15 @@ namespace IPrediction
         bool casting_dash = this->program->IsCastingDash(target);
         bool is_blinking = this->program->IsBlinking(target);
         bool is_dashing = this->program->IsDashing(target);
+        bool circle = input.SpellType == SpellType::Circular;
         bool conic = input.SpellType == SpellType::Conic;
 
         const float min_cast_len = 75.0f;
         float hitbox = this->api->GetHitbox(target);
-        float delay = input.Delay + this->GetTotalLatency(2);
+        float length = start_pos.DistanceSquared(source);
+        float delay = input.Delay + this->GetTotalLatency(
+            (length <= input.Range * input.Range ? 2 : 0));
+
         float angle = conic ? M_RAD(input.Angle / 2.0f) : 0.0f;
         float radius = MAX(input.Radius, input.Width / 2.0f);
         output.Margin = (radius + hitbox * input.AddHitbox);
@@ -404,7 +413,7 @@ namespace IPrediction
         // For static spells, offset position by delay
         if (input.Speed == FLT_MAX || input.Speed > 1e+4)
         {
-            delay += 0.03334f; // Some spells need an extra tick
+            delay += circle ? 0.03334f : 0.0f; // Extra tick for circles
             output.TargetPosition = Geometry::PositionAfter(path, delay);
             output.Margin += angle * output.TargetPosition.Distance(source);
             offset = delay - (offset > 0.0f ? output.Margin : 0.0f) / speed;
